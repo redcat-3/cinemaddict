@@ -1,7 +1,7 @@
 # Проект «Киноман»
 
 * Студент: [Зоя Педонова](https://up.htmlacademy.ru/ecmascript/19/user/171114).
-* Наставник: `Неизвестно`.
+* Наставник: [Олег Соловьев](https://htmlacademy.ru/profile/id2282557).
 
 ---
 
