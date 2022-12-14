@@ -39,4 +39,6 @@ const getRandomArrayFromArray = (count, array) => {
   return randomArray;
 };
 
-export {getRandomArrayElement, getRandomNumber, getRandomArray, getRandomArrayFromArray};
+const getDuration = (duration) => `${Math.round(duration / 60)}h ${duration % 60}m`;
+
+export {getRandomArrayElement, getRandomNumber, getRandomArray, getRandomArrayFromArray, getDuration};

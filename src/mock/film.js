@@ -1,4 +1,4 @@
-import {getRandomArrayElement, getRandomNumber, getRandomArray, getRandomArrayFromArray} from '../util.js';
+import {getRandomArrayElement, getRandomNumber, getRandomArray, getRandomArrayFromArray} from '../utils.js';
 
 const COMMENT_EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 
@@ -51,7 +51,7 @@ const createFilm = () => {
     poster: getRandomArrayElement(POSTERS),
     rating: getRandomNumber(0, 10),
     year: getRandomNumber(1990, 2022),
-    duration: '1h 18m',
+    duration: getRandomNumber(50, 180),
     genre: getRandomArray(GENRES),
     description: getRandomArrayFromArray(4, MOCK_DESCRIPTIONS),
     comments: Array.from({length: lenght}, () => getRandomNumber(0, lenght)),

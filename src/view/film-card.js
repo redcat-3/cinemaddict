@@ -1,4 +1,5 @@
 import {createElement} from '../render.js';
+import {getDuration} from '../utils.js';
 
 function createNewFilmCardTemplate(film) {
   const {title, poster, rating, year, duration, genre, description, comments} = film;
@@ -9,7 +10,7 @@ function createNewFilmCardTemplate(film) {
     <p class="film-card__rating">${rating}</p>
     <p class="film-card__info">
       <span class="film-card__year">${year}</span>
-      <span class="film-card__duration">${duration}</span>
+      <span class="film-card__duration">${getDuration(duration)}</span>
       <span class="film-card__genre">${genre}</span>
     </p>
     <img src=${poster} alt="" class="film-card__poster">
