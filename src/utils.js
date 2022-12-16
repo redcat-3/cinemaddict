@@ -1,3 +1,11 @@
+import dayjs from 'dayjs';
+
+const DATE_FORMAT = 'D MMMM YYYY';
+
+function humanizeDate(date) {
+  return date ? dayjs(date).format(DATE_FORMAT) : '';
+}
+
 function getRandomArrayElement(items) {
   return items[Math.floor(Math.random() * items.length)];
 }
@@ -7,7 +15,7 @@ const getRandomNumber = (min, max) => {
     return NaN;
   }
   if ((max - min) === 0) {
-    return NaN;
+    return max;
   }
   const result = Math.random() * (max - min);
   if ((max - min) > 0) {
@@ -29,8 +37,8 @@ const getRandomArray = (array) => {
   return randomArray;
 };
 
-const getRandomArrayFromArray = (count, array) => {
-  const number = getRandomNumber(0, count);
+const getSubArrayFromArray = (count, array) => {
+  const number = getRandomNumber(1, count);
   const randomArray = [0];
   for (let i = 0; i < number; i++) {
     const element = getRandomArrayElement(array);
@@ -41,4 +49,4 @@ const getRandomArrayFromArray = (count, array) => {
 
 const getDuration = (duration) => `${Math.round(duration / 60)}h ${duration % 60}m`;
 
-export {getRandomArrayElement, getRandomNumber, getRandomArray, getRandomArrayFromArray, getDuration};
+export {humanizeDate, getRandomArrayElement, getRandomNumber, getRandomArray, getSubArrayFromArray, getDuration};

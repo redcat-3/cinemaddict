@@ -10,10 +10,12 @@ export default class FilmsPresenter {
   constructor({filmContainer, filmsModel}) {
     this.filmContainer = filmContainer;
     this.filmsModel = filmsModel;
+    // this.filmDetails = filmDetails;
   }
 
   init() {
     this.listOfFilms = [...this.filmsModel.getFilms()];
+    // this.filmDetails = this.filmDetails.getFilmDetails();
 
     render(this.filmListComponent, this.filmContainer);
 
@@ -22,5 +24,6 @@ export default class FilmsPresenter {
     }
 
     render(new NewShowMoreView(), this.filmListComponent.getElement().querySelector('.films-list'));
+    // render(new NewFilmDetailsView({filmDetails: this.filmDetails}), this.filmListComponent.getElement().querySelector('.films-list'));
   }
 }

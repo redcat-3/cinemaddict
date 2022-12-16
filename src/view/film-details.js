@@ -1,9 +1,17 @@
 import {createElement} from '../render.js';
 import {humanizeDate, getDuration} from '../utils.js';
 
-function createNewFilmDetailsTemplate(filmDetals) {
-  const {title, poster, age, titleOriginal, rating, director, writers, actors, releaseDate, duration, country, genres, description, comments} = filmDetals;
+function getGenreWord(genres) {
+  if(genres.length === 1) {
+    return 'Genre';
+  }
+  else {
+    return 'Genres';
+  }
+}
 
+function createNewFilmDetailsTemplate(filmDetails) {
+  const {title, poster, age, titleOriginal, rating, director, writers, actors, releaseDate, duration, country, genres, description, comments} = filmDetails;
   return `<section class="film-details">
   <div class="film-details__inner">
     <div class="film-details__top-container">
@@ -55,11 +63,9 @@ function createNewFilmDetailsTemplate(filmDetals) {
               <td class="film-details__cell">${country}</td>
             </tr>
             <tr class="film-details__row">
-              <td class="film-details__term">Genres</td>
+              <td class="film-details__term">${getGenreWord(genres)}</td>
               <td class="film-details__cell">
-                <span class="film-details__genre">${genres[1]}</span>
-                <span class="film-details__genre">Film-Noir</span>
-                <span class="film-details__genre">Mystery</span></td>
+                <span class="film-details__genre">${genres.join(' ')}</span></td>
             </tr>
           </table>
 
@@ -81,10 +87,10 @@ function createNewFilmDetailsTemplate(filmDetals) {
         <ul class="film-details__comments-list">
           <li class="film-details__comment">
             <span class="film-details__comment-emoji">
-              <img src="./images/emoji/${comments}.png" width="55" height="55" alt="emoji-smile">
+              <img src="./images/emoji/.png" width="55" height="55" alt="emoji-smile">
             </span>
             <div>
-              <p class="film-details__comment-text">${comments}</p>
+              <p class="film-details__comment-text"></p>
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">Tim Macoveev</span>
                 <span class="film-details__comment-day">2019/12/31 23:59</span>
@@ -169,8 +175,12 @@ function createNewFilmDetailsTemplate(filmDetals) {
 }
 
 export default class NewFilmDetailsView {
+  constructor({filmDetails}) {
+    this.filmDetails = filmDetails;
+  }
+
   getTemplate() {
-    return createNewFilmDetailsTemplate();
+    return createNewFilmDetailsTemplate(this.filmDetails);
   }
 
   getElement() {

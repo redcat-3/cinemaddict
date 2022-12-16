@@ -1,4 +1,4 @@
-import {getRandomArrayElement, getRandomNumber, getRandomArray, getRandomArrayFromArray} from '../utils.js';
+import {getRandomArrayElement, getRandomNumber, getRandomArray, getSubArrayFromArray} from '../utils.js';
 
 const COMMENT_EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 
@@ -36,31 +36,73 @@ const TITLES = [
   'The man with the golden arm'
 ];
 
+const NAMES = [
+  'Erich von Stroheim',
+  'Mary Beth Hughes',
+  'Dan Duryeal',
+  'Anne Wigton',
+  'Heinz Herald',
+  'Richard Weil',
+  'Anthony Mann'
+];
+
+const COUNTRES = [
+  'USA',
+  'Russia',
+  'Italy',
+  'France',
+  'China',
+  'Korea',
+  'Australia'
+];
+
 const createComment = (id) => ({
   id: id,
   emotion: getRandomArrayElement(COMMENT_EMOTIONS),
-  message: getRandomArrayFromArray(3, MOCK_DESCRIPTIONS),
+  message: getSubArrayFromArray(3, MOCK_DESCRIPTIONS),
   author: 'Keks',
   date: new Date('2014-01-01'),
 });
 
 const createFilm = () => {
-  const lenght = getRandomNumber(0, 10);
+  const length = getRandomNumber(0, 10);
   const film = {
     title: getRandomArrayElement(TITLES),
     poster: getRandomArrayElement(POSTERS),
     rating: getRandomNumber(0, 10),
     year: getRandomNumber(1990, 2022),
     duration: getRandomNumber(50, 180),
-    genre: getRandomArray(GENRES),
-    description: getRandomArrayFromArray(4, MOCK_DESCRIPTIONS),
-    comments: Array.from({length: lenght}, () => getRandomNumber(0, lenght)),
+    genres: getRandomArray(GENRES),
+    description: getSubArrayFromArray(4, MOCK_DESCRIPTIONS),
+    comments: Array.from({length: length}, () => getRandomNumber(0, length)),
   };
   return film;
 };
 
-const createComments = (comments) => { Array.from(comments.lenght, (_, index) =>
+const createComments = (comments) => { Array.from(comments.length, (_, index) =>
   createComment(comments[index]));
 };
 
-export {createFilm, createComments};
+const createFilmDetails = () => {
+  const length = getRandomNumber(0, 10);
+  const date = new Date(getRandomNumber(1980, 2022), getRandomNumber(1, 12), getRandomNumber(1, 28));
+  const filmDetails = {
+    title: getRandomArrayElement(TITLES),
+    poster: getRandomArrayElement(POSTERS),
+    age: getRandomNumber(0, 18),
+    titleOriginal: getRandomArrayElement(POSTERS),
+    rating: getRandomNumber(0, 10),
+    director: getRandomArrayElement(NAMES),
+    writers: getSubArrayFromArray(3, NAMES),
+    actors: getSubArrayFromArray(4, NAMES),
+    releaseDate: date,
+    duration: getRandomNumber(50, 180),
+    country: getRandomArrayElement(COUNTRES),
+    genres: getSubArrayFromArray(5, GENRES),
+    description: getSubArrayFromArray(4, MOCK_DESCRIPTIONS),
+    comments: Array.from({length: length}, () => getRandomNumber(0, length)),
+  };
+  return filmDetails;
+};
+
+export {createFilm, createComments, createFilmDetails};

@@ -2,7 +2,7 @@ import {createElement} from '../render.js';
 import {getDuration} from '../utils.js';
 
 function createNewFilmCardTemplate(film) {
-  const {title, poster, rating, year, duration, genre, description, comments} = film;
+  const {title, poster, rating, year, duration, genres, description, comments} = film;
 
   return ` <article class="film-card">
   <a class="film-card__link">
@@ -11,7 +11,7 @@ function createNewFilmCardTemplate(film) {
     <p class="film-card__info">
       <span class="film-card__year">${year}</span>
       <span class="film-card__duration">${getDuration(duration)}</span>
-      <span class="film-card__genre">${genre}</span>
+      <span class="film-card__genre">${genres.join(' ')}</span>
     </p>
     <img src=${poster} alt="" class="film-card__poster">
     <p class="film-card__description">${description}</p>
