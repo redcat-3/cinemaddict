@@ -10,7 +10,7 @@ function getGenreWord(genres) {
   }
 }
 
-function createNewFilmDetailsTemplate(filmDetails) {
+function createFilmDetailsTemplate(filmDetails) {
   const {title, poster, age, titleOriginal, rating, director, writers, actors, releaseDate, duration, country, genres, description, comments} = filmDetails;
   return `<section class="film-details">
   <div class="film-details__inner">
@@ -174,24 +174,27 @@ function createNewFilmDetailsTemplate(filmDetails) {
 </section>`;
 }
 
-export default class NewFilmDetailsView {
+export default class FilmDetailsView {
+  #element = null;
+  #filmDetails = null;
+
   constructor({filmDetails}) {
-    this.filmDetails = filmDetails;
+    this.#filmDetails = filmDetails;
   }
 
-  getTemplate() {
-    return createNewFilmDetailsTemplate(this.filmDetails);
+  get template() {
+    return createFilmDetailsTemplate(this.#filmDetails);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template());
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

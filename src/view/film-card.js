@@ -1,7 +1,7 @@
 import {createElement} from '../render.js';
 import {getDuration} from '../utils.js';
 
-function createNewFilmCardTemplate(film) {
+function createFilmCardTemplate(film) {
   const {title, poster, rating, year, duration, genres, description, comments} = film;
 
   return ` <article class="film-card">
@@ -25,24 +25,27 @@ function createNewFilmCardTemplate(film) {
 </article>`;
 }
 
-export default class NewFilmCardView {
+export default class FilmCardView {
+  #element = null;
+  #film = null;
+
   constructor({film}) {
-    this.film = film;
+    this.#film = film;
   }
 
-  getTemplate() {
-    return createNewFilmCardTemplate(this.film);
+  get template() {
+    return createFilmCardTemplate(this.#film);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

@@ -83,24 +83,24 @@ const createComments = (comments) => { Array.from(comments.length, (_, index) =>
   createComment(comments[index]));
 };
 
-const createFilmDetails = () => {
-  const length = getRandomNumber(0, 10);
-  const date = new Date(getRandomNumber(1980, 2022), getRandomNumber(1, 12), getRandomNumber(1, 28));
+const createFilmDetails = (film) => {
+  const {title, poster, rating, year, duration, genres, description, comments} = film;
+  const date = new Date(year, getRandomNumber(1, 12), getRandomNumber(1, 28));
   const filmDetails = {
-    title: getRandomArrayElement(TITLES),
-    poster: getRandomArrayElement(POSTERS),
+    title: title,
+    poster: poster,
     age: getRandomNumber(0, 18),
     titleOriginal: getRandomArrayElement(POSTERS),
-    rating: getRandomNumber(0, 10),
+    rating: rating,
     director: getRandomArrayElement(NAMES),
     writers: getSubArrayFromArray(3, NAMES),
     actors: getSubArrayFromArray(4, NAMES),
     releaseDate: date,
-    duration: getRandomNumber(50, 180),
+    duration: duration,
     country: getRandomArrayElement(COUNTRES),
-    genres: getSubArrayFromArray(5, GENRES),
-    description: getSubArrayFromArray(4, MOCK_DESCRIPTIONS),
-    comments: Array.from({length: length}, () => getRandomNumber(0, length)),
+    genres: genres,
+    description: description,
+    comments: comments,
   };
   return filmDetails;
 };
