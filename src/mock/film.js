@@ -79,9 +79,7 @@ const createFilm = () => {
   return film;
 };
 
-const createComments = (comments) => { Array.from(comments.length, (_, index) =>
-  createComment(comments[index]));
-};
+const createComments = (comments) => comments.map(createComment);
 
 const createFilmDetails = (film) => {
   const {title, poster, rating, year, duration, genres, description, comments} = film;

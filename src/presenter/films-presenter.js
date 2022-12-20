@@ -4,7 +4,7 @@ import FilmCardView from '../view/film-card.js';
 import FilmDetailsView from '../view/film-details.js';
 import {render} from '../render.js';
 
-const FILM_COUNT_PER_STEP = 8;
+const FILM_COUNT_PER_STEP = 5;
 
 export default class FilmsPresenter {
   #filmContainer = null;
@@ -22,27 +22,34 @@ export default class FilmsPresenter {
   }
 
   init() {
-    this.#listOfFilms = [...this.#filmsModel.films()];
+    this.#listOfFilms = [...this.#filmsModel.films];
 
     render(this.#filmListComponent, this.#filmContainer);
 
     for (let i = 0; i < Math.min(this.#listOfFilms.length, FILM_COUNT_PER_STEP); i++) {
-      this.#renderFilm(this.#listOfFilms[i]);
+      render(new FilmCardView({film: this.#listOfFilms[i], onClick: () => this. renderFilmDetailsPopupById(i)}), this.#filmListComponent.element.querySelector('.films-list__container'));
     }
 
     if (this.#listOfFilms.length > FILM_COUNT_PER_STEP) {
       this.#showMoreComponent = new ShowMoreView();
-      render(this.#showMoreComponent, this.#filmListComponent.element().querySelector('.films-list'));
+      render(this.#showMoreComponent, this.#filmListComponent.element.querySelector('.films-list'));
 
       this.#showMoreComponent.element.addEventListener('click', this.#showMoreClickHandler);
     }
+  }
+
+  renderFilmDetailsPopupById(filmId) {
+    const filmDetails = this.#filmsModel.renderfilmDetailsById(filmId);
+    const commentsList = this.#filmsModel.rendercommentsById(filmId);
+    render(new FilmDetailsView({filmDetails: filmDetails, commentsList: commentsList}), this.#filmListComponent.element.querySelector('.films-list__container'));
+    this.closePopupControl();
   }
 
   #showMoreClickHandler = (evt) => {
     evt.preventDefault();
     this.#listOfFilms
       .slice(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP)
-      .forEach((film) => this.#renderFilm(film));
+      .forEach((_, index) => render(new FilmCardView({film: this.#listOfFilms[index + this.#renderedFilmCount], onClick: () => this.renderFilmDetailsPopupById(index + this.#renderedFilmCount)}), this.#filmListComponent.element.querySelector('.films-list__container')));
 
     this.#renderedFilmCount += FILM_COUNT_PER_STEP;
 
@@ -51,39 +58,4 @@ export default class FilmsPresenter {
       this.#showMoreComponent.removeElement();
     }
   };
-
-  #renderFilm(film) {
-    const filmComponent = new FilmCardView({film});
-    const filmDetailsComponent = new FilmDetailsView({film});
-    const body = document.querySelector('body');
-
-    const showFilmDetails = () => {
-      this.#filmListComponent.element.appendChild(filmDetailsComponent.element);
-      body.classList.add('hide-overflow');
-    };
-
-    const hideFilmDetails = () => {
-      this.#filmListComponent.element.removeChild(filmDetailsComponent.element);
-      body.classList.remove('hide-overflow');
-    };
-
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        hideFilmDetails();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-
-    filmComponent.element.querySelector('.film-details__close-btn').addEventListener('click', () => {
-      hideFilmDetails();
-    });
-
-    filmComponent.element.querySelector('a').addEventListener('click', () => {
-      showFilmDetails();
-      document.addEventListener('keydown', escKeyDownHandler);
-    });
-
-    render(filmComponent, this.#filmListComponent.element().querySelector('.films-list__container'));
-  }
 }

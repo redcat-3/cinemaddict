@@ -2,20 +2,20 @@ import {createElement} from '../render.js';
 import {getDuration} from '../utils.js';
 
 function createFilmCardTemplate(film) {
-  const {title, poster, rating, year, duration, genres, description, comments} = film;
+  //const {title, poster, rating, year, duration, genres, description, comments} = film;
 
   return ` <article class="film-card">
   <a class="film-card__link">
-    <h3 class="film-card__title">${title}</h3>
-    <p class="film-card__rating">${rating}</p>
+    <h3 class="film-card__title">${film.title}</h3>
+    <p class="film-card__rating">${film.rating}</p>
     <p class="film-card__info">
-      <span class="film-card__year">${year}</span>
-      <span class="film-card__duration">${getDuration(duration)}</span>
-      <span class="film-card__genre">${genres.join(' ')}</span>
+      <span class="film-card__year">${film.year}</span>
+      <span class="film-card__duration">${getDuration(film.duration)}</span>
+      <span class="film-card__genre">${film.genres.join(' ')}</span>
     </p>
-    <img src=${poster} alt="" class="film-card__poster">
-    <p class="film-card__description">${description}</p>
-    <span class="film-card__comments">${comments.length} comments</span>
+    <img src=${film.poster} alt="" class="film-card__poster">
+    <p class="film-card__description">${film.description}</p>
+    <span class="film-card__comments">${film.comments.length} comments</span>
   </a>
   <div class="film-card__controls">
     <button class="film-card__controls-item film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>
@@ -28,9 +28,13 @@ function createFilmCardTemplate(film) {
 export default class FilmCardView {
   #element = null;
   #film = null;
+  onClick = null;
 
-  constructor({film}) {
+  constructor({film, onClick}) {
     this.#film = film;
+    this.onClick = function () {
+      this.#element.querySelector('.film-card__link').addEventListener('click', onClick);
+    };
   }
 
   get template() {

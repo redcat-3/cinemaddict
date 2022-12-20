@@ -10,7 +10,7 @@ function getGenreWord(genres) {
   }
 }
 
-function createFilmDetailsTemplate(filmDetails) {
+function createFilmDetailsTemplate(filmDetails, commentsList) {
   const {title, poster, age, titleOriginal, rating, director, writers, actors, releaseDate, duration, country, genres, description, comments} = filmDetails;
   return `<section class="film-details">
   <div class="film-details__inner">
@@ -84,59 +84,18 @@ function createFilmDetailsTemplate(filmDetails) {
       <section class="film-details__comments-wrap">
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.lenght}</span></h3>
 
-        <ul class="film-details__comments-list">
-          <li class="film-details__comment">
+        <ul class="film-details__comments-list">${commentsList.map((comment) => `<li class="film-details__comment">
             <span class="film-details__comment-emoji">
-              <img src="./images/emoji/.png" width="55" height="55" alt="emoji-smile">
+              <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt=${comment.emotion}>
             </span>
             <div>
-              <p class="film-details__comment-text"></p>
+              <p class="film-details__comment-text">${comment.message.join(' ')}</p>
               <p class="film-details__comment-info">
-                <span class="film-details__comment-author">Tim Macoveev</span>
-                <span class="film-details__comment-day">2019/12/31 23:59</span>
+                <span class="film-details__comment-author">${comment.author}</span>
+                <span class="film-details__comment-day">${comment.date}</span>
                 <button class="film-details__comment-delete">Delete</button>
               </p>
-            </div>
-          </li>
-          <li class="film-details__comment">
-            <span class="film-details__comment-emoji">
-              <img src="./images/emoji/sleeping.png" width="55" height="55" alt="emoji-sleeping">
-            </span>
-            <div>
-              <p class="film-details__comment-text">Booooooooooring</p>
-              <p class="film-details__comment-info">
-                <span class="film-details__comment-author">John Doe</span>
-                <span class="film-details__comment-day">2 days ago</span>
-                <button class="film-details__comment-delete">Delete</button>
-              </p>
-            </div>
-          </li>
-          <li class="film-details__comment">
-            <span class="film-details__comment-emoji">
-              <img src="./images/emoji/puke.png" width="55" height="55" alt="emoji-puke">
-            </span>
-            <div>
-              <p class="film-details__comment-text">Very very old. Meh</p>
-              <p class="film-details__comment-info">
-                <span class="film-details__comment-author">John Doe</span>
-                <span class="film-details__comment-day">2 days ago</span>
-                <button class="film-details__comment-delete">Delete</button>
-              </p>
-            </div>
-          </li>
-          <li class="film-details__comment">
-            <span class="film-details__comment-emoji">
-              <img src="./images/emoji/angry.png" width="55" height="55" alt="emoji-angry">
-            </span>
-            <div>
-              <p class="film-details__comment-text">Almost two hours? Seriously?</p>
-              <p class="film-details__comment-info">
-                <span class="film-details__comment-author">John Doe</span>
-                <span class="film-details__comment-day">Today</span>
-                <button class="film-details__comment-delete">Delete</button>
-              </p>
-            </div>
-          </li>
+            </div>`)}
         </ul>
 
         <form class="film-details__new-comment" action="" method="get">
@@ -177,18 +136,20 @@ function createFilmDetailsTemplate(filmDetails) {
 export default class FilmDetailsView {
   #element = null;
   #filmDetails = null;
+  #commentsList = null;
 
-  constructor({filmDetails}) {
+  constructor({filmDetails, commentsList}) {
     this.#filmDetails = filmDetails;
+    this.#commentsList = commentsList;
   }
 
   get template() {
-    return createFilmDetailsTemplate(this.#filmDetails);
+    return createFilmDetailsTemplate(this.#filmDetails, this.#commentsList);
   }
 
   get element() {
     if (!this.#element) {
-      this.#element = createElement(this.template());
+      this.#element = createElement(this.template);
     }
 
     return this.#element;
