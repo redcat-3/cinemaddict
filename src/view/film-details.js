@@ -150,6 +150,8 @@ export default class FilmDetailsView {
   get element() {
     if (!this.#element) {
       this.#element = createElement(this.template);
+      this.#element.querySelector('.film-details__close-btn').addEventListener('click', () => {
+        this.removeElement();});
     }
 
     return this.#element;

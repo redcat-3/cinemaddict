@@ -28,13 +28,11 @@ function createFilmCardTemplate(film) {
 export default class FilmCardView {
   #element = null;
   #film = null;
-  onClick = null;
+  #onClick = null;
 
   constructor({film, onClick}) {
     this.#film = film;
-    this.onClick = function () {
-      this.#element.querySelector('.film-card__link').addEventListener('click', onClick);
-    };
+    this.#onClick = onClick;
   }
 
   get template() {
@@ -44,6 +42,7 @@ export default class FilmCardView {
   get element() {
     if (!this.#element) {
       this.#element = createElement(this.template);
+      this.#element.querySelector('.film-card__link').addEventListener('click', this.#onClick);
     }
 
     return this.#element;
