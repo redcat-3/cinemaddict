@@ -151,7 +151,7 @@ export default class FilmDetailsView {
     if (!this.#element) {
       this.#element = createElement(this.template);
       this.#element.querySelector('.film-details__close-btn').addEventListener('click', () => {
-        this.removeElement();});
+        document.querySelector('.films-list__container').removeChild(document.querySelector('.film-details'));});
     }
 
     return this.#element;
