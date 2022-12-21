@@ -48,10 +48,6 @@ export default class FilmsPresenter {
     render(new FilmCardView({film: this.#listOfFilms[id], onClick: () => this. renderFilmDetailsPopupById(id)}), this.#filmListComponent.element.querySelector('.films-list__container'));
   }
 
-  #renderFilm(id) {
-    render(new FilmCardView({film: this.#listOfFilms[id], onClick: () => this. renderFilmDetailsPopupById(id)}), this.#filmListComponent.element.querySelector('.films-list__container'));
-  }
-
   escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
