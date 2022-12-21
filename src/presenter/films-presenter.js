@@ -2,6 +2,7 @@ import FilmListView from '../view/film-list.js';
 import ShowMoreView from '../view/button-showmore';
 import FilmCardView from '../view/film-card.js';
 import FilmDetailsView from '../view/film-details.js';
+import EmptyView from '../view/empty.js';
 import {render} from '../render.js';
 
 const FILM_COUNT_PER_STEP = 5;
@@ -28,16 +29,23 @@ export default class FilmsPresenter {
 
     render(this.#filmListComponent, this.#filmContainer);
 
-    for (let i = 0; i < Math.min(this.#listOfFilms.length, FILM_COUNT_PER_STEP); i++) {
-      render(new FilmCardView({film: this.#listOfFilms[i], onClick: () => this. renderFilmDetailsPopupById(i)}), this.#filmListComponent.element.querySelector('.films-list__container'));
-    }
+    if (this.#listOfFilms.length === 0) {
+      render(new EmptyView(), this.#filmListComponent.element.querySelector('.films-list__container'));
+    } else {
 
-    if (this.#listOfFilms.length > FILM_COUNT_PER_STEP) {
-      this.#showMoreComponent = new ShowMoreView();
-      render(this.#showMoreComponent, this.#filmListComponent.element.querySelector('.films-list'));
-
-      this.#showMoreComponent.element.addEventListener('click', this.#showMoreClickHandler);
+      for (let i = 0; i < Math.min(this.#listOfFilms.length, FILM_COUNT_PER_STEP); i++) {
+        this.#renderFilm(i);
+      }
+      if (this.#listOfFilms.length > FILM_COUNT_PER_STEP) {
+        this.#showMoreComponent = new ShowMoreView();
+        render(this.#showMoreComponent, this.#filmListComponent.element.querySelector('.films-list'));
+        this.#showMoreComponent.element.addEventListener('click', this.#showMoreClickHandler);
+      }
     }
+  }
+
+  #renderFilm(id) {
+    render(new FilmCardView({film: this.#listOfFilms[id], onClick: () => this. renderFilmDetailsPopupById(id)}), this.#filmListComponent.element.querySelector('.films-list__container'));
   }
 
   escKeyDownHandler = (evt) => {
@@ -65,7 +73,7 @@ export default class FilmsPresenter {
     evt.preventDefault();
     this.#listOfFilms
       .slice(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP)
-      .forEach((_, index) => render(new FilmCardView({film: this.#listOfFilms[index + this.#renderedFilmCount], onClick: () => this.renderFilmDetailsPopupById(index + this.#renderedFilmCount)}), this.#filmListComponent.element.querySelector('.films-list__container')));
+      .forEach((_, index) => this.#renderFilm(index + this.#renderedFilmCount));
 
     this.#renderedFilmCount += FILM_COUNT_PER_STEP;
 
