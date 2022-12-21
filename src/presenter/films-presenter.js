@@ -33,7 +33,7 @@ export default class FilmsPresenter {
       render(new EmptyView(), this.#filmListComponent.element.querySelector('.films-list__container'));
     } else {
       for (let i = 0; i < Math.min(this.#listOfFilms.length, FILM_COUNT_PER_STEP); i++) {
-        render(new FilmCardView({film: this.#listOfFilms[i], onClick: () => this. renderFilmDetailsPopupById(i)}), this.#filmListComponent.element.querySelector('.films-list__container'));
+        this.#renderFilm(i);
       }
 
       if (this.#listOfFilms.length > FILM_COUNT_PER_STEP) {
@@ -43,6 +43,10 @@ export default class FilmsPresenter {
         this.#showMoreComponent.element.addEventListener('click', this.#showMoreClickHandler);
       }
     }
+  }
+
+  #renderFilm(id) {
+    render(new FilmCardView({film: this.#listOfFilms[id], onClick: () => this. renderFilmDetailsPopupById(id)}), this.#filmListComponent.element.querySelector('.films-list__container'));
   }
 
   escKeyDownHandler = (evt) => {
@@ -70,7 +74,7 @@ export default class FilmsPresenter {
     evt.preventDefault();
     this.#listOfFilms
       .slice(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP)
-      .forEach((_, index) => render(new FilmCardView({film: this.#listOfFilms[index + this.#renderedFilmCount], onClick: () => this.renderFilmDetailsPopupById(index + this.#renderedFilmCount)}), this.#filmListComponent.element.querySelector('.films-list__container')));
+      .forEach((_, index) => this.#renderFilm(index + this.#renderedFilmCount));
 
     this.#renderedFilmCount += FILM_COUNT_PER_STEP;
 
