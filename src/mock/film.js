@@ -57,7 +57,7 @@ const COUNTRES = [
 ];
 
 const createComment = (id) => ({
-  id: id,
+  id,
   emotion: getRandomArrayElement(COMMENT_EMOTIONS),
   message: getSubArrayFromArray(3, MOCK_DESCRIPTIONS),
   author: 'Keks',
@@ -79,28 +79,26 @@ const createFilm = () => {
   return film;
 };
 
-const createComments = (comments) => { Array.from(comments.length, (_, index) =>
-  createComment(comments[index]));
-};
+const createComments = (comments) => comments.map(createComment);
 
-const createFilmDetails = () => {
-  const length = getRandomNumber(0, 10);
-  const date = new Date(getRandomNumber(1980, 2022), getRandomNumber(1, 12), getRandomNumber(1, 28));
+const createFilmDetails = (film) => {
+  const {title, poster, rating, year, duration, genres, description, comments} = film;
+  const date = new Date(year, getRandomNumber(1, 12), getRandomNumber(1, 28));
   const filmDetails = {
-    title: getRandomArrayElement(TITLES),
-    poster: getRandomArrayElement(POSTERS),
+    title,
+    poster,
     age: getRandomNumber(0, 18),
     titleOriginal: getRandomArrayElement(POSTERS),
-    rating: getRandomNumber(0, 10),
+    rating,
     director: getRandomArrayElement(NAMES),
     writers: getSubArrayFromArray(3, NAMES),
     actors: getSubArrayFromArray(4, NAMES),
     releaseDate: date,
-    duration: getRandomNumber(50, 180),
+    duration,
     country: getRandomArrayElement(COUNTRES),
-    genres: getSubArrayFromArray(5, GENRES),
-    description: getSubArrayFromArray(4, MOCK_DESCRIPTIONS),
-    comments: Array.from({length: length}, () => getRandomNumber(0, length)),
+    genres,
+    description,
+    comments,
   };
   return filmDetails;
 };

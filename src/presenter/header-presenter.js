@@ -1,14 +1,16 @@
-import NewProfileView from '../view/profile.js';
+import ProfileView from '../view/profile.js';
 import {render} from '../render.js';
 
 export default class HeaderPresenter {
-  headerComponent = new NewProfileView();
+  #headerContainer = null;
+
+  #headerComponent = new ProfileView();
 
   constructor({headerContainer}) {
-    this.headerContainer = headerContainer;
+    this.#headerContainer = headerContainer;
   }
 
   init() {
-    render(this.headerComponent, this.headerContainer);
+    render(this.#headerComponent, this.#headerContainer);
   }
 }

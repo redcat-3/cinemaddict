@@ -1,6 +1,6 @@
 import {createElement} from '../render.js';
 
-function createNewListFilterTemplate() {
+function createListFilterTemplate() {
   return `<nav class="main-navigation">
   <a href="#all" class="main-navigation__item main-navigation__item--active">All movies</a>
   <a href="#watchlist" class="main-navigation__item">Watchlist <span class="main-navigation__item-count">0</span></a>
@@ -9,20 +9,22 @@ function createNewListFilterTemplate() {
 </nav>`;
 }
 
-export default class NewListFilterView {
-  getTemplate() {
-    return createNewListFilterTemplate();
+export default class ListFilterView {
+  #element = null;
+
+  get template() {
+    return createListFilterTemplate();
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

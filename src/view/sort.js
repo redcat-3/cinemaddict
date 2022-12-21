@@ -1,6 +1,6 @@
 import {createElement} from '../render.js';
 
-function createNewSortListTemplate() {
+function createSortListTemplate() {
   return `<ul class="sort">
   <li><a href="#" class="sort__button sort__button--active">Sort by default</a></li>
   <li><a href="#" class="sort__button">Sort by date</a></li>
@@ -8,20 +8,22 @@ function createNewSortListTemplate() {
 </ul>`;
 }
 
-export default class NewSortListView {
-  getTemplate() {
-    return createNewSortListTemplate();
+export default class SortListView {
+  #element = null;
+
+  get template() {
+    return createSortListTemplate();
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
