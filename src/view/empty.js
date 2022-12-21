@@ -1,19 +1,14 @@
 import {createElement} from '../render.js';
 
-function createFilmListTemplate() {
-  return `<section class="films">
-  <section class="films-list">
-  <div class="films-list__container">
-  </div>
-  </section>
-  </section>`;
+function createEmptyTemplate() {
+  return '<h2 class="films-list__title">There are no movies in our database</h2>';
 }
 
-export default class FilmListView {
+export default class EmptyView {
   #element = null;
 
   get template() {
-    return createFilmListTemplate();
+    return createEmptyTemplate();
   }
 
   get element() {
