@@ -29,20 +29,23 @@ export default class FilmsPresenter {
 
     render(this.#filmListComponent, this.#filmContainer);
 
-    if(this.#listOfFilms.length === 0) {
+    if (this.#listOfFilms.length === 0) {
       render(new EmptyView(), this.#filmListComponent.element.querySelector('.films-list__container'));
     } else {
+
       for (let i = 0; i < Math.min(this.#listOfFilms.length, FILM_COUNT_PER_STEP); i++) {
         this.#renderFilm(i);
       }
-
       if (this.#listOfFilms.length > FILM_COUNT_PER_STEP) {
         this.#showMoreComponent = new ShowMoreView();
         render(this.#showMoreComponent, this.#filmListComponent.element.querySelector('.films-list'));
-
         this.#showMoreComponent.element.addEventListener('click', this.#showMoreClickHandler);
       }
     }
+  }
+
+  #renderFilm(id) {
+    render(new FilmCardView({film: this.#listOfFilms[id], onClick: () => this. renderFilmDetailsPopupById(id)}), this.#filmListComponent.element.querySelector('.films-list__container'));
   }
 
   #renderFilm(id) {

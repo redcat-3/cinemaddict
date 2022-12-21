@@ -57,7 +57,7 @@ const COUNTRES = [
 ];
 
 const createComment = (id) => ({
-  id: id,
+  id,
   emotion: getRandomArrayElement(COMMENT_EMOTIONS),
   message: getSubArrayFromArray(3, MOCK_DESCRIPTIONS),
   author: 'Keks',
@@ -85,20 +85,20 @@ const createFilmDetails = (film) => {
   const {title, poster, rating, year, duration, genres, description, comments} = film;
   const date = new Date(year, getRandomNumber(1, 12), getRandomNumber(1, 28));
   const filmDetails = {
-    title: title,
-    poster: poster,
+    title,
+    poster,
     age: getRandomNumber(0, 18),
     titleOriginal: getRandomArrayElement(POSTERS),
-    rating: rating,
+    rating,
     director: getRandomArrayElement(NAMES),
     writers: getSubArrayFromArray(3, NAMES),
     actors: getSubArrayFromArray(4, NAMES),
     releaseDate: date,
-    duration: duration,
+    duration,
     country: getRandomArrayElement(COUNTRES),
-    genres: genres,
-    description: description,
-    comments: comments,
+    genres,
+    description,
+    comments,
   };
   return filmDetails;
 };
