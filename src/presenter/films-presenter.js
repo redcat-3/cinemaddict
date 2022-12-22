@@ -29,8 +29,8 @@ export default class FilmsPresenter {
 
     render(this.#filmListComponent, this.#filmContainer);
 
-    if (this.#listOfFilms.length === 0) {
-      render(new EmptyView(), this.#filmListComponent.element.querySelector('.films-list__container'));
+    if(this.#listOfFilms.length === 0) {
+      render(new EmptyView(), this.#filmListComponent.getFilmListContainer());
     } else {
 
       for (let i = 0; i < Math.min(this.#listOfFilms.length, FILM_COUNT_PER_STEP); i++) {
@@ -38,14 +38,15 @@ export default class FilmsPresenter {
       }
       if (this.#listOfFilms.length > FILM_COUNT_PER_STEP) {
         this.#showMoreComponent = new ShowMoreView();
-        render(this.#showMoreComponent, this.#filmListComponent.element.querySelector('.films-list'));
+        render(this.#showMoreComponent, this.#filmListComponent.getFilmList());
+
         this.#showMoreComponent.element.addEventListener('click', this.#showMoreClickHandler);
       }
     }
   }
 
   #renderFilm(id) {
-    render(new FilmCardView({film: this.#listOfFilms[id], onClick: () => this. renderFilmDetailsPopupById(id)}), this.#filmListComponent.element.querySelector('.films-list__container'));
+    render(new FilmCardView({film: this.#listOfFilms[id], onClick: () => this. renderFilmDetailsPopupById(id)}), this.#filmListComponent.getFilmListContainer());
   }
 
   escKeyDownHandler = (evt) => {
@@ -60,12 +61,12 @@ export default class FilmsPresenter {
     const filmDetails = this.#filmsModel.renderfilmDetailsById(filmId);
     const commentsList = this.#filmsModel.rendercommentsById(filmId);
     render(new FilmDetailsView({filmDetails: filmDetails, commentsList: commentsList}),
-      this.#filmListComponent.element.querySelector('.films-list__container'));
+      this.#filmListComponent.getFilmListContainer());
     document.addEventListener('keydown', this.escKeyDownHandler);
   }
 
   closePopupControl = () => {
-    this.#filmListComponent.element.querySelector('.films-list__container').removeChild(document.querySelector('.film-details'));
+    this.#filmListComponent.getFilmListContainer().removeChild(document.querySelector('.film-details'));
     body.classList.remove('hide-overflow');
   };
 
