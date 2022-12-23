@@ -1,9 +1,9 @@
+import {render} from '../framework/render.js';
 import FilmListView from '../view/film-list.js';
 import ShowMoreView from '../view/button-showmore';
 import FilmCardView from '../view/film-card.js';
 import FilmDetailsView from '../view/film-details.js';
 import EmptyView from '../view/empty.js';
-import {render} from '../render.js';
 
 const FILM_COUNT_PER_STEP = 5;
 
@@ -46,7 +46,7 @@ export default class FilmsPresenter {
   }
 
   #renderFilm(id) {
-    render(new FilmCardView({film: this.#listOfFilms[id], onClick: () => this. renderFilmDetailsPopupById(id)}), this.#filmListComponent.getFilmListContainer());
+    render(new FilmCardView({film: this.#listOfFilms[id], onClick: () => this.renderFilmDetailsPopupById(id)}), this.#filmListComponent.getFilmListContainer());
   }
 
   escKeyDownHandler = (evt) => {
@@ -63,6 +63,7 @@ export default class FilmsPresenter {
     render(new FilmDetailsView({filmDetails: filmDetails, commentsList: commentsList}),
       this.#filmListComponent.getFilmListContainer());
     document.addEventListener('keydown', this.escKeyDownHandler);
+    body.classList.add('hide-overflow');
   }
 
   closePopupControl = () => {
