@@ -136,16 +136,16 @@ function createFilmDetailsTemplate(filmDetails, commentsList) {
 export default class FilmDetailsView extends AbstractView {
   #filmDetails = null;
   #commentsList = null;
+  #onClick = null;
 
-  constructor({filmDetails, commentsList}) {
+  constructor({filmDetails, commentsList, onClick}) {
     super();
     this.#filmDetails = filmDetails;
     this.#commentsList = commentsList;
+    this.#onClick = onClick;
+
     this.element.querySelector('.film-details__close-btn')
-      .addEventListener('click', () => {
-        document.querySelector('.films-list__container').removeChild(document.querySelector('.film-details'));
-        document.querySelector('body').classList.remove('hide-overflow');
-      });
+      .addEventListener('click', this.#onClick);
   }
 
   get template() {

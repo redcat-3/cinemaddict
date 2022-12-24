@@ -60,7 +60,7 @@ export default class FilmsPresenter {
   renderFilmDetailsPopupById(filmId) {
     const filmDetails = this.#filmsModel.renderfilmDetailsById(filmId);
     const commentsList = this.#filmsModel.rendercommentsById(filmId);
-    render(new FilmDetailsView({filmDetails: filmDetails, commentsList: commentsList}),
+    render(new FilmDetailsView({filmDetails: filmDetails, commentsList: commentsList, onClick: () => this.closePopupControl()}),
       this.#filmListComponent.getFilmListContainer());
     document.addEventListener('keydown', this.escKeyDownHandler);
     body.classList.add('hide-overflow');
