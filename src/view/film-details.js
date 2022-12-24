@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {humanizeDate, getDuration} from '../utils.js';
 
 function getGenreWord(genres) {
@@ -133,31 +133,22 @@ function createFilmDetailsTemplate(filmDetails, commentsList) {
 </section>`;
 }
 
-export default class FilmDetailsView {
-  #element = null;
+export default class FilmDetailsView extends AbstractView {
   #filmDetails = null;
   #commentsList = null;
+  #onClick = null;
 
-  constructor({filmDetails, commentsList}) {
+  constructor({filmDetails, commentsList, onClick}) {
+    super();
     this.#filmDetails = filmDetails;
     this.#commentsList = commentsList;
+    this.#onClick = onClick;
+
+    this.element.querySelector('.film-details__close-btn')
+      .addEventListener('click', this.#onClick);
   }
 
   get template() {
     return createFilmDetailsTemplate(this.#filmDetails, this.#commentsList);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-      this.#element.querySelector('.film-details__close-btn').addEventListener('click', () => {
-        document.querySelector('.films-list__container').removeChild(document.querySelector('.film-details'));});
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }
