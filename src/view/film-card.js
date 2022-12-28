@@ -3,7 +3,6 @@ import {getDuration} from '../utils.js';
 
 function createFilmCardTemplate(film) {
   const {title, poster, rating, year, duration, genres, description, comments} = film;
-
   return ` <article class="film-card">
   <a class="film-card__link">
     <h3 class="film-card__title">${title}</h3>
@@ -19,8 +18,8 @@ function createFilmCardTemplate(film) {
   </a>
   <div class="film-card__controls">
     <button class="film-card__controls-item film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>
-    <button class="film-card__controls-item film-card__controls-item--mark-as-watched film-card__controls-item--active" type="button">Mark as watched</button>
-    <button class="film-card__controls-item film-card__controls-item--favorite film-card__controls-item--active" type="button">Mark as favorite</button>
+    <button class="film-card__controls-item film-card__controls-item--mark-as-watched" type="button">Mark as watched</button>
+    <button class="film-card__controls-item film-card__controls-item--favorite" type="button">Mark as favorite</button>
   </div>
 </article>`;
 }
@@ -33,6 +32,16 @@ export default class FilmCardView extends AbstractView {
     super();
     this.#film = film;
     this.#onClick = onClick;
+
+    if(this.#film.userDetails.watchlist) {
+      this.element.querySelector('.film-card__controls-item--add-to-watchlist').classList.add('film-card__controls-item--active');
+    }
+    if(this.#film.userDetails.alreadyWatched) {
+      this.element.querySelector('.film-card__controls-item--mark-as-watched').classList.add('film-card__controls-item--active');
+    }
+    if(this.#film.userDetails.favorite) {
+      this.element.querySelector('.film-card__controls-item--favorite').classList.add('film-card__controls-item--active');
+    }
 
     this.element.querySelector('.film-card__link')
       .addEventListener('click', this.#onClick);

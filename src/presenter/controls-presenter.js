@@ -4,13 +4,15 @@ import {render} from '../render.js';
 
 export default class controlsPresenter {
   #controlsContainer = null;
+  #listFilmModel = null;
 
-  constructor({controlsContainer}) {
+  constructor({controlsContainer, listFilmModel}) {
     this.#controlsContainer = controlsContainer;
+    this.#listFilmModel = listFilmModel;
   }
 
   init() {
-    render(new ListFilterView(), this.#controlsContainer);
+    render(new ListFilterView(this.#listFilmModel), this.#controlsContainer);
     render(new SortListView(), this.#controlsContainer);
   }
 }
