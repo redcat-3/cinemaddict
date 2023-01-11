@@ -143,7 +143,13 @@ export default class FilmDetailsView extends AbstractView {
     this.#filmDetails = filmDetails;
     this.#commentsList = commentsList;
     this.#onClick = onClick;
+  }
 
+  get template() {
+    return createFilmDetailsTemplate(this.#filmDetails, this.#commentsList);
+  }
+
+  setUserControls() {
     if(this.#filmDetails.userDetails.watchlist) {
       this.element.querySelector('.film-details__control-button--watchlist').classList.add('film-details__control-button--active');
     }
@@ -155,9 +161,5 @@ export default class FilmDetailsView extends AbstractView {
     }
     this.element.querySelector('.film-details__close-btn')
       .addEventListener('click', this.#onClick);
-  }
-
-  get template() {
-    return createFilmDetailsTemplate(this.#filmDetails, this.#commentsList);
   }
 }

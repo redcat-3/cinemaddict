@@ -33,6 +33,15 @@ export default class FilmCardView extends AbstractView {
     this.#film = film;
     this.#onClick = onClick;
 
+    this.element.querySelector('.film-card__link')
+      .addEventListener('click', this.#onClick);
+  }
+
+  get template() {
+    return createFilmCardTemplate(this.#film);
+  }
+
+  setUserControls() {
     if(this.#film.userDetails.watchlist) {
       this.element.querySelector('.film-card__controls-item--add-to-watchlist').classList.add('film-card__controls-item--active');
     }
@@ -42,12 +51,5 @@ export default class FilmCardView extends AbstractView {
     if(this.#film.userDetails.favorite) {
       this.element.querySelector('.film-card__controls-item--favorite').classList.add('film-card__controls-item--active');
     }
-
-    this.element.querySelector('.film-card__link')
-      .addEventListener('click', this.#onClick);
-  }
-
-  get template() {
-    return createFilmCardTemplate(this.#film);
   }
 }
