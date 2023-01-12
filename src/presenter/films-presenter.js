@@ -46,7 +46,9 @@ export default class FilmsPresenter {
   }
 
   #renderFilm(id) {
-    render(new FilmCardView({film: this.#listOfFilms[id], onClick: () => this.renderFilmDetailsPopupById(id)}), this.#filmListComponent.getFilmListContainer());
+    const filmCardView = new FilmCardView({film: this.#listOfFilms[id], onClick: () => this.renderFilmDetailsPopupById(id)});
+    filmCardView.setUserControls();
+    render(filmCardView, this.#filmListComponent.getFilmListContainer());
   }
 
   escKeyDownHandler = (evt) => {
@@ -60,8 +62,9 @@ export default class FilmsPresenter {
   renderFilmDetailsPopupById(filmId) {
     const filmDetails = this.#filmsModel.renderfilmDetailsById(filmId);
     const commentsList = this.#filmsModel.rendercommentsById(filmId);
-    render(new FilmDetailsView({filmDetails: filmDetails, commentsList: commentsList, onClick: () => this.closePopupControl()}),
-      this.#filmListComponent.getFilmListContainer());
+    const filmDetailsView = new FilmDetailsView({filmDetails: filmDetails, commentsList: commentsList, onClick: () => this.closePopupControl()});
+    filmDetailsView.setUserControls();
+    render(filmDetailsView, this.#filmListComponent.getFilmListContainer());
     document.addEventListener('keydown', this.escKeyDownHandler);
     body.classList.add('hide-overflow');
   }

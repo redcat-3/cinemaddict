@@ -75,7 +75,7 @@ function createFilmDetailsTemplate(filmDetails, commentsList) {
 
       <section class="film-details__controls">
         <button type="button" class="film-details__control-button film-details__control-button--watchlist" id="watchlist" name="watchlist">Add to watchlist</button>
-        <button type="button" class="film-details__control-button film-details__control-button--active film-details__control-button--watched" id="watched" name="watched">Already watched</button>
+        <button type="button" class="film-details__control-button film-details__control-button--watched" id="watched" name="watched">Already watched</button>
         <button type="button" class="film-details__control-button film-details__control-button--favorite" id="favorite" name="favorite">Add to favorites</button>
       </section>
     </div>
@@ -143,12 +143,23 @@ export default class FilmDetailsView extends AbstractView {
     this.#filmDetails = filmDetails;
     this.#commentsList = commentsList;
     this.#onClick = onClick;
-
-    this.element.querySelector('.film-details__close-btn')
-      .addEventListener('click', this.#onClick);
   }
 
   get template() {
     return createFilmDetailsTemplate(this.#filmDetails, this.#commentsList);
+  }
+
+  setUserControls() {
+    if(this.#filmDetails.userDetails.watchlist) {
+      this.element.querySelector('.film-details__control-button--watchlist').classList.add('film-details__control-button--active');
+    }
+    if(this.#filmDetails.userDetails.alreadyWatched) {
+      this.element.querySelector('.film-details__control-button--watched').classList.add('film-details__control-button--active');
+    }
+    if(this.#filmDetails.userDetails.favorite) {
+      this.element.querySelector('.film-details__control-button--favorite').classList.add('film-details__control-button--active');
+    }
+    this.element.querySelector('.film-details__close-btn')
+      .addEventListener('click', this.#onClick);
   }
 }

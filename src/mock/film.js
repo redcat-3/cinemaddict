@@ -64,6 +64,18 @@ const createComment = (id) => ({
   date: new Date('2014-01-01'),
 });
 
+const createUserDetails = () => ({
+  watchlist: getRandomNumber(0, 1),
+  alreadyWatched: getRandomNumber(0, 1),
+  favorite: getRandomNumber(0, 1)
+});
+
+const createUserFilters = () => ({
+  watchlist: getRandomNumber(0, 100),
+  watched: getRandomNumber(0, 100),
+  favorite: getRandomNumber(0, 100),
+});
+
 const createFilm = () => {
   const length = getRandomNumber(0, 10);
   const film = {
@@ -75,6 +87,7 @@ const createFilm = () => {
     genres: getRandomArray(GENRES),
     description: getSubArrayFromArray(4, MOCK_DESCRIPTIONS),
     comments: Array.from({length: length}, () => getRandomNumber(0, length)),
+    userDetails: createUserDetails()
   };
   return film;
 };
@@ -82,7 +95,7 @@ const createFilm = () => {
 const createComments = (comments) => comments.map(createComment);
 
 const createFilmDetails = (film) => {
-  const {title, poster, rating, year, duration, genres, description, comments} = film;
+  const {title, poster, rating, year, duration, genres, description, comments, userDetails} = film;
   const date = new Date(year, getRandomNumber(1, 12), getRandomNumber(1, 28));
   const filmDetails = {
     title,
@@ -99,8 +112,9 @@ const createFilmDetails = (film) => {
     genres,
     description,
     comments,
+    userDetails
   };
   return filmDetails;
 };
 
-export {createFilm, createComments, createFilmDetails};
+export {createFilm, createComments, createFilmDetails, createUserFilters};
