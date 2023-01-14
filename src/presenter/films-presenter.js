@@ -90,6 +90,6 @@ export default class FilmsPresenter {
     this.#sourceListOfFilms = updateItem(this.#sourceListOfFilms, update);
     const filmDetails = this.#filmsModel.renderfilmDetailsById(update.id);
     const commentsList = this.#filmsModel.rendercommentsById(update.id);
-    this.#filmsPresenter.get(update.id).init(filmDetails, commentsList);
+    this.#filmsPresenter.get(update.id).replace(filmDetails, commentsList);
   };
 }
