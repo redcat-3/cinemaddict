@@ -143,6 +143,9 @@ export default class FilmDetailsView extends AbstractView {
     this.#filmDetails = filmDetails;
     this.#commentsList = commentsList;
     this.#onClick = onClick;
+
+    this.element.querySelector('.film-details__close-btn')
+      .addEventListener('click', this.#onClick);
   }
 
   get template() {
@@ -159,7 +162,5 @@ export default class FilmDetailsView extends AbstractView {
     if(this.#filmDetails.userDetails.favorite) {
       this.element.querySelector('.film-details__control-button--favorite').classList.add('film-details__control-button--active');
     }
-    this.element.querySelector('.film-details__close-btn')
-      .addEventListener('click', this.#onClick);
   }
 }

@@ -7,13 +7,13 @@ export default class FilmsModel {
   #filmDetails = null;
   #comments = null;
 
-  rendercommentsById = (id) => {
-    this.#comments = createComments(this.films[id].comments);
+  rendercommentsById = (filmId) => {
+    this.#comments = createComments(this.films.find(({ id }) => id === filmId).comments);
     return this.#comments;
   };
 
-  renderfilmDetailsById = (id) => {
-    this.#filmDetails = createFilmDetails(this.films[id]);
+  renderfilmDetailsById = (filmId) => {
+    this.#filmDetails = createFilmDetails(this.films.find(({ id }) => id === filmId));
     return this.#filmDetails;
   };
 }

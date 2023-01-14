@@ -1,4 +1,5 @@
 import {getRandomArrayElement, getRandomNumber, getRandomArray, getSubArrayFromArray} from '../utils.js';
+import {nanoid} from 'nanoid';
 
 const COMMENT_EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 
@@ -79,6 +80,7 @@ const createUserFilters = () => ({
 const createFilm = () => {
   const length = getRandomNumber(0, 10);
   const film = {
+    id: nanoid(),
     title: getRandomArrayElement(TITLES),
     poster: getRandomArrayElement(POSTERS),
     rating: getRandomNumber(0, 10),
@@ -95,9 +97,10 @@ const createFilm = () => {
 const createComments = (comments) => comments.map(createComment);
 
 const createFilmDetails = (film) => {
-  const {title, poster, rating, year, duration, genres, description, comments, userDetails} = film;
+  const {id, title, poster, rating, year, duration, genres, description, comments, userDetails} = film;
   const date = new Date(year, getRandomNumber(1, 12), getRandomNumber(1, 28));
   const filmDetails = {
+    id,
     title,
     poster,
     age: getRandomNumber(0, 18),

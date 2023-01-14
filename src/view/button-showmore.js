@@ -5,7 +5,13 @@ function createShowMoreTemplate() {
 }
 
 export default class ShowMoreView extends AbstractView {
-  #element = null;
+  #onClick = null;
+  constructor(onClick) {
+    super();
+    this.#onClick = onClick;
+    this.element.addEventListener('click', this.#onClick);
+  }
+
 
   get template() {
     return createShowMoreTemplate();
