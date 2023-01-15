@@ -43,7 +43,8 @@ export default class FilmsPresenter {
     const filmPresenter = new FilmPresenter({
       film: this.#listOfFilms.find(({ id }) => id === filmId),
       filmContainer: this.#filmListComponent.getFilmListContainer(),
-      onControlClick: this.#handleControlClick
+      onControlClick: this.#handleControlClick,
+      popupCallBack: this.#setOnePopup,
     });
     const filmDetails = this.#filmsModel.renderfilmDetailsById(filmId);
     const commentsList = this.#filmsModel.rendercommentsById(filmId);
@@ -91,5 +92,11 @@ export default class FilmsPresenter {
     const filmDetails = this.#filmsModel.renderfilmDetailsById(update.id);
     const commentsList = this.#filmsModel.rendercommentsById(update.id);
     this.#filmsPresenter.get(update.id).replace(filmDetails, commentsList);
+  };
+
+  #setOnePopup = (callBack) => {
+    if(document.querySelector('.film-details')) {
+      callBack();
+    }
   };
 }

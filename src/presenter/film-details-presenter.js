@@ -9,12 +9,14 @@ export default class FilmDetailsPresenter {
   #filmDetails = null;
   #commentsList = null;
   #handlePopupControlClick = null;
+  #popupCallBack = null;
 
-  constructor({filmDetails, commentsList, filmContainer, onPopupControlClick}) {
+  constructor({filmDetails, commentsList, filmContainer, onPopupControlClick, callBackPopup}) {
     this.#filmDetails = filmDetails;
     this.#commentsList = commentsList;
     this.#filmContainer = filmContainer;
     this.#handlePopupControlClick = onPopupControlClick;
+    this.#popupCallBack = callBackPopup;
   }
 
   init(filmDetails, commentsList) {
@@ -26,7 +28,7 @@ export default class FilmDetailsPresenter {
       onWatchedClick: this.#handleWatchedClick,
       onFavoriteClick: this.#handleFavoriteClick
     });
-
+    //this.#popupCallBack(this.closePopup);
     this.#filmDetailsComponent.setUserControls();
     render(this.#filmDetailsComponent, this.#filmContainer);
     document.addEventListener('keydown', this.onEscKeyDown);

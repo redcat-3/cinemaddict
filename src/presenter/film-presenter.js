@@ -8,26 +8,31 @@ export default class FilmPresenter {
   #filmComponent = null;
   #film = null;
   #handleControlClick = null;
+  #popupCallBack = null;
 
-  constructor({film, filmContainer, onControlClick}) {
+  constructor({film, filmContainer, onControlClick, popupCallBack}) {
     this.#filmContainer = filmContainer;
     this.#film = film;
     this.#handleControlClick = onControlClick;
+    this.#popupCallBack = popupCallBack;
   }
 
   init(filmDetails, commentsList) {
     this.#filmComponent = new FilmCardView({
       film: this.#film,
-      onClick:() => {const filmDetailsPresenter = new FilmDetailsPresenter({
-        filmDetails,
-        commentsList,
-        filmContainer: this.#filmContainer,
-        onPopupControlClick: this.#handlePopupControlClick
-      });
-      filmDetailsPresenter.init(filmDetails, commentsList);},
+      onClick:() => {
+        const filmDetailsPresenter = new FilmDetailsPresenter({
+          filmDetails,
+          commentsList,
+          filmContainer: this.#filmContainer,
+          onPopupControlClick: this.#handlePopupControlClick
+        });
+        filmDetailsPresenter.init(filmDetails, commentsList);
+      },
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
-      onFavoriteClick: this.#handleFavoriteClick
+      onFavoriteClick: this.#handleFavoriteClick,
+      callBackPopup: this.#popupCallBack
     });
 
     this.#filmComponent.setUserControls();
