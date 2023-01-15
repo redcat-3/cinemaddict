@@ -51,6 +51,8 @@ const getDuration = (duration) => `${Math.round(duration / 60)}h ${duration % 60
 
 const updateItem = (items, update) => items.map((item) => item.id === update.id ? update : item);
 
+const getFilmById = (films, filmId) => films.find(({ id }) => id === filmId);
+
 export {
   humanizeDate,
   getRandomArrayElement,
@@ -58,4 +60,5 @@ export {
   getRandomArray,
   getSubArrayFromArray,
   getDuration,
-  updateItem};
+  updateItem,
+  getFilmById};

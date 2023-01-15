@@ -1,5 +1,5 @@
 import {render} from '../framework/render.js';
-import {updateItem} from '../utils.js';
+import {updateItem, getFilmById} from '../utils.js';
 import FilmPresenter from './film-presenter.js';
 import FilmListView from '../view/film-list.js';
 import ShowMorePresenter from './show-more-presenter.js';
@@ -41,7 +41,7 @@ export default class FilmsPresenter {
 
   #renderFilm(filmId) {
     const filmPresenter = new FilmPresenter({
-      film: this.#listOfFilms.find(({ id }) => id === filmId),
+      film: getFilmById(this.#listOfFilms, filmId),
       filmContainer: this.#filmListComponent.getFilmListContainer(),
       onControlClick: this.#handleControlClick,
       popupCallBack: this.#setOnePopup,
