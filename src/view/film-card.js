@@ -27,14 +27,26 @@ function createFilmCardTemplate(film) {
 export default class FilmCardView extends AbstractView {
   #film = null;
   #onClick = null;
+  #handleWatchlistClick = null;
+  #handleWatchedClick = null;
+  #handleFavoriteClick = null;
 
-  constructor({film, onClick}) {
+  constructor({film, onClick, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
     super();
     this.#film = film;
     this.#onClick = onClick;
+    this.#handleWatchlistClick = onWatchlistClick;
+    this.#handleWatchedClick = onWatchedClick;
+    this.#handleFavoriteClick = onFavoriteClick;
 
     this.element.querySelector('.film-card__link')
       .addEventListener('click', this.#onClick);
+    this.element.querySelector('.film-card__controls-item--add-to-watchlist')
+      .addEventListener('click', this.#watchlistClickHandler);
+    this.element.querySelector('.film-card__controls-item--mark-as-watched')
+      .addEventListener('click', this.#watchedClickHandler);
+    this.element.querySelector('.film-card__controls-item--favorite')
+      .addEventListener('click', this.#favoritelistClickHandler);
   }
 
   get template() {
@@ -43,13 +55,35 @@ export default class FilmCardView extends AbstractView {
 
   setUserControls() {
     if(this.#film.userDetails.watchlist) {
-      this.element.querySelector('.film-card__controls-item--add-to-watchlist').classList.add('film-card__controls-item--active');
+      this.element.querySelector('.film-card__controls-item--add-to-watchlist')
+        .classList.add('film-card__controls-item--active');
     }
     if(this.#film.userDetails.alreadyWatched) {
-      this.element.querySelector('.film-card__controls-item--mark-as-watched').classList.add('film-card__controls-item--active');
+      this.element.querySelector('.film-card__controls-item--mark-as-watched')
+        .classList.add('film-card__controls-item--active');
     }
     if(this.#film.userDetails.favorite) {
-      this.element.querySelector('.film-card__controls-item--favorite').classList.add('film-card__controls-item--active');
+      this.element.querySelector('.film-card__controls-item--favorite')
+        .classList.add('film-card__controls-item--active');
     }
   }
+
+  reset() {
+    this.updateElement(this.#film);
+  }
+
+  #watchlistClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleWatchlistClick();
+  };
+
+  #watchedClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleWatchedClick();
+  };
+
+  #favoritelistClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFavoriteClick();
+  };
 }

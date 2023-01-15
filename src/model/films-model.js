@@ -1,4 +1,5 @@
 import {createFilm, createComments, createFilmDetails} from '../mock/film.js';
+import {getFilmById} from '../utils.js';
 
 const FILM_COUNT = 13;
 
@@ -7,13 +8,13 @@ export default class FilmsModel {
   #filmDetails = null;
   #comments = null;
 
-  rendercommentsById = (id) => {
-    this.#comments = createComments(this.films[id].comments);
+  rendercommentsById = (filmId) => {
+    this.#comments = createComments(getFilmById(this.films, filmId).comments);
     return this.#comments;
   };
 
-  renderfilmDetailsById = (id) => {
-    this.#filmDetails = createFilmDetails(this.films[id]);
+  renderfilmDetailsById = (filmId) => {
+    this.#filmDetails = createFilmDetails(getFilmById(this.films, filmId));
     return this.#filmDetails;
   };
 }
