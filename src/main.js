@@ -12,10 +12,10 @@ const filmsPresenter = new FilmsPresenter({
   filmsModel
 });
 const headerPresenter = new HeaderPresenter({headerContainer: siteHeaderElement});
-const filFiltersmModel = new FilmFiltersModel;
+const filmFiltersmModel = new FilmFiltersModel;
 const controlsPresenter = new ControlsPresenter({
   controlsContainer: siteMainElement,
-  filFiltersmModel
+  filmFiltersmModel
 });
 
 headerPresenter.init();

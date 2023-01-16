@@ -1,18 +1,17 @@
 import ListFilterView from '../view/list-filter.js';
-import SortListView from '../view/sort.js';
 import {render} from '../render.js';
 
 export default class controlsPresenter {
   #controlsContainer = null;
-  #filFiltersmModel = null;
+  #filmFiltersmModel = null;
 
-  constructor({controlsContainer, filFiltersmModel}) {
+  constructor({controlsContainer, filmFiltersmModel}) {
     this.#controlsContainer = controlsContainer;
-    this.#filFiltersmModel = filFiltersmModel;
+    this.#filmFiltersmModel = filmFiltersmModel;
   }
 
   init() {
-    render(new ListFilterView(this.#filFiltersmModel.userFilters), this.#controlsContainer);
-    render(new SortListView(), this.#controlsContainer);
+    render(new ListFilterView(this.#filmFiltersmModel.userFilters), this.#controlsContainer);
   }
+
 }
