@@ -1,15 +1,19 @@
-import {render} from '../framework/render.js';
+import {render, RenderPosition} from '../framework/render.js';
 import {updateItem, getFilmById} from '../utils.js';
 import FilmPresenter from './film-presenter.js';
 import FilmListView from '../view/film-list.js';
 import ShowMorePresenter from './show-more-presenter.js';
 import EmptyView from '../view/empty.js';
+import SortListView from '../view/sort-list.js';
+import {SortType} from '../const.js';
 
 const FILM_COUNT_PER_STEP = 5;
 
 export default class FilmsPresenter {
   #filmContainer = null;
   #filmsModel = null;
+  #sortComponent = null;
+
 
   #filmListComponent = new FilmListView();
   #emptyListComponent = new EmptyView();
@@ -18,6 +22,7 @@ export default class FilmsPresenter {
   #sourceListOfFilms = [];
   #showMorePresenter = null;
   #renderedFilmCount = FILM_COUNT_PER_STEP;
+  #currentSortType = SortType.DEFAULT;
   #filmsPresenter = new Map();
 
   constructor({filmContainer, filmsModel}) {
@@ -36,6 +41,8 @@ export default class FilmsPresenter {
       return;
     }
 
+    this.#renderSort();
+    this.#clearFilmList();
     this.#renderFilms();
   }
 
@@ -69,6 +76,14 @@ export default class FilmsPresenter {
     }
   }
 
+  #renderSort() {
+    this.#sortComponent = new SortListView({
+      onSortTypeChange: this.#onSortTypeChange
+    });
+
+    render(this.#sortComponent, this.#filmContainer, RenderPosition.AFTERBEGIN);
+  }
+
   #renderEmptyList() {
     render(this.#emptyListComponent, this.#filmListComponent.getFilmListContainer());
   }
@@ -99,4 +114,37 @@ export default class FilmsPresenter {
       callBack();
     }
   };
+
+  #onSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+    this.#sortFilms(sortType);
+  };
+
+  #sortFilms(sortType) {
+    switch (sortType) {
+      case SortType.BY_DATE:
+        this.#listOfFilms.sort((a, b) => a.year - b.year);
+        break;
+      case SortType.BY_RATING:
+        this.#listOfFilms.sort((a, b) => a.rating - b.rating);
+        break;
+      default:
+        this.#listOfFilms = [...this.#sourceListOfFilms];
+    }
+
+    this.#currentSortType = sortType;
+    this.#clearFilmList();
+    this.#renderFilms();
+  }
+
+  #clearFilmList() {
+    this.#filmsPresenter.forEach((presenter) => presenter.destroy());
+    this.#filmsPresenter.clear();
+    this.#renderedFilmCount = FILM_COUNT_PER_STEP;
+    if (this.#showMorePresenter) {
+      this.#showMorePresenter.remove();
+    }
+  }
 }

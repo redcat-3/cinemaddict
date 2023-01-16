@@ -88,6 +88,10 @@ export default class FilmPresenter {
     replace(newComponent, this.#filmComponent);
     this.#filmComponent = newComponent;
   }
+
+  destroy() {
+    remove(this.#filmComponent);
+  }
 }
 
 

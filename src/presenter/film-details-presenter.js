@@ -28,7 +28,6 @@ export default class FilmDetailsPresenter {
       onWatchedClick: this.#handleWatchedClick,
       onFavoriteClick: this.#handleFavoriteClick
     });
-    //this.#popupCallBack(this.closePopup);
     this.#filmDetailsComponent.setUserControls();
     render(this.#filmDetailsComponent, this.#filmContainer);
     document.addEventListener('keydown', this.onEscKeyDown);
