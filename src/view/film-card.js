@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {getDuration} from '../utils.js';
 
 function createFilmCardTemplate(film) {
@@ -24,12 +24,13 @@ function createFilmCardTemplate(film) {
 </article>`;
 }
 
-export default class FilmCardView extends AbstractView {
+export default class FilmCardView extends AbstractStatefulView {
   #film = null;
   #onClick = null;
   #handleWatchlistClick = null;
   #handleWatchedClick = null;
   #handleFavoriteClick = null;
+  _restoreHandlers = null;
 
   constructor({film, onClick, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
     super();
