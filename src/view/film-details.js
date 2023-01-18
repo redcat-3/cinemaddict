@@ -1,5 +1,13 @@
+import { createElement} from '../framework/render.js';
 import AbstractView from '../framework/view/abstract-view.js';
 import {humanizeDate, getDuration} from '../utils.js';
+
+const EMOJI = {
+  smile: './images/emoji/smile.png',
+  sleeping: './images/emoji/sleeping.png',
+  puke: './images/emoji/puke.png',
+  angry: './images/emoji/angry.png',
+};
 
 function getGenreWord(genres) {
   if(genres.length === 1) {
@@ -133,6 +141,22 @@ function createFilmDetailsTemplate(filmDetails, commentsList) {
 </section>`;
 }
 
+function createEmodjiImgTemplate() {
+  return '<img width="55" height="55"></img>';
+}
+
+function createControlButtonWatchlistTemplate() {
+  return '<button type="button" class="film-details__control-button film-details__control-button--watchlist" id="watchlist" name="watchlist">Add to watchlist</button>';
+}
+
+function createControlButtonWatchedTemplate() {
+  return '<button type="button" class="film-details__control-button film-details__control-button--watched" id="watched" name="watched">Already watched</button>';
+}
+
+function createControlButtonFavoriteTemplate() {
+  return '<button type="button" class="film-details__control-button film-details__control-button--favorite" id="favorite" name="favorite">Add to favorites</button>';
+}
+
 export default class FilmDetailsView extends AbstractView {
   #filmDetails = null;
   #commentsList = null;
@@ -158,8 +182,14 @@ export default class FilmDetailsView extends AbstractView {
       .addEventListener('click', this.#watchedClickHandler);
     this.element.querySelector('.film-details__control-button--favorite')
       .addEventListener('click', this.#favoritelistClickHandler);
-
-
+    this.element.querySelector('#emoji-smile')
+      .addEventListener('click', this.#onEmojiClick);
+    this.element.querySelector('#emoji-sleeping')
+      .addEventListener('click', this.#onEmojiClick);
+    this.element.querySelector('#emoji-puke')
+      .addEventListener('click', this.#onEmojiClick);
+    this.element.querySelector('#emoji-angry')
+      .addEventListener('click', this.#onEmojiClick);
   }
 
   get template() {
@@ -178,6 +208,38 @@ export default class FilmDetailsView extends AbstractView {
     }
   }
 
+  #emojiClickHandler(emodji) {
+    this.element.querySelector('.film-details__add-emoji-label').innerHTML = '';
+    const pictureTemplateElement = createEmodjiImgTemplate();
+    const pictureElement = createElement(pictureTemplateElement);
+    pictureElement.src = EMOJI[emodji];
+    pictureElement.alt = `emoji-${EMOJI[emodji]}`;
+    this.element.querySelector('.film-details__add-emoji-label').appendChild(pictureElement);
+  }
+
+  controlButtonsClickHandler() {
+    this.element.querySelector('.film-details__controls').innerHTML = '';
+    const controlButtonWatchlistTemplateElement = createControlButtonWatchlistTemplate();
+    const controlButtonWatchedTemplateElement = createControlButtonWatchedTemplate();
+    const controlButtonFavoriteTemplateElement = createControlButtonFavoriteTemplate();
+    const controlButtonWatchlistElement = createElement(controlButtonWatchlistTemplateElement);
+    const controlButtonWatchedElement = createElement(controlButtonWatchedTemplateElement);
+    const controlButtonFavoriteElement = createElement(controlButtonFavoriteTemplateElement);
+
+    this.element.querySelector('.film-details__controls').appendChild(controlButtonWatchlistElement);
+    this.element.querySelector('.film-details__controls').appendChild(controlButtonWatchedElement);
+    this.element.querySelector('.film-details__controls').appendChild(controlButtonFavoriteElement);
+
+    this.setUserControls();
+
+    this.element.querySelector('.film-details__control-button--watchlist')
+      .addEventListener('click', this.#watchlistClickHandler);
+    this.element.querySelector('.film-details__control-button--watched')
+      .addEventListener('click', this.#watchedClickHandler);
+    this.element.querySelector('.film-details__control-button--favorite')
+      .addEventListener('click', this.#favoritelistClickHandler);
+  }
+
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleWatchlistClick();
@@ -191,5 +253,11 @@ export default class FilmDetailsView extends AbstractView {
   #favoritelistClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleFavoriteClick();
+  };
+
+  #onEmojiClick = (evt) => {
+    evt.preventDefault();
+    this.#emojiClickHandler(evt.target.value);
+    evt.target.checked = true;
   };
 }

@@ -101,7 +101,7 @@ export default class FilmsPresenter {
     }
   };
 
-  #handleControlClick = (update) => {
+  #handleControlClick = (update, ) => {
     this.#listOfFilms = updateItem(this.#listOfFilms, update);
     this.#sourceListOfFilms = updateItem(this.#sourceListOfFilms, update);
     const filmDetails = this.#filmsModel.renderfilmDetailsById(update.id);
