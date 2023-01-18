@@ -32,6 +32,7 @@ export default class FilmDetailsPresenter {
     render(this.#filmDetailsComponent, this.#filmContainer);
     document.addEventListener('keydown', this.onEscKeyDown);
     body.classList.add('hide-overflow');
+
   }
 
   onEscKeyDown = (evt) => {
@@ -51,21 +52,21 @@ export default class FilmDetailsPresenter {
     this.#filmDetails.userDetails.watchlist = !this.#filmDetails.userDetails.watchlist;
     this.#filmDetailsComponent.setUserControls();
     this.#handlePopupControlClick(this.#filmDetails);
-    this.replace();
+    this.#filmDetailsComponent.controlButtonsClickHandler();
   };
 
   #handleWatchedClick = () => {
     this.#filmDetails.userDetails.alreadyWatched = !this.#filmDetails.userDetails.alreadyWatched;
     this.#filmDetailsComponent.setUserControls();
     this.#handlePopupControlClick(this.#filmDetails);
-    this.replace();
+    this.#filmDetailsComponent.controlButtonsClickHandler();
   };
 
   #handleFavoriteClick = () => {
     this.#filmDetails.userDetails.favorite = !this.#filmDetails.userDetails.favorite;
     this.#filmDetailsComponent.setUserControls();
     this.#handlePopupControlClick(this.#filmDetails);
-    this.replace();
+    this.#filmDetailsComponent.controlButtonsClickHandler();
   };
 
   replace() {

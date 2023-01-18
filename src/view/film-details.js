@@ -145,6 +145,18 @@ function createEmodjiImgTemplate() {
   return '<img width="55" height="55"></img>';
 }
 
+function createControlButtonWatchlistTemplate() {
+  return '<button type="button" class="film-details__control-button film-details__control-button--watchlist" id="watchlist" name="watchlist">Add to watchlist</button>';
+}
+
+function createControlButtonWatchedTemplate() {
+  return '<button type="button" class="film-details__control-button film-details__control-button--watched" id="watched" name="watched">Already watched</button>';
+}
+
+function createControlButtonFavoriteTemplate() {
+  return '<button type="button" class="film-details__control-button film-details__control-button--favorite" id="favorite" name="favorite">Add to favorites</button>';
+}
+
 export default class FilmDetailsView extends AbstractView {
   #filmDetails = null;
   #commentsList = null;
@@ -203,6 +215,36 @@ export default class FilmDetailsView extends AbstractView {
     pictureElement.src = EMOJI[emodji];
     pictureElement.alt = `emoji-${EMOJI[emodji]}`;
     this.element.querySelector('.film-details__add-emoji-label').appendChild(pictureElement);
+  }
+
+  controlButtonsClickHandler() {
+    this.element.querySelector('.film-details__controls').innerHTML = '';
+    const controlButtonWatchlistTemplateElement = createControlButtonWatchlistTemplate();
+    const controlButtonWatchedTemplateElement = createControlButtonWatchedTemplate();
+    const controlButtonFavoriteTemplateElement = createControlButtonFavoriteTemplate();
+    const controlButtonWatchlistElement = createElement(controlButtonWatchlistTemplateElement);
+    const controlButtonWatchedElement = createElement(controlButtonWatchedTemplateElement);
+    const controlButtonFavoriteElement = createElement(controlButtonFavoriteTemplateElement);
+    if(this.#filmDetails.userDetails.watchlist) {
+      controlButtonWatchlistElement.classList.add('film-details__control-button--active');
+    }
+    if(this.#filmDetails.userDetails.alreadyWatched) {
+      controlButtonWatchedElement.classList.add('film-details__control-button--active');
+    }
+    if(this.#filmDetails.userDetails.favorite) {
+      controlButtonFavoriteElement.classList.add('film-details__control-button--active');
+    }
+
+    this.element.querySelector('.film-details__controls').appendChild(controlButtonWatchlistElement);
+    this.element.querySelector('.film-details__controls').appendChild(controlButtonWatchedElement);
+    this.element.querySelector('.film-details__controls').appendChild(controlButtonFavoriteElement);
+
+    this.element.querySelector('.film-details__control-button--watchlist')
+      .addEventListener('click', this.#watchlistClickHandler);
+    this.element.querySelector('.film-details__control-button--watched')
+      .addEventListener('click', this.#watchedClickHandler);
+    this.element.querySelector('.film-details__control-button--favorite')
+      .addEventListener('click', this.#favoritelistClickHandler);
   }
 
   #watchlistClickHandler = (evt) => {
