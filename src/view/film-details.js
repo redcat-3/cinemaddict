@@ -183,13 +183,13 @@ export default class FilmDetailsView extends AbstractView {
     this.element.querySelector('.film-details__control-button--favorite')
       .addEventListener('click', this.#favoritelistClickHandler);
     this.element.querySelector('#emoji-smile')
-      .addEventListener('click', this.#emojiSmileClickHandler);
+      .addEventListener('click', this.#onEmojiClick);
     this.element.querySelector('#emoji-sleeping')
-      .addEventListener('click', this.#emojiSleepingClickHandler);
+      .addEventListener('click', this.#onEmojiClick);
     this.element.querySelector('#emoji-puke')
-      .addEventListener('click', this.#emojiPukeClickHandler);
+      .addEventListener('click', this.#onEmojiClick);
     this.element.querySelector('#emoji-angry')
-      .addEventListener('click', this.#emojiAngryClickHandler);
+      .addEventListener('click', this.#onEmojiClick);
   }
 
   get template() {
@@ -255,25 +255,7 @@ export default class FilmDetailsView extends AbstractView {
     this.#handleFavoriteClick();
   };
 
-  #emojiSmileClickHandler = (evt) => {
-    evt.preventDefault();
-    this.#emojiClickHandler(evt.target.value);
-    evt.target.checked = true;
-  };
-
-  #emojiSleepingClickHandler = (evt) => {
-    evt.preventDefault();
-    this.#emojiClickHandler(evt.target.value);
-    evt.target.checked = true;
-  };
-
-  #emojiPukeClickHandler = (evt) => {
-    evt.preventDefault();
-    this.#emojiClickHandler(evt.target.value);
-    evt.target.checked = true;
-  };
-
-  #emojiAngryClickHandler = (evt) => {
+  #onEmojiClick = (evt) => {
     evt.preventDefault();
     this.#emojiClickHandler(evt.target.value);
     evt.target.checked = true;
