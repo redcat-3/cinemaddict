@@ -225,19 +225,12 @@ export default class FilmDetailsView extends AbstractView {
     const controlButtonWatchlistElement = createElement(controlButtonWatchlistTemplateElement);
     const controlButtonWatchedElement = createElement(controlButtonWatchedTemplateElement);
     const controlButtonFavoriteElement = createElement(controlButtonFavoriteTemplateElement);
-    if(this.#filmDetails.userDetails.watchlist) {
-      controlButtonWatchlistElement.classList.add('film-details__control-button--active');
-    }
-    if(this.#filmDetails.userDetails.alreadyWatched) {
-      controlButtonWatchedElement.classList.add('film-details__control-button--active');
-    }
-    if(this.#filmDetails.userDetails.favorite) {
-      controlButtonFavoriteElement.classList.add('film-details__control-button--active');
-    }
 
     this.element.querySelector('.film-details__controls').appendChild(controlButtonWatchlistElement);
     this.element.querySelector('.film-details__controls').appendChild(controlButtonWatchedElement);
     this.element.querySelector('.film-details__controls').appendChild(controlButtonFavoriteElement);
+
+    this.setUserControls();
 
     this.element.querySelector('.film-details__control-button--watchlist')
       .addEventListener('click', this.#watchlistClickHandler);
