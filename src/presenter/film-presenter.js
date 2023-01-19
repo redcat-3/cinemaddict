@@ -4,7 +4,6 @@ import FilmDetailsPresenter from './film-details-presenter.js';
 
 export default class FilmPresenter {
   #filmContainer = null;
-
   #filmComponent = null;
   #film = null;
   #handleControlClick = null;
@@ -17,22 +16,22 @@ export default class FilmPresenter {
     this.#popupCallBack = popupCallBack;
   }
 
-  init(filmDetails, commentsList) {
+  init(commentsList) {
     this.#filmComponent = new FilmCardView({
       film: this.#film,
       onClick:() => {
         const filmDetailsPresenter = new FilmDetailsPresenter({
-          filmDetails,
+          film: this.#film,
           commentsList,
           filmContainer: this.#filmContainer,
-          onPopupControlClick: this.#handlePopupControlClick
+          onPopupControlClick: this.#handlePopupControlClick,
+          callBackPopup: this.#popupCallBack
         });
-        filmDetailsPresenter.init(filmDetails, commentsList);
+        filmDetailsPresenter.init(commentsList);
       },
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
       onFavoriteClick: this.#handleFavoriteClick,
-      callBackPopup: this.#popupCallBack
     });
 
     this.#filmComponent.setUserControls();
@@ -69,16 +68,17 @@ export default class FilmPresenter {
     remove(this.#filmComponent);
   }
 
-  replace(filmDetails, commentsList) {
+  replace(commentsList) {
     const newComponent = new FilmCardView({
       film: this.#film,
       onClick:() => {const filmDetailsPresenter = new FilmDetailsPresenter({
-        filmDetails,
+        film: this.#film,
         commentsList,
         filmContainer: this.#filmContainer,
-        onPopupControlClick: this.#handlePopupControlClick
+        onPopupControlClick: this.#handlePopupControlClick,
+        callBackPopup: this.#popupCallBack
       });
-      filmDetailsPresenter.init(filmDetails, commentsList);},
+      filmDetailsPresenter.init(commentsList);},
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
       onFavoriteClick: this.#handleFavoriteClick
