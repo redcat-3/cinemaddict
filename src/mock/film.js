@@ -57,18 +57,20 @@ const COUNTRES = [
   'Australia'
 ];
 
+const getRandomDate = () => new Date(getRandomNumber(1990, 2022), getRandomNumber(1, 12), getRandomNumber(1, 28), getRandomNumber(0, 60), getRandomNumber(0, 60));
+
 const createComment = (id) => ({
   id,
   author: 'Keks',
   comment: getSubArrayFromArray(3, MOCK_DESCRIPTIONS),
-  date: new Date(getRandomNumber(1990, 2022), getRandomNumber(1, 12), getRandomNumber(1, 28), getRandomNumber(0, 60), getRandomNumber(0, 60)),
+  date: getRandomDate(),
   emotion: getRandomArrayElement(COMMENT_EMOTIONS),
 });
 
 const createUserDetails = () => ({
   watchlist: getRandomNumber(0, 1),
   alreadyWatched: getRandomNumber(0, 1),
-  watchingDate: new Date(getRandomNumber(1990, 2022), getRandomNumber(1, 12), getRandomNumber(1, 28), getRandomNumber(0, 60), getRandomNumber(0, 60)),
+  watchingDate: getRandomDate(),
   favorite: getRandomNumber(0, 1)
 });
 
@@ -93,7 +95,7 @@ const createFilm = () => {
       writers: getSubArrayFromArray(3, NAMES),
       actors: getSubArrayFromArray(4, NAMES),
       release: {
-        date: new Date(getRandomNumber(1990, 2022), getRandomNumber(1, 12), getRandomNumber(1, 28)),
+        date: getRandomDate(),
         releaseCountry: getRandomArrayElement(COUNTRES)},
       duration: getRandomNumber(50, 180),
       genres: getRandomArray(GENRES),
