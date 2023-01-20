@@ -1,5 +1,5 @@
 import {render, RenderPosition} from '../framework/render.js';
-import {updateItem, getFilmById} from '../utils.js';
+import {updateItem, getFilmById, sortByReleaseDate} from '../utils.js';
 import FilmPresenter from './film-presenter.js';
 import FilmListView from '../view/film-list.js';
 import ShowMorePresenter from './show-more-presenter.js';
@@ -53,9 +53,8 @@ export default class FilmsPresenter {
       onControlClick: this.#handleControlClick,
       popupCallBack: this.#setOnePopup,
     });
-    const filmDetails = this.#filmsModel.renderfilmDetailsById(filmId);
     const commentsList = this.#filmsModel.rendercommentsById(filmId);
-    filmPresenter.init(filmDetails, commentsList);
+    filmPresenter.init(commentsList);
     this.#filmsPresenter.set(filmId, filmPresenter);
   }
 
@@ -101,12 +100,11 @@ export default class FilmsPresenter {
     }
   };
 
-  #handleControlClick = (update, ) => {
+  #handleControlClick = (update) => {
     this.#listOfFilms = updateItem(this.#listOfFilms, update);
     this.#sourceListOfFilms = updateItem(this.#sourceListOfFilms, update);
-    const filmDetails = this.#filmsModel.renderfilmDetailsById(update.id);
     const commentsList = this.#filmsModel.rendercommentsById(update.id);
-    this.#filmsPresenter.get(update.id).replace(filmDetails, commentsList);
+    this.#filmsPresenter.get(update.id).replace(commentsList);
   };
 
   #setOnePopup = (callBack) => {
@@ -125,10 +123,10 @@ export default class FilmsPresenter {
   #sortFilms(sortType) {
     switch (sortType) {
       case SortType.BY_DATE:
-        this.#listOfFilms.sort((a, b) => a.year - b.year);
+        this.#listOfFilms.sort((a, b) =>sortByReleaseDate(a, b));
         break;
       case SortType.BY_RATING:
-        this.#listOfFilms.sort((a, b) => a.rating - b.rating);
+        this.#listOfFilms.sort((a, b) => a.filmInfo.totalRating - b.filmInfo.totalRating);
         break;
       default:
         this.#listOfFilms = [...this.#sourceListOfFilms];

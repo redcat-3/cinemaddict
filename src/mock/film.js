@@ -57,17 +57,20 @@ const COUNTRES = [
   'Australia'
 ];
 
+const getRandomDate = () => new Date(getRandomNumber(1990, 2022), getRandomNumber(1, 12), getRandomNumber(1, 28), getRandomNumber(0, 60), getRandomNumber(0, 60));
+
 const createComment = (id) => ({
   id,
-  emotion: getRandomArrayElement(COMMENT_EMOTIONS),
-  message: getSubArrayFromArray(3, MOCK_DESCRIPTIONS),
   author: 'Keks',
-  date: new Date('2014-01-01'),
+  comment: getSubArrayFromArray(3, MOCK_DESCRIPTIONS),
+  date: getRandomDate(),
+  emotion: getRandomArrayElement(COMMENT_EMOTIONS),
 });
 
 const createUserDetails = () => ({
   watchlist: getRandomNumber(0, 1),
   alreadyWatched: getRandomNumber(0, 1),
+  watchingDate: getRandomDate(),
   favorite: getRandomNumber(0, 1)
 });
 
@@ -81,14 +84,23 @@ const createFilm = () => {
   const length = getRandomNumber(0, 10);
   const film = {
     id: nanoid(),
-    title: getRandomArrayElement(TITLES),
-    poster: getRandomArrayElement(POSTERS),
-    rating: getRandomNumber(0, 10),
-    year: getRandomNumber(1990, 2022),
-    duration: getRandomNumber(50, 180),
-    genres: getRandomArray(GENRES),
-    description: getSubArrayFromArray(4, MOCK_DESCRIPTIONS),
     comments: Array.from({length: length}, () => getRandomNumber(0, length)),
+    filmInfo: {
+      title: getRandomArrayElement(TITLES),
+      alternativeTitle: getRandomArrayElement(TITLES),
+      totalRating: getRandomNumber(0, 10),
+      poster: getRandomArrayElement(POSTERS),
+      ageRating: getRandomNumber(0, 18),
+      director: getRandomArrayElement(NAMES),
+      writers: getSubArrayFromArray(3, NAMES),
+      actors: getSubArrayFromArray(4, NAMES),
+      release: {
+        date: getRandomDate(),
+        releaseCountry: getRandomArrayElement(COUNTRES)},
+      duration: getRandomNumber(50, 180),
+      genres: getRandomArray(GENRES),
+      description: getSubArrayFromArray(4, MOCK_DESCRIPTIONS)
+    },
     userDetails: createUserDetails()
   };
   return film;
@@ -96,28 +108,4 @@ const createFilm = () => {
 
 const createComments = (comments) => comments.map(createComment);
 
-const createFilmDetails = (film) => {
-  const {id, title, poster, rating, year, duration, genres, description, comments, userDetails} = film;
-  const date = new Date(year, getRandomNumber(1, 12), getRandomNumber(1, 28));
-  const filmDetails = {
-    id,
-    title,
-    poster,
-    age: getRandomNumber(0, 18),
-    titleOriginal: getRandomArrayElement(POSTERS),
-    rating,
-    director: getRandomArrayElement(NAMES),
-    writers: getSubArrayFromArray(3, NAMES),
-    actors: getSubArrayFromArray(4, NAMES),
-    releaseDate: date,
-    duration,
-    country: getRandomArrayElement(COUNTRES),
-    genres,
-    description,
-    comments,
-    userDetails
-  };
-  return filmDetails;
-};
-
-export {createFilm, createComments, createFilmDetails, createUserFilters};
+export {createFilm, createComments, createUserFilters};

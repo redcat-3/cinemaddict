@@ -1,9 +1,19 @@
 import dayjs from 'dayjs';
 
-const DATE_FORMAT = 'D MMMM YYYY';
+const FILM_DATE_FORMAT = 'YYYY';
+const RELEASE_DATE_FORMAT = 'D MMMM YYYY';
+const COMMENT_DATE_FORMAT = 'YYYY/MM/DD HH:mm';
 
-function humanizeDate(date) {
-  return date ? dayjs(date).format(DATE_FORMAT) : '';
+function getReleaseDate(date) {
+  return date ? dayjs(date).format(RELEASE_DATE_FORMAT) : '';
+}
+
+function getFilmYear(date) {
+  return date ? dayjs(date).format(FILM_DATE_FORMAT) : '';
+}
+
+function getCommentDate(date) {
+  return date ? dayjs(date).format(COMMENT_DATE_FORMAT) : '';
 }
 
 function getRandomArrayElement(items) {
@@ -69,14 +79,16 @@ function getWeightForNullDate(dateA, dateB) {
   return null;
 }
 
-function sortByDate(filmA, filmB) {
-  const weight = getWeightForNullDate(filmA.dueDate, filmB.dueDate);
+function sortByReleaseDate(filmA, filmB) {
+  const weight = getWeightForNullDate(filmA.filmInfo.release.date, filmB.filmInfo.release.date);
 
-  return weight ?? dayjs(filmA.dueDate).diff(dayjs(filmB.dueDate));
+  return weight ?? dayjs(filmA.filmInfo.release.date).diff(dayjs(filmB.filmInfo.release.date));
 }
 
 export {
-  humanizeDate,
+  getReleaseDate,
+  getFilmYear,
+  getCommentDate,
   getRandomArrayElement,
   getRandomNumber,
   getRandomArray,
@@ -84,4 +96,4 @@ export {
   getDuration,
   updateItem,
   getFilmById,
-  sortByDate};
+  sortByReleaseDate};

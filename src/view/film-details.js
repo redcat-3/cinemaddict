@@ -1,6 +1,6 @@
-import { createElement} from '../framework/render.js';
+import {createElement} from '../framework/render.js';
 import AbstractView from '../framework/view/abstract-view.js';
-import {humanizeDate, getDuration} from '../utils.js';
+import {getReleaseDate, getDuration, getCommentDate} from '../utils.js';
 
 const EMOJI = {
   smile: './images/emoji/smile.png',
@@ -18,8 +18,8 @@ function getGenreWord(genres) {
   }
 }
 
-function createFilmDetailsTemplate(filmDetails, commentsList) {
-  const {title, poster, age, titleOriginal, rating, director, writers, actors, releaseDate, duration, country, genres, description, comments} = filmDetails;
+function createFilmDetailsTemplate(film, commentsList) {
+  const {filmInfo, comments} = film;
   return `<section class="film-details">
   <div class="film-details__inner">
     <div class="film-details__top-container">
@@ -28,56 +28,56 @@ function createFilmDetailsTemplate(filmDetails, commentsList) {
       </div>
       <div class="film-details__info-wrap">
         <div class="film-details__poster">
-          <img class="film-details__poster-img" src=${poster} alt="">
+          <img class="film-details__poster-img" src=${filmInfo.poster} alt="">
 
-          <p class="film-details__age">${age}</p>
+          <p class="film-details__age">${filmInfo.ageRating}</p>
         </div>
 
         <div class="film-details__info">
           <div class="film-details__info-head">
             <div class="film-details__title-wrap">
-              <h3 class="film-details__title">${title}</h3>
-              <p class="film-details__title-original">Original: ${titleOriginal}</p>
+              <h3 class="film-details__title">${filmInfo.title}</h3>
+              <p class="film-details__title-original">Original: ${filmInfo.alternativeTitle}</p>
             </div>
 
             <div class="film-details__rating">
-              <p class="film-details__total-rating">${rating}</p>
+              <p class="film-details__total-rating">${filmInfo.totalRating}</p>
             </div>
           </div>
 
           <table class="film-details__table">
             <tr class="film-details__row">
               <td class="film-details__term">Director</td>
-              <td class="film-details__cell">${director}</td>
+              <td class="film-details__cell">${filmInfo.director}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Writers</td>
-              <td class="film-details__cell">${writers}</td>
+              <td class="film-details__cell">${filmInfo.writers}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Actors</td>
-              <td class="film-details__cell">${actors}</td>
+              <td class="film-details__cell">${filmInfo.actors}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
-              <td class="film-details__cell">${humanizeDate(releaseDate)}</td>
+              <td class="film-details__cell">${getReleaseDate(filmInfo.release.date)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Duration</td>
-              <td class="film-details__cell">${getDuration(duration)}</td>
+              <td class="film-details__cell">${getDuration(filmInfo.duration)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Country</td>
-              <td class="film-details__cell">${country}</td>
+              <td class="film-details__cell">${filmInfo.release.releaseCountry}</td>
             </tr>
             <tr class="film-details__row">
-              <td class="film-details__term">${getGenreWord(genres)}</td>
+              <td class="film-details__term">${getGenreWord(filmInfo.genres)}</td>
               <td class="film-details__cell">
-                <span class="film-details__genre">${genres.join(' ')}</span></td>
+                <span class="film-details__genre">${filmInfo.genres.join(' ')}</span></td>
             </tr>
           </table>
 
-          <p class="film-details__film-description">${description}</p>
+          <p class="film-details__film-description">${filmInfo.description}</p>
         </div>
       </div>
 
@@ -97,10 +97,10 @@ function createFilmDetailsTemplate(filmDetails, commentsList) {
               <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt=${comment.emotion}>
             </span>
             <div>
-              <p class="film-details__comment-text">${comment.message.join(' ')}</p>
+              <p class="film-details__comment-text">${comment.comment.join(' ')}</p>
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${comment.author}</span>
-                <span class="film-details__comment-day">${comment.date}</span>
+                <span class="film-details__comment-day">${getCommentDate(comment.date)}</span>
                 <button class="film-details__comment-delete">Delete</button>
               </p>
             </div>`)}
@@ -158,16 +158,16 @@ function createControlButtonFavoriteTemplate() {
 }
 
 export default class FilmDetailsView extends AbstractView {
-  #filmDetails = null;
+  #film = null;
   #commentsList = null;
   #onClick = null;
   #handleWatchlistClick = null;
   #handleWatchedClick = null;
   #handleFavoriteClick = null;
 
-  constructor({filmDetails, commentsList, onClick, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
+  constructor({film, commentsList, onClick, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
     super();
-    this.#filmDetails = filmDetails;
+    this.#film = film;
     this.#commentsList = commentsList;
     this.#onClick = onClick;
     this.#handleWatchlistClick = onWatchlistClick;
@@ -193,17 +193,17 @@ export default class FilmDetailsView extends AbstractView {
   }
 
   get template() {
-    return createFilmDetailsTemplate(this.#filmDetails, this.#commentsList);
+    return createFilmDetailsTemplate(this.#film, this.#commentsList);
   }
 
   setUserControls() {
-    if(this.#filmDetails.userDetails.watchlist) {
+    if(this.#film.userDetails.watchlist) {
       this.element.querySelector('.film-details__control-button--watchlist').classList.add('film-details__control-button--active');
     }
-    if(this.#filmDetails.userDetails.alreadyWatched) {
+    if(this.#film.userDetails.alreadyWatched) {
       this.element.querySelector('.film-details__control-button--watched').classList.add('film-details__control-button--active');
     }
-    if(this.#filmDetails.userDetails.favorite) {
+    if(this.#film.userDetails.favorite) {
       this.element.querySelector('.film-details__control-button--favorite').classList.add('film-details__control-button--active');
     }
   }

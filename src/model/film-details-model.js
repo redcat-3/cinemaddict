@@ -1,9 +1,7 @@
-import {createFilmDetails} from '../mock/film.js';
-
 export default class FilmDetailsModel {
-  filmDetails = null;
+  film = null;
 
   constructor({film}) {
-    this.filmDetails = createFilmDetails({film});
+    this.film = film;
   }
 }
