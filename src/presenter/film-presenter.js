@@ -1,6 +1,7 @@
 import {render, replace, remove} from '../framework/render.js';
 import FilmCardView from '../view/film-card.js';
 import FilmDetailsPresenter from './film-details-presenter.js';
+import {UpdateType} from '../const.js';
 
 export default class FilmPresenter {
   #filmContainer = null;
@@ -41,19 +42,26 @@ export default class FilmPresenter {
   #handleWatchlistClick = () => {
     this.#film.userDetails.watchlist = !this.#film.userDetails.watchlist;
     this.#filmComponent.setUserControls();
-    this.#handleControlClick(this.#film);
+    this.#handleControlClick(
+      UpdateType.MINOR,
+      this.#film
+    );
   };
 
   #handleWatchedClick = () => {
     this.#film.userDetails.alreadyWatched = !this.#film.userDetails.alreadyWatched;
     this.#filmComponent.setUserControls();
-    this.#handleControlClick(this.#film);
+    this.#handleControlClick(
+      UpdateType.MINOR,
+      this.#film);
   };
 
   #handleFavoriteClick = () => {
     this.#film.userDetails.favorite = !this.#film.userDetails.favorite;
     this.#filmComponent.setUserControls();
-    this.#handleControlClick(this.#film);
+    this.#handleControlClick(
+      UpdateType.MINOR,
+      this.#film);
   };
 
   #handlePopupControlClick = (update) => {
