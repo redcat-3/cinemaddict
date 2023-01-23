@@ -21,7 +21,7 @@ export default class FilmFiltersModel extends Observable {
     this.#all = [...films];
     this.#favorite = [...films].filter((film) => film.userDetails.favorite);
     this.#watched = [...films].filter((film) => film.userDetails.alreadyWatched);
-    this.#watchlist = [...films].filter((film) => film.userDetails.favorite);
+    this.#watchlist = [...films].filter((film) => film.userDetails.watchlist);
 
     this.userFilters = {
       watchlist: this.#watchlist.length,

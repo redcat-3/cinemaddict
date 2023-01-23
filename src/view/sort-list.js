@@ -1,4 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import {SortType} from '../const.js';
 
 function createSortListTemplate() {
   return `<ul class="sort">
@@ -27,6 +28,10 @@ export default class SortListView extends AbstractView {
     this.#handleSortTypeChange(evt.target.dataset.sortType);
     this.#setButtonActive(evt.target.dataset.sortType);
   };
+
+  reset() {
+    this.#setButtonActive(SortType.DEFAULT);
+  }
 
   #setButtonActive = (sortType) => {
     this.element.querySelectorAll('.sort__button')

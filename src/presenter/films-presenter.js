@@ -36,6 +36,7 @@ export default class FilmsPresenter {
   }
 
   get films() {
+    console.log(this.#filmFiltersModel.currentFilterType);
     switch (this.#filmFiltersModel.currentFilterType) {
       case 'watched':
         switch (this.#currentSortType) {
@@ -56,6 +57,16 @@ export default class FilmsPresenter {
           case SortType.DEFAULT:
           default:
             return this.#filmFiltersModel.favorite;
+        }
+      case 'watchlist':
+        switch (this.#currentSortType) {
+          case SortType.BY_DATE:
+            return this.#filmFiltersModel.watchlist.sort((a, b) =>sortByReleaseDate(a, b));
+          case SortType.BY_RATING:
+            return this.#filmFiltersModel.watchlist.sort((a, b) => a.filmInfo.totalRating - b.filmInfo.totalRating);
+          case SortType.DEFAULT:
+          default:
+            return this.#filmFiltersModel.watchlist;
         }
       case 'all':
       default:
@@ -135,6 +146,9 @@ export default class FilmsPresenter {
   };
 
   #handleFilterChange = () => {
+    this.#renderedFilmCount = FILM_COUNT_PER_STEP;
+    this.#sortComponent.reset();
+    this.#currentSortType = SortType.DEFAULT;
     this.#clearFilmList();
     this.#renderFilmList();
   };
