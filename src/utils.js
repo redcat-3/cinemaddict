@@ -61,7 +61,7 @@ const getDuration = (duration) => `${Math.round(duration / 60)}h ${duration % 60
 
 const updateItem = (items, update) => items.map((item) => item.id === update.id ? update : item);
 
-const getFilmById = (films, filmId) => films.find(({ id }) => id === filmId);
+const getItemById = (items, itemId) => items.find((item) => item.id === itemId);
 
 function getWeightForNullDate(dateA, dateB) {
   if (dateA === null && dateB === null) {
@@ -85,6 +85,12 @@ function sortByReleaseDate(filmA, filmB) {
   return weight ?? dayjs(filmA.filmInfo.release.date).diff(dayjs(filmB.filmInfo.release.date));
 }
 
+const getFavorit = (films) => films.filter((film) => film.userDetails.favorite);
+
+const getWatched = (films) =>films.filter((film) => film.userDetails.alreadyWatched);
+
+const getInWatchlist = (films) => films.filter((film) => film.userDetails.watchlist);
+
 export {
   getReleaseDate,
   getFilmYear,
@@ -95,5 +101,8 @@ export {
   getSubArrayFromArray,
   getDuration,
   updateItem,
-  getFilmById,
-  sortByReleaseDate};
+  getItemById,
+  sortByReleaseDate,
+  getFavorit,
+  getWatched,
+  getInWatchlist};
