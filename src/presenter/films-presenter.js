@@ -36,7 +36,6 @@ export default class FilmsPresenter {
   }
 
   get films() {
-    console.log(this.#filmFiltersModel.currentFilterType);
     switch (this.#filmFiltersModel.currentFilterType) {
       case 'watched':
         switch (this.#currentSortType) {
