@@ -36,48 +36,15 @@ export default class FilmsPresenter {
   }
 
   get films() {
-    switch (this.#filmFiltersModel.currentFilterType) {
-      case 'watched':
-        switch (this.#currentSortType) {
-          case SortType.BY_DATE:
-            return this.#filmFiltersModel.watched.sort((a, b) =>sortByReleaseDate(a, b));
-          case SortType.BY_RATING:
-            return this.#filmFiltersModel.watched.sort((a, b) => a.filmInfo.totalRating - b.filmInfo.totalRating);
-          case SortType.DEFAULT:
-          default:
-            return this.#filmFiltersModel.watched;
-        }
-      case 'favorite':
-        switch (this.#currentSortType) {
-          case SortType.BY_DATE:
-            return this.#filmFiltersModel.favorite.sort((a, b) =>sortByReleaseDate(a, b));
-          case SortType.BY_RATING:
-            return this.#filmFiltersModel.favorite.sort((a, b) => a.filmInfo.totalRating - b.filmInfo.totalRating);
-          case SortType.DEFAULT:
-          default:
-            return this.#filmFiltersModel.favorite;
-        }
-      case 'watchlist':
-        switch (this.#currentSortType) {
-          case SortType.BY_DATE:
-            return this.#filmFiltersModel.watchlist.sort((a, b) =>sortByReleaseDate(a, b));
-          case SortType.BY_RATING:
-            return this.#filmFiltersModel.watchlist.sort((a, b) => a.filmInfo.totalRating - b.filmInfo.totalRating);
-          case SortType.DEFAULT:
-          default:
-            return this.#filmFiltersModel.watchlist;
-        }
-      case 'all':
+    const films = [...this.#filmFiltersModel[this.#filmFiltersModel.currentFilterType]];
+    switch (this.#currentSortType) {
+      case SortType.BY_DATE:
+        return films.sort((a, b) =>sortByReleaseDate(a, b));
+      case SortType.BY_RATING:
+        return films.sort((a, b) => a.filmInfo.totalRating - b.filmInfo.totalRating);
+      case SortType.DEFAULT:
       default:
-        switch (this.#currentSortType) {
-          case SortType.BY_DATE:
-            return this.#filmFiltersModel.all.sort((a, b) =>sortByReleaseDate(a, b));
-          case SortType.BY_RATING:
-            return this.#filmFiltersModel.all.sort((a, b) => a.filmInfo.totalRating - b.filmInfo.totalRating);
-          case SortType.DEFAULT:
-          default:
-            return this.#filmFiltersModel.all;
-        }
+        return films;
     }
   }
 
@@ -92,10 +59,8 @@ export default class FilmsPresenter {
       filmContainer: this.#filmListComponent.getFilmListContainer(),
       onControlClick: this.#handleControlClick,
       popupCallBack: this.#setOnePopup,
-      onDataChange: this.#handleViewAction,
-      onModeChange: this.#handleModeChange
+      onViewAction: this.#handleViewAction
     });
-
     const commentList = getItemById(this.#commentsModel.comments, film.id);
     filmPresenter.init(commentList.commentList);
     this.#filmsPresenter.set(film.id, filmPresenter);
@@ -115,7 +80,7 @@ export default class FilmsPresenter {
 
   #renderFilmList() {
     render(this.#filmListComponent, this.#filmContainer);
-    const films = this.films;
+    const films = [...this.films];
     const filmCount = films.length;
     if(filmCount === 0) {
       this.#renderEmptyList();
@@ -154,19 +119,23 @@ export default class FilmsPresenter {
 
   #handleViewAction = (updateType, update) => {
     this.#filmsModel.updateFilm(updateType, update);
+    this.#filmFiltersModel.updateData(this.films);
   };
 
   #handleModelEvent = (updateType, data) => {
+    const commentList = getItemById(this.#commentsModel.comments, data.id);
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#filmsPresenter.get(data.id).init(data);
+        this.#filmsPresenter.get(data.id).replace(commentList.commentList);
         break;
       case UpdateType.MINOR:
         this.#clearFilmList();
+        this.#renderSort();
         this.#renderFilmList();
         break;
       case UpdateType.MAJOR:
         this.#clearFilmList({resetRenderedFilmCount: true, resetSortType: true});
+        this.#renderSort();
         this.#renderFilmList();
         break;
     }
@@ -186,8 +155,8 @@ export default class FilmsPresenter {
     }
   };
 
-  #handleControlClick = (update) => {
-    // обновление модели
+  #handleControlClick = (updateType, update) => {
+    this.#handleViewAction(updateType, update);
     const commentList = getItemById(this.#commentsModel.comments, update.id);
     this.#filmsPresenter.get(update.id).replace(commentList.commentList);
   };
@@ -210,11 +179,14 @@ export default class FilmsPresenter {
 
   #clearFilmList({resetRenderedFilmCount = false, resetSortType = false} = {}) {
     const filmCount = this.films.length;
-    this.#filmsPresenter.forEach((presenter) => presenter.destroy());
+    this.#filmsPresenter.forEach((presenter) => presenter.remove());
     this.#filmsPresenter.clear();
 
     remove(this.#emptyListComponent);
-    this.#showMorePresenter.remove();
+    if(this.#showMorePresenter) {
+      this.#showMorePresenter.remove();
+    }
+    remove(this.#filmListComponent);
 
 
     if (resetRenderedFilmCount) {

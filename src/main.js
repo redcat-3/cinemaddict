@@ -18,11 +18,11 @@ const filmsPresenter = new FilmsPresenter({
 });
 const headerPresenter = new HeaderPresenter({headerContainer: siteHeaderElement});
 
-const listFilerPresenter = new ListFilterPresenter({
+const listFilterPresenter = new ListFilterPresenter({
   listFilterContainer: siteMainElement,
   filmFiltersModel
 });
 
 headerPresenter.init();
-listFilerPresenter.init();
+listFilterPresenter.init();
 filmsPresenter.init();

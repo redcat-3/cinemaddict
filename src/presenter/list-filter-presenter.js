@@ -1,5 +1,5 @@
 import ListFilterView from '../view/list-filter.js';
-import {render} from '../render.js';
+import {render, replace, remove} from '../framework/render.js';
 
 export default class ListFilterPresenter {
   #listFilterContainer = null;
@@ -11,6 +11,8 @@ export default class ListFilterPresenter {
   constructor({listFilterContainer, filmFiltersModel}) {
     this.#listFilterContainer = listFilterContainer;
     this.#filmFiltersModel = filmFiltersModel;
+
+    this.#filmFiltersModel.addObserver(this.#handleModelUpdate);
   }
 
   init() {
@@ -25,4 +27,18 @@ export default class ListFilterPresenter {
     this.#currentFilterType = filterType;
     this.#filmFiltersModel.updateFilter(filterType);
   };
+
+  #handleModelUpdate = (userFilters) => {
+    this.update(userFilters);
+  };
+
+  update(userFilters) {
+    const updateComponent = new ListFilterView(userFilters, this.#onFilterChange);
+    replace(updateComponent, this.#listFilterComponent);
+    this.#listFilterComponent = updateComponent;
+  }
+
+  remove() {
+    remove(this.#listFilterComponent);
+  }
 }

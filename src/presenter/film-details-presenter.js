@@ -1,5 +1,6 @@
-import {render, replace} from '../framework/render.js';
+import {render, replace, remove} from '../framework/render.js';
 import FilmDetailsView from '../view/film-details.js';
+import {UpdateType} from '../const.js';
 
 const body = document.querySelector('body');
 
@@ -7,22 +8,21 @@ export default class FilmDetailsPresenter {
   #filmContainer = null;
   #filmDetailsComponent = null;
   #film = null;
-  #commentsList = null;
   #handlePopupControlClick = null;
   #popupCallBack = null;
+  #isChanged = null;
 
-  constructor({film, commentsList, filmContainer, onPopupControlClick, callBackPopup}) {
+  constructor({film, filmContainer, onPopupControlClick, callBackPopup}) {
     this.#film = film;
-    this.#commentsList = commentsList;
     this.#filmContainer = filmContainer;
     this.#handlePopupControlClick = onPopupControlClick;
     this.#popupCallBack = callBackPopup;
   }
 
-  init(commentsList) {
+  init(comments) {
     this.#filmDetailsComponent = new FilmDetailsView({
       film: this.#film,
-      commentsList,
+      commentList: comments,
       onClick: () => this.closePopup(),
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
@@ -38,41 +38,49 @@ export default class FilmDetailsPresenter {
   onEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
-      this.closePopup();
       document.removeEventListener('keydown', this.onEscKeyDown);
+      this.closePopup();
     }
   };
 
-  closePopup() {
-    this.#filmContainer.removeChild(document.querySelector('.film-details'));
+  closePopup = () => {
+    if(this.#isChanged) {
+      this.#handlePopupControlClick(UpdateType.PATCH, this.#film);
+    }
     body.classList.remove('hide-overflow');
-  }
+    this.remove();
+  };
 
   #handleWatchlistClick = () => {
     this.#film.userDetails.watchlist = !this.#film.userDetails.watchlist;
     this.#filmDetailsComponent.setUserControls();
-    this.#handlePopupControlClick(this.#film);
     this.#filmDetailsComponent.controlButtonsClickHandler();
+    this.#isChanged = true;
   };
 
   #handleWatchedClick = () => {
     this.#film.userDetails.alreadyWatched = !this.#film.userDetails.alreadyWatched;
     this.#filmDetailsComponent.setUserControls();
-    this.#handlePopupControlClick(this.#film);
     this.#filmDetailsComponent.controlButtonsClickHandler();
+
+    this.#isChanged = true;
   };
 
   #handleFavoriteClick = () => {
     this.#film.userDetails.favorite = !this.#film.userDetails.favorite;
     this.#filmDetailsComponent.setUserControls();
-    this.#handlePopupControlClick(this.#film);
     this.#filmDetailsComponent.controlButtonsClickHandler();
+    this.#isChanged = true;
   };
 
-  replace() {
+  remove() {
+    remove(this.#filmDetailsComponent);
+  }
+
+  replace(commentList) {
     const newComponent = new FilmDetailsView({
       film: this.#film,
-      commentsList: this.#commentsList,
+      commentList,
       onClick: () => this.closePopup(),
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,

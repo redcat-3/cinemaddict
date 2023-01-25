@@ -18,7 +18,7 @@ function getGenreWord(genres) {
   }
 }
 
-function createFilmDetailsTemplate(film, commentsList) {
+function createFilmDetailsTemplate(film, commentList) {
   const {filmInfo, comments} = film;
   return `<section class="film-details">
   <div class="film-details__inner">
@@ -92,7 +92,7 @@ function createFilmDetailsTemplate(film, commentsList) {
       <section class="film-details__comments-wrap">
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.lenght}</span></h3>
 
-        <ul class="film-details__comments-list">${commentsList.map((comment) => `<li class="film-details__comment">
+        <ul class="film-details__comments-list">${commentList.map((comment) => `<li class="film-details__comment">
             <span class="film-details__comment-emoji">
               <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt=${comment.emotion}>
             </span>
@@ -159,16 +159,16 @@ function createControlButtonFavoriteTemplate() {
 
 export default class FilmDetailsView extends AbstractView {
   #film = null;
-  #commentsList = null;
+  #commentList = null;
   #onClick = null;
   #handleWatchlistClick = null;
   #handleWatchedClick = null;
   #handleFavoriteClick = null;
 
-  constructor({film, commentsList, onClick, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
+  constructor({film, commentList, onClick, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
     super();
     this.#film = film;
-    this.#commentsList = commentsList;
+    this.#commentList = commentList;
     this.#onClick = onClick;
     this.#handleWatchlistClick = onWatchlistClick;
     this.#handleWatchedClick = onWatchedClick;
@@ -193,7 +193,7 @@ export default class FilmDetailsView extends AbstractView {
   }
 
   get template() {
-    return createFilmDetailsTemplate(this.#film, this.#commentsList);
+    return createFilmDetailsTemplate(this.#film, this.#commentList);
   }
 
   setUserControls() {

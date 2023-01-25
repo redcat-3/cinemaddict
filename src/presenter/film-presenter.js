@@ -9,12 +9,15 @@ export default class FilmPresenter {
   #film = null;
   #handleControlClick = null;
   #popupCallBack = null;
+  #handleViewAction = null;
 
-  constructor({film, filmContainer, onControlClick, popupCallBack}) {
+
+  constructor({film, filmContainer, onControlClick, popupCallBack, onViewAction}) {
     this.#filmContainer = filmContainer;
     this.#film = film;
     this.#handleControlClick = onControlClick;
     this.#popupCallBack = popupCallBack;
+    this.#handleViewAction = onViewAction;
   }
 
   init(commentsList) {
@@ -43,7 +46,7 @@ export default class FilmPresenter {
     this.#film.userDetails.watchlist = !this.#film.userDetails.watchlist;
     this.#filmComponent.setUserControls();
     this.#handleControlClick(
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       this.#film
     );
   };
@@ -52,7 +55,7 @@ export default class FilmPresenter {
     this.#film.userDetails.alreadyWatched = !this.#film.userDetails.alreadyWatched;
     this.#filmComponent.setUserControls();
     this.#handleControlClick(
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       this.#film);
   };
 
@@ -60,16 +63,17 @@ export default class FilmPresenter {
     this.#film.userDetails.favorite = !this.#film.userDetails.favorite;
     this.#filmComponent.setUserControls();
     this.#handleControlClick(
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       this.#film);
   };
 
-  #handlePopupControlClick = (update) => {
+  #handlePopupControlClick = (updateType, update) => {
     this.#film.userDetails.watchlist = update.userDetails.watchlist;
     this.#film.userDetails.alreadyWatched = update.userDetails.alreadyWatched;
     this.#film.userDetails.favorite = update.userDetails.favorite;
     this.#filmComponent.setUserControls();
-    this.#handleControlClick(this.#film);
+    this.#handleControlClick(updateType, update);
+    this.#handleViewAction(updateType, update);
   };
 
   remove() {
@@ -91,14 +95,9 @@ export default class FilmPresenter {
       onWatchedClick: this.#handleWatchedClick,
       onFavoriteClick: this.#handleFavoriteClick
     });
-
     newComponent.setUserControls();
     replace(newComponent, this.#filmComponent);
     this.#filmComponent = newComponent;
-  }
-
-  destroy() {
-    remove(this.#filmComponent);
   }
 }
 

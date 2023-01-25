@@ -81,15 +81,8 @@ function getWeightForNullDate(dateA, dateB) {
 
 function sortByReleaseDate(filmA, filmB) {
   const weight = getWeightForNullDate(filmA.filmInfo.release.date, filmB.filmInfo.release.date);
-
   return weight ?? dayjs(filmA.filmInfo.release.date).diff(dayjs(filmB.filmInfo.release.date));
 }
-
-const getFavorit = (films) => films.filter((film) => film.userDetails.favorite);
-
-const getWatched = (films) =>films.filter((film) => film.userDetails.alreadyWatched);
-
-const getInWatchlist = (films) => films.filter((film) => film.userDetails.watchlist);
 
 export {
   getReleaseDate,
@@ -102,7 +95,4 @@ export {
   getDuration,
   updateItem,
   getItemById,
-  sortByReleaseDate,
-  getFavorit,
-  getWatched,
-  getInWatchlist};
+  sortByReleaseDate};
