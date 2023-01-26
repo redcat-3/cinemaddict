@@ -2,7 +2,7 @@ import Observable from '../framework/observable.js';
 import {createFilm} from '../mock/film.js';
 import {getItemById} from '../utils.js';
 
-const FILM_COUNT = 13;
+const FILM_COUNT = 17;
 
 export default class FilmsModel extends Observable {
   #films = Array.from({length: FILM_COUNT}, createFilm);
@@ -17,7 +17,6 @@ export default class FilmsModel extends Observable {
 
   updateFilm(updateType, update) {
     const index = getItemById(this.#films, update.id);
-    //this.#films.findIndex((film) => film.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t update unexisting task');
@@ -31,9 +30,4 @@ export default class FilmsModel extends Observable {
 
     this._notify(updateType, update);
   }
-
-  // renderCommentsById = (filmId) => {
-  //   this.#comments = createComments(getFilmById(this.films, filmId).comments);
-  //   return this.#comments;
-  // };
 }

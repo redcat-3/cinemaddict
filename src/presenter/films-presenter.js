@@ -102,24 +102,32 @@ export default class FilmsPresenter {
   }
 
   #renderEmptyList() {
+    this.#emptyListComponent = new EmptyView(this.#filmFiltersModel.currentFilterType);
     render(this.#emptyListComponent, this.#filmListComponent.getFilmListContainer());
   }
 
-  #handleModeChange = () => {
-    this.#filmsPresenter.forEach((presenter) => presenter.resetView());
-  };
-
-  #handleFilterChange = () => {
-    this.#renderedFilmCount = FILM_COUNT_PER_STEP;
-    this.#sortComponent.reset();
-    this.#currentSortType = SortType.DEFAULT;
-    this.#clearFilmList();
-    this.#renderFilmList();
+  #handleFilterChange = (updateType) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        break;
+      case UpdateType.MINOR:
+        this.#renderedFilmCount = FILM_COUNT_PER_STEP;
+        this.#sortComponent.reset();
+        this.#currentSortType = SortType.DEFAULT;
+        this.#clearFilmList();
+        this.#renderFilmList();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearFilmList({resetRenderedFilmCount: true, resetSortType: true});
+        this.#renderSort();
+        this.#renderFilmList();
+        break;
+    }
   };
 
   #handleViewAction = (updateType, update) => {
     this.#filmsModel.updateFilm(updateType, update);
-    this.#filmFiltersModel.updateData(this.films);
+    this.#filmFiltersModel.updateData(updateType, [...this.#filmFiltersModel.all]);
   };
 
   #handleModelEvent = (updateType, data) => {

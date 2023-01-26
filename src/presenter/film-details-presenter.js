@@ -62,7 +62,6 @@ export default class FilmDetailsPresenter {
     this.#film.userDetails.alreadyWatched = !this.#film.userDetails.alreadyWatched;
     this.#filmDetailsComponent.setUserControls();
     this.#filmDetailsComponent.controlButtonsClickHandler();
-
     this.#isChanged = true;
   };
 

@@ -8,19 +8,20 @@ const TitleByFilter = {
 };
 
 
-function createEmptyTemplate() {
-  return '<h2 class="films-list__title">There are no movies in our database</h2>';
+function createEmptyTemplate(currentFilter) {
+  const title = TitleByFilter[currentFilter];
+  return `<h2 class="films-list__title">${title}</h2>`;
 }
 
 export default class EmptyView extends AbstractView {
-  #element = null;
+  #currentFilter = null;
 
-  get template() {
-    return createEmptyTemplate();
+  constructor(currentFilter) {
+    super();
+    this.#currentFilter = currentFilter;
   }
 
-  setTitle = (currentFilter) => {
-    const title = TitleByFilter[currentFilter];
-    return `<h2 class="films-list__title">${title}</h2>`;
-  };
+  get template() {
+    return createEmptyTemplate(this.#currentFilter);
+  }
 }

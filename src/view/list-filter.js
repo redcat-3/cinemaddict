@@ -13,13 +13,13 @@ function createListFilterTemplate(userFilters) {
 export default class ListFilterView extends AbstractView {
   #userFilters = null;
   #onClick = null;
+  #currentFilterType = null;
 
-  currentFilterType = 'all';
-
-  constructor(userFilters, onClick) {
+  constructor(userFilters, onClick, filterType) {
     super();
     this.#userFilters = userFilters;
     this.#onClick = onClick;
+    this.#currentFilterType = filterType;
     this.element.querySelectorAll('.main-navigation__item').forEach((element) => element.addEventListener('click', this.#onClickFilter));
   }
 
@@ -30,12 +30,20 @@ export default class ListFilterView extends AbstractView {
   #onClickFilter = (evt) => {
     evt.preventDefault();
     this.#onClick(evt.target.dataset.filterType);
-    if(this.currentFilterType === evt.target.dataset.filterType) {
+    if(this.#currentFilterType === evt.target.dataset.filterType) {
       return;
     }
     this.currentFilterType = evt.target.dataset.filterType;
+  };
+
+  setActiveFilterControl = () => {
     this.element.querySelectorAll('a')
-      .forEach((element) => element.classList.remove('main-navigation__item--active'));
-    evt.target.classList.add('main-navigation__item--active');
+      .forEach((element) => {
+        if(element.dataset.filterType !== this.#currentFilterType) {
+          element.classList.remove('main-navigation__item--active');
+        } else {
+          element.classList.add('main-navigation__item--active');
+        }
+      });
   };
 }
