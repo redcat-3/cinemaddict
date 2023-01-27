@@ -1,6 +1,6 @@
 import {render, replace, remove} from '../framework/render.js';
 import FilmDetailsView from '../view/film-details.js';
-import {UpdateType} from '../const.js';
+import {UpdateType, UpdateCommentType} from '../const.js';
 
 const body = document.querySelector('body');
 
@@ -11,12 +11,29 @@ export default class FilmDetailsPresenter {
   #handlePopupControlClick = null;
   #popupCallBack = null;
   #isChanged = null;
+  #handleUpdateComment = null;
 
-  constructor({film, filmContainer, onPopupControlClick, callBackPopup}) {
+  commentsUpdate = {
+    id: null,
+    commentList: new Array()
+  };
+
+  commentUpdate = {
+    id: null,
+    author: null,
+    comment: null,
+    date: null,
+    emotion: null
+  };
+
+  commentsDelete = [];
+
+  constructor({film, filmContainer, onPopupControlClick, callBackPopup, onCommentUpdate}) {
     this.#film = film;
     this.#filmContainer = filmContainer;
     this.#handlePopupControlClick = onPopupControlClick;
     this.#popupCallBack = callBackPopup;
+    this.#handleUpdateComment = onCommentUpdate;
   }
 
   init(comments) {
@@ -26,7 +43,8 @@ export default class FilmDetailsPresenter {
       onClick: () => this.closePopup(),
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
-      onFavoriteClick: this.#handleFavoriteClick
+      onFavoriteClick: this.#handleFavoriteClick,
+      onUpdateComment: this.#onUpdateComment
     });
     this.#popupCallBack(this.#filmDetailsComponent.closePopup);
     this.#filmDetailsComponent.setUserControls();
@@ -46,6 +64,15 @@ export default class FilmDetailsPresenter {
   closePopup = () => {
     if(this.#isChanged) {
       this.#handlePopupControlClick(UpdateType.PATCH, this.#film);
+    }
+
+    if(this.commentsDelete.length) {
+      let newCommentList = [];
+      for(let i = 0; i < this.commentsDelete.length; i++) {
+        newCommentList = this.#filmDetailsComponent.commentList.filter((item) => item.id !== this.commentsDelete[i]);
+        this.#filmDetailsComponent.commentList = newCommentList;
+      }
+      this.#handleUpdateComment(UpdateType.PATCH, newCommentList);
     }
     body.classList.remove('hide-overflow');
     this.remove();
@@ -72,6 +99,21 @@ export default class FilmDetailsPresenter {
     this.#isChanged = true;
   };
 
+  #onUpdateComment = (updateCommentType, data) => {
+    switch (updateCommentType) {
+      case UpdateCommentType.DELETE:
+        this.commentsDelete.push(data);
+        break;
+      case UpdateCommentType.ADD:
+        break;
+    }
+
+  };
+
+  #handleAddCommentClick = () => {
+
+  };
+
   remove() {
     remove(this.#filmDetailsComponent);
   }
@@ -83,7 +125,8 @@ export default class FilmDetailsPresenter {
       onClick: () => this.closePopup(),
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
-      onFavoriteClick: this.#handleFavoriteClick
+      onFavoriteClick: this.#handleFavoriteClick,
+      onUpdateCommentClick: this.#handleUpdateComment
     });
 
     newComponent.setUserControls();

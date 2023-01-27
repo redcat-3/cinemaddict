@@ -1,6 +1,7 @@
 import {createElement} from '../framework/render.js';
 import AbstractView from '../framework/view/abstract-view.js';
-import {getReleaseDate, getDuration, getCommentDate} from '../utils.js';
+import {getReleaseDate, getDuration, getCommentDate, getItemById} from '../utils.js';
+import {UpdateCommentType} from '../const.js';
 
 const EMOJI = {
   smile: './images/emoji/smile.png',
@@ -92,21 +93,22 @@ function createFilmDetailsTemplate(film, commentList) {
       <section class="film-details__comments-wrap">
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.lenght}</span></h3>
 
-        <ul class="film-details__comments-list">${commentList.map((comment) => `<li class="film-details__comment">
-            <span class="film-details__comment-emoji">
-              <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt=${comment.emotion}>
-            </span>
-            <div>
-              <p class="film-details__comment-text">${comment.comment.join(' ')}</p>
-              <p class="film-details__comment-info">
-                <span class="film-details__comment-author">${comment.author}</span>
-                <span class="film-details__comment-day">${getCommentDate(comment.date)}</span>
-                <button class="film-details__comment-delete">Delete</button>
-              </p>
-            </div>`)}
+        <ul class="film-details__comments-list">${commentList.map((comment) => `<li class="film-details__comment" data-comment-id=${comment.id}>
+              <span class="film-details__comment-emoji">
+                <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt=${comment.emotion}>
+              </span>
+              <div>
+                <p class="film-details__comment-text">${comment.comment.join(' ')}</p>
+                <p class="film-details__comment-info">
+                  <span class="film-details__comment-author">${comment.author}</span>
+                  <span class="film-details__comment-day">${getCommentDate(comment.date)}</span>
+                  <button class="film-details__comment-delete" data-comment-id=${comment.id}>Delete</button>
+                </p>
+              </div>
+            </li>`)}
         </ul>
 
-        <form class="film-details__new-comment" action="" method="get">
+        <form class="film-details__new-comment" action="" method="get" onkeydown="submitOnCtrlEnter()">
           <div class="film-details__add-emoji-label"></div>
 
           <label class="film-details__comment-label">
@@ -159,29 +161,33 @@ function createControlButtonFavoriteTemplate() {
 
 export default class FilmDetailsView extends AbstractView {
   #film = null;
-  #commentList = null;
+  commentList = null;
   #onClick = null;
   #handleWatchlistClick = null;
   #handleWatchedClick = null;
   #handleFavoriteClick = null;
+  #handleUpdateComment = null;
 
-  constructor({film, commentList, onClick, onWatchlistClick, onWatchedClick, onFavoriteClick}) {
+  constructor({film, commentList, onClick, onWatchlistClick, onWatchedClick, onFavoriteClick, onUpdateComment}) {
     super();
     this.#film = film;
-    this.#commentList = commentList;
+    this.commentList = commentList;
     this.#onClick = onClick;
     this.#handleWatchlistClick = onWatchlistClick;
     this.#handleWatchedClick = onWatchedClick;
     this.#handleFavoriteClick = onFavoriteClick;
+    this.#handleUpdateComment = onUpdateComment;
 
     this.element.querySelector('.film-details__close-btn')
       .addEventListener('click', this.#onClick);
+
     this.element.querySelector('.film-details__control-button--watchlist')
       .addEventListener('click', this.#watchlistClickHandler);
     this.element.querySelector('.film-details__control-button--watched')
       .addEventListener('click', this.#watchedClickHandler);
     this.element.querySelector('.film-details__control-button--favorite')
       .addEventListener('click', this.#favoritelistClickHandler);
+
     this.element.querySelector('#emoji-smile')
       .addEventListener('click', this.#onEmojiClick);
     this.element.querySelector('#emoji-sleeping')
@@ -190,10 +196,13 @@ export default class FilmDetailsView extends AbstractView {
       .addEventListener('click', this.#onEmojiClick);
     this.element.querySelector('#emoji-angry')
       .addEventListener('click', this.#onEmojiClick);
+
+    this.element.querySelectorAll('.film-details__comment-delete')
+      .forEach((item) => item.addEventListener('click', this.#onCommentDeleteClick));
   }
 
   get template() {
-    return createFilmDetailsTemplate(this.#film, this.#commentList);
+    return createFilmDetailsTemplate(this.#film, this.commentList);
   }
 
   setUserControls() {
@@ -259,5 +268,24 @@ export default class FilmDetailsView extends AbstractView {
     evt.preventDefault();
     this.#emojiClickHandler(evt.target.value);
     evt.target.checked = true;
+  };
+
+  #onCommentDeleteClick = (evt) => {
+    evt.preventDefault();
+    let commentElement = null;
+    for(let i = 0; i < this.element.querySelectorAll('.film-details__comment').length; i++) {
+      if(this.element.querySelectorAll('.film-details__comment')[i].dataset.commentId === evt.target.dataset.commentId) {
+        commentElement = this.element.querySelectorAll('.film-details__comment')[i];
+      }
+    }
+    this.element.querySelector('.film-details__comments-list').removeChild(commentElement);
+    this.#handleUpdateComment(UpdateCommentType.DELETE, evt.target.dataset.commentId);
+  };
+
+  #onAddCommentClick = (evt) => {
+    evt.preventDefault();
+    const commentElement = getItemById(this.element.querySelectorAll('.film-details__comment'), evt.target.dataset.commentId);
+    this.element.querySelector('.film-details__comments-list').removeChild(commentElement);
+    this.#handleUpdateComment(UpdateCommentType.ADD, evt.target.dataset.commentId);
   };
 }

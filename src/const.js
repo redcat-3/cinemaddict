@@ -10,4 +10,9 @@ const UpdateType = {
   MAJOR: 'MAJOR',
 };
 
-export {SortType, UpdateType};
+const UpdateCommentType = {
+  DELETE: 'DELETE',
+  ADD: 'ADD'
+};
+
+export {SortType, UpdateType, UpdateCommentType};

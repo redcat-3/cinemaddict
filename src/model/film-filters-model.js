@@ -1,4 +1,5 @@
 import Observable from '../framework/observable.js';
+import {UpdateType} from '../const.js';
 
 export default class FilmFiltersModel extends Observable {
   #all = null;
@@ -51,12 +52,21 @@ export default class FilmFiltersModel extends Observable {
   }
 
   updateData(updateType, films) {
-    this.#all = [...films];
-    this.userFilters = {
-      watchlist: this.watchlist.length,
-      watched: this.watched.length,
-      favorite: this.favorite.length,
-    };
-    this._notify(updateType, this.userFilters);
+    switch (updateType) {
+      case UpdateType.PATCH:
+        break;
+      case UpdateType.MINOR:
+        this.#all = [...films];
+        this.userFilters = {
+          watchlist: this.watchlist.length,
+          watched: this.watched.length,
+          favorite: this.favorite.length,
+        };
+        this._notify(updateType, this.userFilters);
+        break;
+      case UpdateType.MAJOR:
+        break;
+    }
+
   }
 }

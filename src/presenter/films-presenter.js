@@ -33,6 +33,7 @@ export default class FilmsPresenter {
 
     this.#filmsModel.addObserver(this.#handleModelEvent);
     this.#filmFiltersModel.addObserver(this.#handleFilterChange);
+    this.#commentsModel.addObserver(this.#handleCommentsModelEvent);
   }
 
   get films() {
@@ -125,9 +126,13 @@ export default class FilmsPresenter {
     }
   };
 
+  #handleCommentsModelEvent = (updateType, data) => {
+
+  };
+
   #handleViewAction = (updateType, update) => {
     this.#filmsModel.updateFilm(updateType, update);
-    this.#filmFiltersModel.updateData(updateType, [...this.#filmFiltersModel.all]);
+    this.#filmFiltersModel.updateData(UpdateType.MINOR, [...this.#filmFiltersModel.all]);
   };
 
   #handleModelEvent = (updateType, data) => {

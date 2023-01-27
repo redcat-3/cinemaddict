@@ -29,7 +29,8 @@ export default class FilmPresenter {
           commentsList,
           filmContainer: this.#filmContainer,
           onPopupControlClick: this.#handlePopupControlClick,
-          callBackPopup: this.#popupCallBack
+          callBackPopup: this.#popupCallBack,
+          onCommentUpdate: this.#handleCommentUpdate
         });
         filmDetailsPresenter.init(commentsList);
       },
@@ -74,6 +75,12 @@ export default class FilmPresenter {
     this.#filmComponent.setUserControls();
     this.#handleControlClick(updateType, update);
     this.#handleViewAction(updateType, update);
+  };
+
+  #handleCommentUpdate = (updateType, update) => {
+    const newComments = Array.from(update, (element) => element.id);
+    this.#film.comments = newComments;
+    this.#handleViewAction(updateType, this.#film);
   };
 
   remove() {
