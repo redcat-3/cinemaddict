@@ -72,7 +72,7 @@ export default class FilmDetailsPresenter {
         newCommentList = this.#filmDetailsComponent.commentList.filter((item) => item.id !== this.commentsDelete[i]);
         this.#filmDetailsComponent.commentList = newCommentList;
       }
-      this.#handleUpdateComment(UpdateType.PATCH, newCommentList);
+      this.#handleUpdateComment(UpdateType.PATCH, this.#filmDetailsComponent.commentList);
     }
     body.classList.remove('hide-overflow');
     this.remove();
@@ -126,11 +126,14 @@ export default class FilmDetailsPresenter {
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
       onFavoriteClick: this.#handleFavoriteClick,
-      onUpdateCommentClick: this.#handleUpdateComment
+      onUpdateComment: this.#onUpdateComment
     });
-
+    this.#popupCallBack(this.#filmDetailsComponent.closePopup);
     newComponent.setUserControls();
+    this.#filmDetailsComponent.setUserControls();
     replace(newComponent, this.#filmDetailsComponent);
     this.#filmDetailsComponent = newComponent;
+    document.addEventListener('keydown', this.onEscKeyDown);
+    body.classList.add('hide-overflow');
   }
 }

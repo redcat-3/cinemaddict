@@ -10,14 +10,16 @@ export default class FilmPresenter {
   #handleControlClick = null;
   #popupCallBack = null;
   #handleViewAction = null;
+  #handleUpdateComment = null;
 
 
-  constructor({film, filmContainer, onControlClick, popupCallBack, onViewAction}) {
+  constructor({film, filmContainer, onControlClick, popupCallBack, onViewAction, onCommentUpdate}) {
     this.#filmContainer = filmContainer;
     this.#film = film;
     this.#handleControlClick = onControlClick;
     this.#popupCallBack = popupCallBack;
     this.#handleViewAction = onViewAction;
+    this.#handleUpdateComment = onCommentUpdate;
   }
 
   init(commentsList) {
@@ -30,7 +32,7 @@ export default class FilmPresenter {
           filmContainer: this.#filmContainer,
           onPopupControlClick: this.#handlePopupControlClick,
           callBackPopup: this.#popupCallBack,
-          onCommentUpdate: this.#handleCommentUpdate
+          onCommentUpdate: this.#commentUpdateHandler
         });
         filmDetailsPresenter.init(commentsList);
       },
@@ -77,10 +79,11 @@ export default class FilmPresenter {
     this.#handleViewAction(updateType, update);
   };
 
-  #handleCommentUpdate = (updateType, update) => {
+  #commentUpdateHandler = (updateType, update) => {
     const newComments = Array.from(update, (element) => element.id);
     this.#film.comments = newComments;
     this.#handleViewAction(updateType, this.#film);
+    this.#handleUpdateComment(this.#film.id, update);
   };
 
   remove() {
@@ -95,7 +98,8 @@ export default class FilmPresenter {
         commentsList,
         filmContainer: this.#filmContainer,
         onPopupControlClick: this.#handlePopupControlClick,
-        callBackPopup: this.#popupCallBack
+        callBackPopup: this.#popupCallBack,
+        onCommentUpdate: this.#commentUpdateHandler
       });
       filmDetailsPresenter.init(commentsList);},
       onWatchlistClick: this.#handleWatchlistClick,

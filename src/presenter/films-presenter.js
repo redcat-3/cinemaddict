@@ -60,7 +60,8 @@ export default class FilmsPresenter {
       filmContainer: this.#filmListComponent.getFilmListContainer(),
       onControlClick: this.#handleControlClick,
       popupCallBack: this.#setOnePopup,
-      onViewAction: this.#handleViewAction
+      onViewAction: this.#handleViewAction,
+      onCommentUpdate: this.#handleCommentsModelEvent
     });
     const commentList = getItemById(this.#commentsModel.comments, film.id);
     filmPresenter.init(commentList.commentList);
@@ -126,8 +127,10 @@ export default class FilmsPresenter {
     }
   };
 
-  #handleCommentsModelEvent = (updateType, data) => {
-
+  #handleCommentsModelEvent = (id, update) => {
+    this.#commentsModel.updateComments(id, update);
+    this.#filmsModel.updateFilm(UpdateType.PATCH, getItemById(this.films, id));
+    this.#filmsPresenter.get(id).replace(update);
   };
 
   #handleViewAction = (updateType, update) => {

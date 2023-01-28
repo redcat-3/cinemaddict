@@ -91,7 +91,7 @@ function createFilmDetailsTemplate(film, commentList) {
 
     <div class="film-details__bottom-container">
       <section class="film-details__comments-wrap">
-        <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.lenght}</span></h3>
+        <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
         <ul class="film-details__comments-list">${commentList.map((comment) => `<li class="film-details__comment" data-comment-id=${comment.id}>
               <span class="film-details__comment-emoji">
@@ -105,7 +105,7 @@ function createFilmDetailsTemplate(film, commentList) {
                   <button class="film-details__comment-delete" data-comment-id=${comment.id}>Delete</button>
                 </p>
               </div>
-            </li>`)}
+            </li>`).join(' ')}
         </ul>
 
         <form class="film-details__new-comment" action="" method="get" onkeydown="submitOnCtrlEnter()">
@@ -280,6 +280,8 @@ export default class FilmDetailsView extends AbstractView {
     }
     this.element.querySelector('.film-details__comments-list').removeChild(commentElement);
     this.#handleUpdateComment(UpdateCommentType.DELETE, evt.target.dataset.commentId);
+    this.element.querySelectorAll('.film-details__comment-delete')
+      .forEach((item) => item.addEventListener('click', this.#onCommentDeleteClick));
   };
 
   #onAddCommentClick = (evt) => {
