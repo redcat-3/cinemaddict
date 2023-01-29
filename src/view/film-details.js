@@ -1,6 +1,7 @@
+import he from 'he';
 import {createElement} from '../framework/render.js';
 import AbstractView from '../framework/view/abstract-view.js';
-import {getReleaseDate, getDuration, getCommentDate, getItemById} from '../utils.js';
+import {getReleaseDate, getDuration, getCommentDate} from '../utils.js';
 import {UpdateCommentType} from '../const.js';
 
 const EMOJI = {
@@ -98,7 +99,7 @@ function createFilmDetailsTemplate(film, commentList) {
                 <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt=${comment.emotion}>
               </span>
               <div>
-                <p class="film-details__comment-text">${comment.comment.join(' ')}</p>
+                <p class="film-details__comment-text">${he.encode(`${comment.comment}`)}</p>
                 <p class="film-details__comment-info">
                   <span class="film-details__comment-author">${comment.author}</span>
                   <span class="film-details__comment-day">${getCommentDate(comment.date)}</span>
@@ -108,7 +109,7 @@ function createFilmDetailsTemplate(film, commentList) {
             </li>`).join(' ')}
         </ul>
 
-        <form class="film-details__new-comment" action="" method="get" onkeydown="submitOnCtrlEnter()">
+        <form class="film-details__new-comment" action="" method="get">
           <div class="film-details__add-emoji-label"></div>
 
           <label class="film-details__comment-label">
@@ -143,6 +144,22 @@ function createFilmDetailsTemplate(film, commentList) {
 </section>`;
 }
 
+function createCommentTemplate(comment) {
+  return `<li class="film-details__comment" data-comment-id=${comment.id}>
+    <span class="film-details__comment-emoji">
+      <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt=${comment.emotion}>
+    </span>
+    <div>
+      <p class="film-details__comment-text">${he.encode(`${comment.comment}`)}</p>
+      <p class="film-details__comment-info">
+        <span class="film-details__comment-author">${comment.author}</span>
+        <span class="film-details__comment-day">${getCommentDate(comment.date)}</span>
+        <button class="film-details__comment-delete" data-comment-id=${comment.id}>Delete</button>
+      </p>
+    </div>
+  </li>`;
+}
+
 function createEmodjiImgTemplate() {
   return '<img width="55" height="55"></img>';
 }
@@ -162,11 +179,13 @@ function createControlButtonFavoriteTemplate() {
 export default class FilmDetailsView extends AbstractView {
   #film = null;
   commentList = null;
+  #emodjiChecked = null;
+  commentText = null;
   #onClick = null;
   #handleWatchlistClick = null;
   #handleWatchedClick = null;
   #handleFavoriteClick = null;
-  #handleUpdateComment = null;
+  handleUpdateComment = null;
 
   constructor({film, commentList, onClick, onWatchlistClick, onWatchedClick, onFavoriteClick, onUpdateComment}) {
     super();
@@ -176,7 +195,7 @@ export default class FilmDetailsView extends AbstractView {
     this.#handleWatchlistClick = onWatchlistClick;
     this.#handleWatchedClick = onWatchedClick;
     this.#handleFavoriteClick = onFavoriteClick;
-    this.#handleUpdateComment = onUpdateComment;
+    this.handleUpdateComment = onUpdateComment;
 
     this.element.querySelector('.film-details__close-btn')
       .addEventListener('click', this.#onClick);
@@ -199,6 +218,8 @@ export default class FilmDetailsView extends AbstractView {
 
     this.element.querySelectorAll('.film-details__comment-delete')
       .forEach((item) => item.addEventListener('click', this.#onCommentDeleteClick));
+
+    this.element.querySelector('.film-details__comment-input').addEventListener('keypress', this.#keycheck);
   }
 
   get template() {
@@ -217,12 +238,12 @@ export default class FilmDetailsView extends AbstractView {
     }
   }
 
-  #emojiClickHandler(emodji) {
+  #emojiClickHandler() {
     this.element.querySelector('.film-details__add-emoji-label').innerHTML = '';
     const pictureTemplateElement = createEmodjiImgTemplate();
     const pictureElement = createElement(pictureTemplateElement);
-    pictureElement.src = EMOJI[emodji];
-    pictureElement.alt = `emoji-${EMOJI[emodji]}`;
+    pictureElement.src = EMOJI[this.#emodjiChecked];
+    pictureElement.alt = `emoji-${EMOJI[this.#emodjiChecked]}`;
     this.element.querySelector('.film-details__add-emoji-label').appendChild(pictureElement);
   }
 
@@ -249,6 +270,14 @@ export default class FilmDetailsView extends AbstractView {
       .addEventListener('click', this.#favoritelistClickHandler);
   }
 
+  addComment(data) {
+    this.element.querySelector('.film-details__add-emoji-label').innerHTML = '';
+    const commentTemplateElement = createCommentTemplate(data);
+    const commentElement = createElement(commentTemplateElement);
+    this.element.querySelector('.film-details__comment-input').value = '';
+    this.element.querySelector('.film-details__comments-list').appendChild(commentElement);
+  }
+
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleWatchlistClick();
@@ -266,7 +295,8 @@ export default class FilmDetailsView extends AbstractView {
 
   #onEmojiClick = (evt) => {
     evt.preventDefault();
-    this.#emojiClickHandler(evt.target.value);
+    this.#emodjiChecked = evt.target.value;
+    this.#emojiClickHandler();
     evt.target.checked = true;
   };
 
@@ -279,15 +309,27 @@ export default class FilmDetailsView extends AbstractView {
       }
     }
     this.element.querySelector('.film-details__comments-list').removeChild(commentElement);
-    this.#handleUpdateComment(UpdateCommentType.DELETE, evt.target.dataset.commentId);
+    this.handleUpdateComment(UpdateCommentType.DELETE, evt.target.dataset.commentId);
     this.element.querySelectorAll('.film-details__comment-delete')
       .forEach((item) => item.addEventListener('click', this.#onCommentDeleteClick));
   };
 
-  #onAddCommentClick = (evt) => {
-    evt.preventDefault();
-    const commentElement = getItemById(this.element.querySelectorAll('.film-details__comment'), evt.target.dataset.commentId);
-    this.element.querySelector('.film-details__comments-list').removeChild(commentElement);
-    this.#handleUpdateComment(UpdateCommentType.ADD, evt.target.dataset.commentId);
+  #keycheck = (evt) => {
+    if ((evt.ctrlKey || evt.metaKey) && evt.keyCode === 13) {
+      evt.preventDefault();
+      //document.querySelector('.film-details__new-comment').submit();
+      this.commentText = evt.target.value;
+      this.onAddCommentSubmit();
+    }
+  };
+
+  onAddCommentSubmit = () => {
+    if(this.#emodjiChecked) {
+      const comment = {
+        comment: this.commentText,
+        emotion: this.#emodjiChecked
+      };
+      this.handleUpdateComment(UpdateCommentType.ADD, comment);
+    }
   };
 }

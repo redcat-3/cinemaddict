@@ -1,6 +1,7 @@
 import {render, replace, remove} from '../framework/render.js';
 import FilmDetailsView from '../view/film-details.js';
 import {UpdateType, UpdateCommentType} from '../const.js';
+import { nanoid } from 'nanoid';
 
 const body = document.querySelector('body');
 
@@ -13,15 +14,12 @@ export default class FilmDetailsPresenter {
   #isChanged = null;
   #handleUpdateComment = null;
 
-  commentsUpdate = {
-    id: null,
-    commentList: new Array()
-  };
+  commentsUpdate = [];
 
   commentUpdate = {
     id: null,
     author: null,
-    comment: null,
+    comment: [],
     date: null,
     emotion: null
   };
@@ -74,6 +72,13 @@ export default class FilmDetailsPresenter {
       }
       this.#handleUpdateComment(UpdateType.PATCH, this.#filmDetailsComponent.commentList);
     }
+    if(this.commentsUpdate.length) {
+      let newCommentList = [];
+      newCommentList = this.#filmDetailsComponent.commentList.concat(this.commentsUpdate);
+      this.#filmDetailsComponent.commentList = newCommentList;
+      this.#handleUpdateComment(UpdateType.PATCH, this.#filmDetailsComponent.commentList);
+    }
+
     body.classList.remove('hide-overflow');
     this.remove();
   };
@@ -105,13 +110,17 @@ export default class FilmDetailsPresenter {
         this.commentsDelete.push(data);
         break;
       case UpdateCommentType.ADD:
-        break;
+        this.commentUpdate = {
+          id: nanoid(),
+          author: 'Keks',
+          comment: data.comment,
+          date: Date.now(),
+          emotion: data.emotion
+        };
+        this.commentsUpdate.push(this.commentUpdate);
+        this.#filmDetailsComponent.addComment(this.commentUpdate);
+        // показать сообщение
     }
-
-  };
-
-  #handleAddCommentClick = () => {
-
   };
 
   remove() {
