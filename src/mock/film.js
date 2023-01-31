@@ -84,7 +84,7 @@ const createFilm = () => {
   const length = getRandomNumber(0, 10);
   const film = {
     id: nanoid(),
-    comments: Array.from({length: length}, () => getRandomNumber(0, length)),
+    comments: Array.from({length: length}, () => nanoid()),
     filmInfo: {
       title: getRandomArrayElement(TITLES),
       alternativeTitle: getRandomArrayElement(TITLES),

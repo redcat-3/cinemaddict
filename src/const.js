@@ -4,4 +4,15 @@ const SortType = {
   BY_RATING: 'by_rating'
 };
 
-export {SortType};
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+const UpdateCommentType = {
+  DELETE: 'DELETE',
+  ADD: 'ADD'
+};
+
+export {SortType, UpdateType, UpdateCommentType};
