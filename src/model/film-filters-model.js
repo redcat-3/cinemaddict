@@ -21,9 +21,9 @@ export default class FilmFiltersModel extends Observable {
     this.#all = [...films];
 
     this.userFilters = {
-      watchlist: this.#all.filter((film) => film.userDetails.watchlist).length,
-      watched: this.#all.filter((film) => film.userDetails.alreadyWatched).length,
-      favorite: this.#all.filter((film) => film.userDetails.favorite).length,
+      watchlist: this.watchlist.length,
+      watched: this.watched.length,
+      favorite: this.favorite.length,
     };
   }
 
@@ -32,17 +32,17 @@ export default class FilmFiltersModel extends Observable {
   }
 
   get favorite() {
-    this.#favorite = [...this.#all].filter((film) => film.userDetails.favorite);
+    this.#favorite = this.#all.filter((film) => film.userDetails.favorite);
     return this.#favorite;
   }
 
   get watched() {
-    this.#watched = [...this.#all].filter((film) => film.userDetails.alreadyWatched);
+    this.#watched = this.#all.filter((film) => film.userDetails.alreadyWatched);
     return this.#watched;
   }
 
   get watchlist() {
-    this.#watchlist = [...this.#all].filter((film) => film.userDetails.watchlist);
+    this.#watchlist = this.#all.filter((film) => film.userDetails.watchlist);
     return this.#watchlist;
   }
 
