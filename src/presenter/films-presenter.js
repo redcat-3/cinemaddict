@@ -24,6 +24,7 @@ export default class FilmsPresenter {
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #currentSortType = SortType.DEFAULT;
   #filmsPresenter = new Map();
+  #filmDetailsPopup = null;
 
   constructor({filmContainer, filmsModel, commentsModel, filmFiltersModel}) {
     this.#filmContainer = filmContainer;
@@ -60,7 +61,7 @@ export default class FilmsPresenter {
       filmContainer: this.#filmListComponent.getFilmListContainer(),
       onControlClick: this.#handleControlClick,
       popupCallBack: this.#setOnePopup,
-      onViewAction: this.#handleViewAction,
+      popupOpen: this.#isPopupOpen,
       onCommentUpdate: this.#handleCommentsModelEvent
     });
     const commentList = getItemById(this.#commentsModel.comments, film.id);
@@ -108,6 +109,10 @@ export default class FilmsPresenter {
     render(this.#emptyListComponent, this.#filmListComponent.getFilmListContainer());
   }
 
+  #isPopupOpen = (popup) => {
+    this.#filmDetailsPopup = popup;
+  };
+
   #handleFilterChange = (updateType) => {
     switch (updateType) {
       case UpdateType.PATCH:
@@ -131,8 +136,8 @@ export default class FilmsPresenter {
     this.#commentsModel.updateComments(id, update);
     this.#filmsModel.updateFilm(UpdateType.PATCH, getItemById(this.films, id));
     this.#filmsPresenter.get(id).replace(update);
-    if(this.#filmsPresenter.get(id).filmDetailsPresenter) {
-      this.#filmsPresenter.get(id).filmDetailsPresenter.replace(update);
+    if(this.#filmDetailsPopup) {
+      this.#filmDetailsPopup.replace(update);
     }
   };
 
@@ -146,8 +151,8 @@ export default class FilmsPresenter {
     switch (updateType) {
       case UpdateType.PATCH:
         this.#filmsPresenter.get(data.id).replace(commentList.commentList);
-        if(this.#filmsPresenter.get(data.id).filmDetailsPresenter) {
-          this.#filmsPresenter.get(data.id).filmDetailsPresenter.replace(commentList.commentList);
+        if(this.#filmDetailsPopup) {
+          this.#filmDetailsPopup.replace(commentList.commentList);
         }
         break;
       case UpdateType.MINOR:
@@ -181,8 +186,8 @@ export default class FilmsPresenter {
     this.#handleViewAction(updateType, update);
     const commentList = getItemById(this.#commentsModel.comments, update.id);
     this.#filmsPresenter.get(update.id).replace(commentList.commentList);
-    if(this.#filmsPresenter.get(update.id).filmDetailsPresenter) {
-      this.#filmsPresenter.get(update.id).filmDetailsPresenter.replace(commentList.commentList);
+    if(this.#filmDetailsPopup) {
+      this.#filmDetailsPopup.replace(commentList.commentList);
     }
   };
 
@@ -213,13 +218,9 @@ export default class FilmsPresenter {
     }
     remove(this.#filmListComponent);
 
-
     if (resetRenderedFilmCount) {
       this.#renderedFilmCount = FILM_COUNT_PER_STEP;
     } else {
-      // На случай, если перерисовка доски вызвана
-      // уменьшением количества задач (например, удаление или перенос в архив)
-      // нужно скорректировать число показанных задач
       this.#renderedFilmCount = Math.min(filmCount, this.#renderedFilmCount);
     }
 

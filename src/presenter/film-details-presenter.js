@@ -11,7 +11,6 @@ export default class FilmDetailsPresenter {
   #film = null;
   #handlePopupControlClick = null;
   #popupCallBack = null;
-  #isChanged = null;
   #handleUpdateComment = null;
 
   commentsUpdate = [];
@@ -60,9 +59,6 @@ export default class FilmDetailsPresenter {
   };
 
   closePopup = () => {
-    if(this.#isChanged) {
-      this.#handlePopupControlClick(UpdateType.PATCH, this.#film);
-    }
     body.classList.remove('hide-overflow');
     this.remove();
   };
@@ -127,6 +123,7 @@ export default class FilmDetailsPresenter {
       onUpdateComment: this.#onUpdateComment
     });
     newComponent.setUserControls();
+    newComponent.#popupCallBack(this.closePopup);
     replace(newComponent, this.#filmDetailsComponent);
     this.#filmDetailsComponent = newComponent;
     document.addEventListener('keydown', this.onEscKeyDown);

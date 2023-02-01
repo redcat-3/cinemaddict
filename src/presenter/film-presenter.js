@@ -7,18 +7,18 @@ export default class FilmPresenter {
   #filmContainer = null;
   #filmComponent = null;
   #film = null;
-  filmDetailsPresenter = null;
   #handleControlClick = null;
   #popupCallBack = null;
-  #handleViewAction = null;
+  #popupOpen = null;
   #handleUpdateComment = null;
+  #filmDetailsPresenter = null;
 
-  constructor({film, filmContainer, onControlClick, popupCallBack, onViewAction, onCommentUpdate}) {
+  constructor({film, filmContainer, onControlClick, popupCallBack, popupOpen, onCommentUpdate}) {
     this.#filmContainer = filmContainer;
     this.#film = film;
     this.#handleControlClick = onControlClick;
     this.#popupCallBack = popupCallBack;
-    this.#handleViewAction = onViewAction;
+    this.#popupOpen = popupOpen;
     this.#handleUpdateComment = onCommentUpdate;
   }
 
@@ -26,7 +26,7 @@ export default class FilmPresenter {
     this.#filmComponent = new FilmCardView({
       film: this.#film,
       onClick:() => {
-        const filmDetailsPresenter = new FilmDetailsPresenter({
+        this.#filmDetailsPresenter = new FilmDetailsPresenter({
           film: this.#film,
           commentsList,
           filmContainer: this.#filmContainer,
@@ -34,16 +34,16 @@ export default class FilmPresenter {
           callBackPopup: this.#popupCallBack,
           onCommentUpdate: this.#commentUpdateHandler
         });
-        filmDetailsPresenter.init(commentsList);
-        this.filmDetailsPresenter = filmDetailsPresenter;
+        this.#filmDetailsPresenter.init(commentsList);
+        this.#popupOpen(this.#filmDetailsPresenter);
       },
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
       onFavoriteClick: this.#handleFavoriteClick,
     });
-
     this.#filmComponent.setUserControls();
     render(this.#filmComponent, this.#filmContainer);
+    this.#popupOpen(this.#filmDetailsPresenter);
   }
 
   #handleWatchlistClick = () => {
@@ -77,13 +77,11 @@ export default class FilmPresenter {
     this.#film.userDetails.favorite = update.userDetails.favorite;
     this.#filmComponent.setUserControls();
     this.#handleControlClick(updateType, update);
-    this.#handleViewAction(updateType, update);
   };
 
   #commentUpdateHandler = (updateType, update) => {
     const newComments = Array.from(update, (element) => element.id);
     this.#film.comments = newComments;
-    this.#handleViewAction(updateType, this.#film);
     this.#handleUpdateComment(this.#film.id, update);
   };
 
@@ -94,7 +92,7 @@ export default class FilmPresenter {
   replace(commentsList) {
     const newComponent = new FilmCardView({
       film: this.#film,
-      onClick:() => {const filmDetailsPresenter = new FilmDetailsPresenter({
+      onClick:() => {this.#filmDetailsPresenter = new FilmDetailsPresenter({
         film: this.#film,
         commentsList,
         filmContainer: this.#filmContainer,
@@ -102,8 +100,8 @@ export default class FilmPresenter {
         callBackPopup: this.#popupCallBack,
         onCommentUpdate: this.#commentUpdateHandler
       });
-      filmDetailsPresenter.init(commentsList);
-      this.filmDetailsPresenter = filmDetailsPresenter;
+      this.#filmDetailsPresenter.init(commentsList);
+      this.#popupOpen(this.#filmDetailsPresenter);
       },
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
@@ -112,6 +110,11 @@ export default class FilmPresenter {
     newComponent.setUserControls();
     replace(newComponent, this.#filmComponent);
     this.#filmComponent = newComponent;
+    this.#popupOpen(this.#filmDetailsPresenter);
+  }
+
+  getFilmDetailsPopup() {
+    return this.filmDetailsPresenter;
   }
 
 }
