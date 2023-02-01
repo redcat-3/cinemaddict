@@ -112,11 +112,6 @@ export default class FilmPresenter {
     this.#filmComponent = newComponent;
     this.#popupOpen(this.#filmDetailsPresenter);
   }
-
-  getFilmDetailsPopup() {
-    return this.filmDetailsPresenter;
-  }
-
 }
 
 

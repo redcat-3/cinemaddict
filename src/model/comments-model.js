@@ -1,12 +1,13 @@
 import Observable from '../framework/observable.js';
-import {createComments} from '../mock/film.js';
+import {UpdateType} from '../const.js';
 
 export default class CommentsModel extends Observable {
-  #comments = null;
+  #filmsApiService = null;
+  #comments = [];
 
-  constructor(films) {
+  constructor({filmsApiService}) {
     super();
-    this.#comments = Array.from(films, (film) => this.#createNewComments(film));
+    this.#filmsApiService = filmsApiService;
   }
 
   get comments() {
@@ -17,12 +18,16 @@ export default class CommentsModel extends Observable {
     this.#comments = comments;
   }
 
-  #createNewComments (film) {
-    const comment = {
-      id: film.id,
-      commentList: createComments(film.comments)
-    };
-    return comment;
+  async init(id) {
+    try {
+      const comments = await this.#filmsApiService.getComments(id);
+      this.#comments = comments.value;
+      console.log(this.#comments);
+    } catch(err) {
+      this.#comments = [];
+    }
+
+    this._notify(UpdateType.INIT);
   }
 
   updateComments(id, updateCommentList) {
