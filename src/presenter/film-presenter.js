@@ -7,11 +7,11 @@ export default class FilmPresenter {
   #filmContainer = null;
   #filmComponent = null;
   #film = null;
+  filmDetailsPresenter = null;
   #handleControlClick = null;
   #popupCallBack = null;
   #handleViewAction = null;
   #handleUpdateComment = null;
-
 
   constructor({film, filmContainer, onControlClick, popupCallBack, onViewAction, onCommentUpdate}) {
     this.#filmContainer = filmContainer;
@@ -35,6 +35,7 @@ export default class FilmPresenter {
           onCommentUpdate: this.#commentUpdateHandler
         });
         filmDetailsPresenter.init(commentsList);
+        this.filmDetailsPresenter = filmDetailsPresenter;
       },
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
@@ -101,7 +102,9 @@ export default class FilmPresenter {
         callBackPopup: this.#popupCallBack,
         onCommentUpdate: this.#commentUpdateHandler
       });
-      filmDetailsPresenter.init(commentsList);},
+      filmDetailsPresenter.init(commentsList);
+      this.filmDetailsPresenter = filmDetailsPresenter;
+      },
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
       onFavoriteClick: this.#handleFavoriteClick
@@ -110,6 +113,7 @@ export default class FilmPresenter {
     replace(newComponent, this.#filmComponent);
     this.#filmComponent = newComponent;
   }
+
 }
 
 

@@ -131,11 +131,14 @@ export default class FilmsPresenter {
     this.#commentsModel.updateComments(id, update);
     this.#filmsModel.updateFilm(UpdateType.PATCH, getItemById(this.films, id));
     this.#filmsPresenter.get(id).replace(update);
+    if(this.#filmsPresenter.get(id).filmDetailsPresenter) {
+      this.#filmsPresenter.get(id).filmDetailsPresenter.replace(update);
+    }
   };
 
   #handleViewAction = (updateType, update) => {
     this.#filmsModel.updateFilm(updateType, update);
-    this.#filmFiltersModel.updateData(UpdateType.MINOR, [...this.#filmFiltersModel.all]);
+    this.#filmFiltersModel.updateData(UpdateType.MINOR, this.#filmFiltersModel.all);
   };
 
   #handleModelEvent = (updateType, data) => {
@@ -143,6 +146,9 @@ export default class FilmsPresenter {
     switch (updateType) {
       case UpdateType.PATCH:
         this.#filmsPresenter.get(data.id).replace(commentList.commentList);
+        if(this.#filmsPresenter.get(data.id).filmDetailsPresenter) {
+          this.#filmsPresenter.get(data.id).filmDetailsPresenter.replace(commentList.commentList);
+        }
         break;
       case UpdateType.MINOR:
         this.#clearFilmList();
@@ -175,6 +181,9 @@ export default class FilmsPresenter {
     this.#handleViewAction(updateType, update);
     const commentList = getItemById(this.#commentsModel.comments, update.id);
     this.#filmsPresenter.get(update.id).replace(commentList.commentList);
+    if(this.#filmsPresenter.get(update.id).filmDetailsPresenter) {
+      this.#filmsPresenter.get(update.id).filmDetailsPresenter.replace(commentList.commentList);
+    }
   };
 
   #setOnePopup = (callBack) => {

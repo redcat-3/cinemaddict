@@ -44,7 +44,7 @@ export default class FilmDetailsPresenter {
       onFavoriteClick: this.#handleFavoriteClick,
       onUpdateComment: this.#onUpdateComment
     });
-    this.#popupCallBack(this.#filmDetailsComponent.closePopup);
+    this.#popupCallBack(this.closePopup);
     this.#filmDetailsComponent.setUserControls();
     render(this.#filmDetailsComponent, this.#filmContainer);
     document.addEventListener('keydown', this.onEscKeyDown);
@@ -63,22 +63,6 @@ export default class FilmDetailsPresenter {
     if(this.#isChanged) {
       this.#handlePopupControlClick(UpdateType.PATCH, this.#film);
     }
-
-    if(this.commentsDelete.length) {
-      let newCommentList = [];
-      for(let i = 0; i < this.commentsDelete.length; i++) {
-        newCommentList = this.#filmDetailsComponent.commentList.filter((item) => item.id !== this.commentsDelete[i]);
-        this.#filmDetailsComponent.commentList = newCommentList;
-      }
-      this.#handleUpdateComment(UpdateType.PATCH, this.#filmDetailsComponent.commentList);
-    }
-    if(this.commentsUpdate.length) {
-      let newCommentList = [];
-      newCommentList = this.#filmDetailsComponent.commentList.concat(this.commentsUpdate);
-      this.#filmDetailsComponent.commentList = newCommentList;
-      this.#handleUpdateComment(UpdateType.PATCH, this.#filmDetailsComponent.commentList);
-    }
-
     body.classList.remove('hide-overflow');
     this.remove();
   };
@@ -87,27 +71,30 @@ export default class FilmDetailsPresenter {
     this.#film.userDetails.watchlist = !this.#film.userDetails.watchlist;
     this.#filmDetailsComponent.setUserControls();
     this.#filmDetailsComponent.controlButtonsClickHandler();
-    this.#isChanged = true;
+    this.#handlePopupControlClick(UpdateType.PATCH, this.#film);
   };
 
   #handleWatchedClick = () => {
     this.#film.userDetails.alreadyWatched = !this.#film.userDetails.alreadyWatched;
     this.#filmDetailsComponent.setUserControls();
     this.#filmDetailsComponent.controlButtonsClickHandler();
-    this.#isChanged = true;
+    this.#handlePopupControlClick(UpdateType.PATCH, this.#film);
   };
 
   #handleFavoriteClick = () => {
     this.#film.userDetails.favorite = !this.#film.userDetails.favorite;
     this.#filmDetailsComponent.setUserControls();
     this.#filmDetailsComponent.controlButtonsClickHandler();
-    this.#isChanged = true;
+    this.#handlePopupControlClick(UpdateType.PATCH, this.#film);
   };
 
   #onUpdateComment = (updateCommentType, data) => {
+    let newCommentList = [];
     switch (updateCommentType) {
       case UpdateCommentType.DELETE:
-        this.commentsDelete.push(data);
+        newCommentList = this.#filmDetailsComponent.commentList.filter((item) => item.id !== data);
+        this.#filmDetailsComponent.commentList = newCommentList;
+        this.#handleUpdateComment(UpdateType.PATCH, this.#filmDetailsComponent.commentList);
         break;
       case UpdateCommentType.ADD:
         this.commentUpdate = {
@@ -119,7 +106,9 @@ export default class FilmDetailsPresenter {
         };
         this.commentsUpdate.push(this.commentUpdate);
         this.#filmDetailsComponent.addComment(this.commentUpdate);
-        // показать сообщение
+        newCommentList = this.#filmDetailsComponent.commentList.concat(this.commentsUpdate);
+        this.#filmDetailsComponent.commentList = newCommentList;
+        this.#handleUpdateComment(UpdateType.PATCH, this.#filmDetailsComponent.commentList);
     }
   };
 
@@ -137,9 +126,7 @@ export default class FilmDetailsPresenter {
       onFavoriteClick: this.#handleFavoriteClick,
       onUpdateComment: this.#onUpdateComment
     });
-    this.#popupCallBack(this.#filmDetailsComponent.closePopup);
     newComponent.setUserControls();
-    this.#filmDetailsComponent.setUserControls();
     replace(newComponent, this.#filmDetailsComponent);
     this.#filmDetailsComponent = newComponent;
     document.addEventListener('keydown', this.onEscKeyDown);
