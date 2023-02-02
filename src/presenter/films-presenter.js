@@ -59,11 +59,9 @@ export default class FilmsPresenter {
   }
 
   #renderFilm(film) {
-    this.#commentsModel.init(film.id);
-    console.log(this.#commentsModel.comments);
     const filmPresenter = new FilmPresenter({
       film: getItemById(this.films, film.id),
-      comments: this.#commentsModel.comments,
+      commentsModel: this.#commentsModel,
       filmContainer: this.#filmListComponent.getFilmListContainer(),
       onControlClick: this.#handleControlClick,
       popupCallBack: this.#setOnePopup,
@@ -146,10 +144,14 @@ export default class FilmsPresenter {
     }
   };
 
-  #handleCommentsModelEvent = (updateType, id, update) => {
+  #handleCommentsModelEvent = (updateType, id, update, newComments) => {
+    let updateFilm = null;
     switch (updateType) {
       case UpdateType.PATCH:
         this.#commentsModel.updateComments(id, update);
+        updateFilm = getItemById(this.films, id);
+        updateFilm.comments = newComments;
+        this.#filmsModel.updateFilm(UpdateType.PATCH, updateFilm);
         this.#filmsPresenter.get(id).replace();
         if(this.#filmDetailsPopup) {
           this.#filmDetailsPopup.replace();
@@ -157,7 +159,9 @@ export default class FilmsPresenter {
         break;
       case UpdateType.MINOR:
         this.#commentsModel.updateComments(id, update);
-        this.#filmsModel.updateFilm(UpdateType.PATCH, getItemById(this.films, id));
+        updateFilm = getItemById(this.films, id);
+        updateFilm.comments = newComments;
+        this.#filmsModel.updateFilm(UpdateType.PATCH, updateFilm);
         this.#filmsPresenter.get(id).replace();
         if(this.#filmDetailsPopup) {
           this.#filmDetailsPopup.replace();
@@ -165,7 +169,9 @@ export default class FilmsPresenter {
         break;
       case UpdateType.MAJOR:
         this.#commentsModel.updateComments(id, update);
-        this.#filmsModel.updateFilm(UpdateType.PATCH, getItemById(this.films, id));
+        updateFilm = getItemById(this.films, id);
+        updateFilm.comments = newComments;
+        this.#filmsModel.updateFilm(UpdateType.PATCH, updateFilm);
         this.#filmsPresenter.get(id).replace();
         if(this.#filmDetailsPopup) {
           this.#filmDetailsPopup.replace();
@@ -182,19 +188,21 @@ export default class FilmsPresenter {
   };
 
   #handleModelEvent = (updateType, data) => {
-    let commentList = [];
     switch (updateType) {
       case UpdateType.PATCH:
-        commentList = this.#commentsModel.init(data.id);
-        this.#filmsPresenter.get(data.id).replace(commentList);
+        this.#commentsModel.init(data.id);
+        this.#filmsPresenter.get(data.id).replace();
         if(this.#filmDetailsPopup) {
-          this.#filmDetailsPopup.replace(commentList);
+          this.#filmDetailsPopup.replace();
         }
         break;
       case UpdateType.MINOR:
         this.#clearFilmList();
         this.#renderSort();
         this.#renderFilmList();
+        if(this.#filmDetailsPopup) {
+          this.#filmDetailsPopup.replace();
+        }
         break;
       case UpdateType.MAJOR:
         this.#clearFilmList({resetRenderedFilmCount: true, resetSortType: true});
@@ -225,10 +233,9 @@ export default class FilmsPresenter {
 
   #handleControlClick = (updateType, update) => {
     this.#handleViewAction(updateType, update);
-    const commentList = getItemById(this.#commentsModel.comments, update.id);
-    this.#filmsPresenter.get(update.id).replace(commentList.commentList);
+    this.#filmsPresenter.get(update.id).replace();
     if(this.#filmDetailsPopup) {
-      this.#filmDetailsPopup.replace(commentList.commentList);
+      this.#filmDetailsPopup.replace();
     }
   };
 

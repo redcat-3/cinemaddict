@@ -204,9 +204,6 @@ export default class FilmDetailsView extends AbstractView {
     this.element.querySelector('#emoji-angry')
       .addEventListener('click', this.#onEmojiClick);
 
-    this.element.querySelectorAll('.film-details__comment-delete')
-      .forEach((item) => item.addEventListener('click', this.#onCommentDeleteClick));
-
     this.element.querySelector('.film-details__comment-input').addEventListener('keypress', this.#keycheck);
   }
 
@@ -288,26 +285,12 @@ export default class FilmDetailsView extends AbstractView {
     evt.target.checked = true;
   };
 
-  #onCommentDeleteClick = (evt) => {
-    evt.preventDefault();
-    let commentElement = null;
-    for(let i = 0; i < this.element.querySelectorAll('.film-details__comment').length; i++) {
-      if(this.element.querySelectorAll('.film-details__comment')[i].dataset.commentId === evt.target.dataset.commentId) {
-        commentElement = this.element.querySelectorAll('.film-details__comment')[i];
-      }
-    }
-    this.element.querySelector('.film-details__comments-list').removeChild(commentElement);
-    this.handleUpdateComment(UpdateCommentType.DELETE, evt.target.dataset.commentId);
-    this.element.querySelectorAll('.film-details__comment-delete')
-      .forEach((item) => item.addEventListener('click', this.#onCommentDeleteClick));
-  };
-
   #keycheck = (evt) => {
     if ((evt.ctrlKey || evt.metaKey) && evt.keyCode === 13) {
       evt.preventDefault();
-      //document.querySelector('.film-details__new-comment').submit();
       this.commentText = evt.target.value;
       this.onAddCommentSubmit();
+      evt.target.disabled = true;
     }
   };
 

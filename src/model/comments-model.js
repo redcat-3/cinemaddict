@@ -12,7 +12,6 @@ export default class CommentsModel extends Observable {
   }
 
   get comments() {
-    this.#comments = this.#commentsApiService.comments;
     return this.#comments;
   }
 
@@ -24,12 +23,10 @@ export default class CommentsModel extends Observable {
     try {
       this.#filmId = id;
       this.#comments = await this.#commentsApiService.getComments(id);
-
     } catch(err) {
       this.#comments = [];
     }
-
-    this._notify(UpdateType.INIT);
+    this._notify(UpdateType.INIT, this.#comments);
   }
 
   updateComments(id, updateCommentList) {
