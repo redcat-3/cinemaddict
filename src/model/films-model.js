@@ -21,14 +21,12 @@ export default class FilmsModel extends Observable {
 
   async init() {
     try {
-      const films = await this.#filmsApiService.tasks;
+      const films = await this.#filmsApiService.films;
       this.#films = films.map(this.#adaptToClient);
-      console.log(this.#films);
     } catch(err) {
       this.#films = [];
     }
-
-    this._notify(UpdateType.INIT);
+    this._notify(UpdateType.INIT, this.films);
   }
 
   async updateFilm(updateType, update) {

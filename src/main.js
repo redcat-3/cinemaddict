@@ -33,5 +33,5 @@ const listFilterPresenter = new ListFilterPresenter({
 
 headerPresenter.init();
 listFilterPresenter.init();
-filmsModel.init();
 filmsPresenter.init();
+filmsModel.init();

@@ -67,8 +67,9 @@ export default class FilmsPresenter {
       popupOpen: this.#isPopupOpen,
       onCommentUpdate: this.#handleCommentsModelEvent
     });
-    const commentList = getItemById(this.#commentsModel.comments, film.id);
-    filmPresenter.init(commentList.commentList);
+    const commentList = this.#commentsModel.comments;
+    console.log(commentList);
+    filmPresenter.init(commentList);
     this.#filmsPresenter.set(film.id, filmPresenter);
   }
 
@@ -180,6 +181,7 @@ export default class FilmsPresenter {
       case UpdateType.INIT:
         this.#isLoading = false;
         remove(this.#loadingComponent);
+        this.#filmFiltersModel.updateData(UpdateType.MINOR, data);
         this.#renderFilmList();
         break;
     }
