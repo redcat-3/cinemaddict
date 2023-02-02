@@ -2,15 +2,17 @@ import Observable from '../framework/observable.js';
 import {UpdateType} from '../const.js';
 
 export default class CommentsModel extends Observable {
-  #filmsApiService = null;
+  #commentsApiService = null;
   #comments = [];
+  #filmId = null;
 
-  constructor({filmsApiService}) {
+  constructor({commentsApiService}) {
     super();
-    this.#filmsApiService = filmsApiService;
+    this.#commentsApiService = commentsApiService;
   }
 
   get comments() {
+    this.#comments = this.#commentsApiService.comments;
     return this.#comments;
   }
 
@@ -20,9 +22,9 @@ export default class CommentsModel extends Observable {
 
   async init(id) {
     try {
-      const comments = await this.#filmsApiService.getComments(id);
-      this.#comments = comments;
-      console.log(this.#comments);
+      this.#filmId = id;
+      this.#comments = await this.#commentsApiService.getComments(id);
+
     } catch(err) {
       this.#comments = [];
     }
@@ -31,22 +33,8 @@ export default class CommentsModel extends Observable {
   }
 
   updateComments(id, updateCommentList) {
-    const index = this.comments.findIndex((item) => item.id === id);
-
-    if (index === -1) {
-      throw new Error('Can\'t update unexisting comment');
-    }
-
-    const comment = {
-      id,
-      commentList: updateCommentList
-    };
-
-    this.comments = [
-      ...this.#comments.slice(0, index),
-      comment,
-      ...this.#comments.slice(index + 1),
-    ];
+    this.#filmId = id;
+    this.comments = updateCommentList;
 
     //this._notify(id, updateCommentList);
   }

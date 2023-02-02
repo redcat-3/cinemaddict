@@ -20,7 +20,7 @@ function getGenreWord(genres) {
   }
 }
 
-function createFilmDetailsTemplate(film, commentList) {
+function createFilmDetailsTemplate(film) {
   const {filmInfo, comments} = film;
   return `<section class="film-details">
   <div class="film-details__inner">
@@ -73,9 +73,9 @@ function createFilmDetailsTemplate(film, commentList) {
               <td class="film-details__cell">${filmInfo.release.releaseCountry}</td>
             </tr>
             <tr class="film-details__row">
-              <td class="film-details__term">${getGenreWord(filmInfo.genres)}</td>
+              <td class="film-details__term">${getGenreWord(filmInfo.genre)}</td>
               <td class="film-details__cell">
-                <span class="film-details__genre">${filmInfo.genres.join(' ')}</span></td>
+                <span class="film-details__genre">${filmInfo.genre.join(' ')}</span></td>
             </tr>
           </table>
 
@@ -94,19 +94,7 @@ function createFilmDetailsTemplate(film, commentList) {
       <section class="film-details__comments-wrap">
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
-        <ul class="film-details__comments-list">${commentList.map((comment) => `<li class="film-details__comment" data-comment-id=${comment.id}>
-              <span class="film-details__comment-emoji">
-                <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt=${comment.emotion}>
-              </span>
-              <div>
-                <p class="film-details__comment-text">${he.encode(`${comment.comment}`)}</p>
-                <p class="film-details__comment-info">
-                  <span class="film-details__comment-author">${comment.author}</span>
-                  <span class="film-details__comment-day">${getCommentDate(comment.date)}</span>
-                  <button class="film-details__comment-delete" data-comment-id=${comment.id}>Delete</button>
-                </p>
-              </div>
-            </li>`).join(' ')}
+        <ul class="film-details__comments-list">
         </ul>
 
         <form class="film-details__new-comment" action="" method="get">
@@ -178,7 +166,7 @@ function createControlButtonFavoriteTemplate() {
 
 export default class FilmDetailsView extends AbstractView {
   #film = null;
-  commentList = null;
+  comments = null;
   #emodjiChecked = null;
   commentText = null;
   #onClick = null;
@@ -187,10 +175,10 @@ export default class FilmDetailsView extends AbstractView {
   #handleFavoriteClick = null;
   handleUpdateComment = null;
 
-  constructor({film, commentList, onClick, onWatchlistClick, onWatchedClick, onFavoriteClick, onUpdateComment}) {
+  constructor({film, comments, onClick, onWatchlistClick, onWatchedClick, onFavoriteClick, onUpdateComment}) {
     super();
     this.#film = film;
-    this.commentList = commentList;
+    this.comments = comments;
     this.#onClick = onClick;
     this.#handleWatchlistClick = onWatchlistClick;
     this.#handleWatchedClick = onWatchedClick;
@@ -223,7 +211,7 @@ export default class FilmDetailsView extends AbstractView {
   }
 
   get template() {
-    return createFilmDetailsTemplate(this.#film, this.commentList);
+    return createFilmDetailsTemplate(this.#film);
   }
 
   setUserControls() {

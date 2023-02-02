@@ -10,7 +10,7 @@ function createFilmCardTemplate(film) {
     <p class="film-card__info">
       <span class="film-card__year">${getFilmYear(filmInfo.release.date)}</span>
       <span class="film-card__duration">${getDuration(filmInfo.duration)}</span>
-      <span class="film-card__genre">${filmInfo.genres.join(' ')}</span>
+      <span class="film-card__genre">${filmInfo.genre.join(' ')}</span>
     </p>
     <img src=${filmInfo.poster} alt="" class="film-card__poster">
     <p class="film-card__description">${filmInfo.description}</p>

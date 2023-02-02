@@ -1,5 +1,6 @@
 import {render, replace, remove} from '../framework/render.js';
 import FilmDetailsView from '../view/film-details.js';
+import CommentView from '../view/comment.js';
 import {UpdateType, UpdateCommentType} from '../const.js';
 import { nanoid } from 'nanoid';
 
@@ -9,6 +10,7 @@ export default class FilmDetailsPresenter {
   #filmContainer = null;
   #filmDetailsComponent = null;
   #film = null;
+  #comments = null;
   #handlePopupControlClick = null;
   #popupCallBack = null;
   #handleUpdateComment = null;
@@ -25,18 +27,19 @@ export default class FilmDetailsPresenter {
 
   commentsDelete = [];
 
-  constructor({film, filmContainer, onPopupControlClick, callBackPopup, onCommentUpdate}) {
+  constructor({film, comments, filmContainer, onPopupControlClick, callBackPopup, onCommentUpdate}) {
     this.#film = film;
+    this.#comments = comments;
     this.#filmContainer = filmContainer;
     this.#handlePopupControlClick = onPopupControlClick;
     this.#popupCallBack = callBackPopup;
     this.#handleUpdateComment = onCommentUpdate;
   }
 
-  init(comments) {
+  init() {
     this.#filmDetailsComponent = new FilmDetailsView({
       film: this.#film,
-      commentList: comments,
+      comments: this.#comments,
       onClick: () => this.closePopup(),
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
@@ -46,6 +49,8 @@ export default class FilmDetailsPresenter {
     this.#popupCallBack(this.closePopup);
     this.#filmDetailsComponent.setUserControls();
     render(this.#filmDetailsComponent, this.#filmContainer);
+
+    this.#comments.forEach((comment) => this.#renderComment(comment));
     document.addEventListener('keydown', this.onEscKeyDown);
     body.classList.add('hide-overflow');
   }
@@ -62,6 +67,14 @@ export default class FilmDetailsPresenter {
     body.classList.remove('hide-overflow');
     this.remove();
   };
+
+  #renderComment(comment) {
+    render(new CommentView(comment, this.#onDeleteComment), this.#filmDetailsComponent.querySelector('.film-details__comments-list'));
+  }
+
+  #onDeleteComment(comment) {
+    remove(comment);
+  }
 
   #handleWatchlistClick = () => {
     this.#film.userDetails.watchlist = !this.#film.userDetails.watchlist;
@@ -112,10 +125,10 @@ export default class FilmDetailsPresenter {
     remove(this.#filmDetailsComponent);
   }
 
-  replace(commentList) {
+  replace() {
     const newComponent = new FilmDetailsView({
       film: this.#film,
-      commentList,
+      comments: this.#comments,
       onClick: () => this.closePopup(),
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
@@ -126,6 +139,7 @@ export default class FilmDetailsPresenter {
     newComponent.#popupCallBack(this.closePopup);
     replace(newComponent, this.#filmDetailsComponent);
     this.#filmDetailsComponent = newComponent;
+    this.#comments.forEach((comment) => this.#renderComment(comment));
     document.addEventListener('keydown', this.onEscKeyDown);
     body.classList.add('hide-overflow');
   }

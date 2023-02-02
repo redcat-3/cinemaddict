@@ -65,7 +65,7 @@ export default class FilmsModel extends Observable {
           date: film['film_info'].release.date !== null ? new Date(film['film_info'].release.date) : film['film_info'].release.date,
           releaseCountry: film['film_info'].release['release_country']},
         duration: film['film_info'].duration,
-        genres: film['film_info'].genres,
+        genre: film['film_info'].genre,
         description: film['film_info'].description},
       userDetails: {
         watchlist: film['user_details'].watchlist,

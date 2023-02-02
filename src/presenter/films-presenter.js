@@ -59,18 +59,20 @@ export default class FilmsPresenter {
   }
 
   #renderFilm(film) {
+    this.#commentsModel.init(film.id);
+    console.log(this.#commentsModel.comments);
     const filmPresenter = new FilmPresenter({
       film: getItemById(this.films, film.id),
+      comments: this.#commentsModel.comments,
       filmContainer: this.#filmListComponent.getFilmListContainer(),
       onControlClick: this.#handleControlClick,
       popupCallBack: this.#setOnePopup,
       popupOpen: this.#isPopupOpen,
       onCommentUpdate: this.#handleCommentsModelEvent
     });
-    const commentList = this.#commentsModel.comments;
-    console.log(commentList);
-    filmPresenter.init(commentList);
+    filmPresenter.init();
     this.#filmsPresenter.set(film.id, filmPresenter);
+
   }
 
   #renderShowMoreButton() {
@@ -144,12 +146,33 @@ export default class FilmsPresenter {
     }
   };
 
-  #handleCommentsModelEvent = (id, update) => {
-    this.#commentsModel.updateComments(id, update);
-    this.#filmsModel.updateFilm(UpdateType.PATCH, getItemById(this.films, id));
-    this.#filmsPresenter.get(id).replace(update);
-    if(this.#filmDetailsPopup) {
-      this.#filmDetailsPopup.replace(update);
+  #handleCommentsModelEvent = (updateType, id, update) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#commentsModel.updateComments(id, update);
+        this.#filmsPresenter.get(id).replace();
+        if(this.#filmDetailsPopup) {
+          this.#filmDetailsPopup.replace();
+        }
+        break;
+      case UpdateType.MINOR:
+        this.#commentsModel.updateComments(id, update);
+        this.#filmsModel.updateFilm(UpdateType.PATCH, getItemById(this.films, id));
+        this.#filmsPresenter.get(id).replace();
+        if(this.#filmDetailsPopup) {
+          this.#filmDetailsPopup.replace();
+        }
+        break;
+      case UpdateType.MAJOR:
+        this.#commentsModel.updateComments(id, update);
+        this.#filmsModel.updateFilm(UpdateType.PATCH, getItemById(this.films, id));
+        this.#filmsPresenter.get(id).replace();
+        if(this.#filmDetailsPopup) {
+          this.#filmDetailsPopup.replace();
+        }
+        break;
+      case UpdateType.INIT:
+        break;
     }
   };
 
@@ -182,7 +205,6 @@ export default class FilmsPresenter {
         this.#isLoading = false;
         remove(this.#loadingComponent);
         this.#filmFiltersModel.updateData(UpdateType.MINOR, data);
-        this.#renderFilmList();
         break;
     }
   };

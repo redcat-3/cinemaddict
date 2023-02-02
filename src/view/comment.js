@@ -20,7 +20,6 @@ function createCommentTemplate(comment) {
 
 export default class CommentView extends AbstractView {
   #comment = null;
-  #onCommentDeleteClick = null;
 
   constructor(comment, onCommentDeleteClick) {
     super();

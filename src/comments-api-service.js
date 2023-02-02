@@ -6,21 +6,20 @@ const Method = {
 };
 
 export default class CommentsApiService extends ApiService {
-  #filmId = null;
-
-  constructor(filmId) {
-    super();
-    this.#filmId = filmId;
-  }
 
   get comments() {
-    return this._load({url: `comments/${this.#filmId}`})
+    return this._load({url: 'comments/19'})
       .then(ApiService.parseResponse);
   }
 
-  async putComments(comments) {
+  getComments(filmId) {
+    return this._load({url: `comments/${filmId}`})
+      .then(ApiService.parseResponse);
+  }
+
+  async putComments(filmId, comments) {
     const response = await this._load({
-      url: `comments/${this.#filmId}`,
+      url: `comments/${filmId}`,
       method: Method.PUT,
       body: JSON.stringify(comments),
       headers: new Headers({'Content-Type': 'application/json'}),

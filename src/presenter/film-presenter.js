@@ -7,34 +7,36 @@ export default class FilmPresenter {
   #filmContainer = null;
   #filmComponent = null;
   #film = null;
+  #comments = null;
   #handleControlClick = null;
   #popupCallBack = null;
   #popupOpen = null;
   #handleUpdateComment = null;
   #filmDetailsPresenter = null;
 
-  constructor({film, filmContainer, onControlClick, popupCallBack, popupOpen, onCommentUpdate}) {
+  constructor({film, comments, filmContainer, onControlClick, popupCallBack, popupOpen, onCommentUpdate}) {
     this.#filmContainer = filmContainer;
     this.#film = film;
+    this.#comments = comments;
     this.#handleControlClick = onControlClick;
     this.#popupCallBack = popupCallBack;
     this.#popupOpen = popupOpen;
     this.#handleUpdateComment = onCommentUpdate;
   }
 
-  init(commentsList) {
+  init() {
     this.#filmComponent = new FilmCardView({
       film: this.#film,
       onClick:() => {
         this.#filmDetailsPresenter = new FilmDetailsPresenter({
           film: this.#film,
-          commentsList,
+          comments: this.#comments,
           filmContainer: this.#filmContainer,
           onPopupControlClick: this.#handlePopupControlClick,
           callBackPopup: this.#popupCallBack,
           onCommentUpdate: this.#commentUpdateHandler
         });
-        this.#filmDetailsPresenter.init(commentsList);
+        this.#filmDetailsPresenter.init();
         this.#popupOpen(this.#filmDetailsPresenter);
       },
       onWatchlistClick: this.#handleWatchlistClick,
@@ -89,18 +91,18 @@ export default class FilmPresenter {
     remove(this.#filmComponent);
   }
 
-  replace(commentsList) {
+  replace() {
     const newComponent = new FilmCardView({
       film: this.#film,
       onClick:() => {this.#filmDetailsPresenter = new FilmDetailsPresenter({
         film: this.#film,
-        commentsList,
+        comments: this.#comments,
         filmContainer: this.#filmContainer,
         onPopupControlClick: this.#handlePopupControlClick,
         callBackPopup: this.#popupCallBack,
         onCommentUpdate: this.#commentUpdateHandler
       });
-      this.#filmDetailsPresenter.init(commentsList);
+      this.#filmDetailsPresenter.init();
       this.#popupOpen(this.#filmDetailsPresenter);
       },
       onWatchlistClick: this.#handleWatchlistClick,
