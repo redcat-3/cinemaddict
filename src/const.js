@@ -13,7 +13,8 @@ const UpdateType = {
 
 const UpdateCommentType = {
   DELETE: 'DELETE',
-  ADD: 'ADD'
+  ADD: 'ADD',
+  INIT: 'INIT'
 };
 
 export {SortType, UpdateType, UpdateCommentType};

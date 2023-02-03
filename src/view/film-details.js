@@ -1,7 +1,6 @@
-import he from 'he';
 import {createElement} from '../framework/render.js';
 import AbstractView from '../framework/view/abstract-view.js';
-import {getReleaseDate, getDuration, getCommentDate} from '../utils.js';
+import {getReleaseDate, getDuration} from '../utils.js';
 import {UpdateCommentType} from '../const.js';
 
 const EMOJI = {
@@ -132,21 +131,21 @@ function createFilmDetailsTemplate(film) {
 </section>`;
 }
 
-function createCommentTemplate(comment) {
-  return `<li class="film-details__comment" data-comment-id=${comment.id}>
-    <span class="film-details__comment-emoji">
-      <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt=${comment.emotion}>
-    </span>
-    <div>
-      <p class="film-details__comment-text">${he.encode(`${comment.comment}`)}</p>
-      <p class="film-details__comment-info">
-        <span class="film-details__comment-author">${comment.author}</span>
-        <span class="film-details__comment-day">${getCommentDate(comment.date)}</span>
-        <button class="film-details__comment-delete" data-comment-id=${comment.id}>Delete</button>
-      </p>
-    </div>
-  </li>`;
-}
+// function createCommentTemplate(comment) {
+//   return `<li class="film-details__comment" data-comment-id=${comment.id}>
+//     <span class="film-details__comment-emoji">
+//       <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt=${comment.emotion}>
+//     </span>
+//     <div>
+//       <p class="film-details__comment-text">${he.encode(`${comment.comment}`)}</p>
+//       <p class="film-details__comment-info">
+//         <span class="film-details__comment-author">${comment.author}</span>
+//         <span class="film-details__comment-day">${getCommentDate(comment.date)}</span>
+//         <button class="film-details__comment-delete" data-comment-id=${comment.id}>Delete</button>
+//       </p>
+//     </div>
+//   </li>`;
+// }
 
 function createEmodjiImgTemplate() {
   return '<img width="55" height="55"></img>';
@@ -255,13 +254,13 @@ export default class FilmDetailsView extends AbstractView {
       .addEventListener('click', this.#favoritelistClickHandler);
   }
 
-  addComment(data) {
-    this.element.querySelector('.film-details__add-emoji-label').innerHTML = '';
-    const commentTemplateElement = createCommentTemplate(data);
-    const commentElement = createElement(commentTemplateElement);
-    this.element.querySelector('.film-details__comment-input').value = '';
-    this.element.querySelector('.film-details__comments-list').appendChild(commentElement);
-  }
+  // addComment(data) {
+  //   this.element.querySelector('.film-details__add-emoji-label').innerHTML = '';
+  //   const commentTemplateElement = createCommentTemplate(data);
+  //   const commentElement = createElement(commentTemplateElement);
+  //   this.element.querySelector('.film-details__comment-input').value = '';
+  //   this.element.querySelector('.film-details__comments-list').appendChild(commentElement);
+  // }
 
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
@@ -300,7 +299,7 @@ export default class FilmDetailsView extends AbstractView {
         comment: this.commentText,
         emotion: this.#emodjiChecked
       };
-      this.handleUpdateComment(UpdateCommentType.ADD, comment);
+      this.handleUpdateComment(UpdateCommentType.ADD, this.#film.id, comment);
     }
   };
 }

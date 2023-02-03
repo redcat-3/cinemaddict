@@ -46,7 +46,7 @@ export default class FilmsModel extends Observable {
       ];
       this._notify(updateType, updatedFilm);
     } catch(err) {
-      throw new Error('Can\'t update task');
+      throw new Error('Can\'t update film');
     }
   }
 

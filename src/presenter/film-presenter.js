@@ -84,7 +84,7 @@ export default class FilmPresenter {
   #commentUpdateHandler = (updateType, update) => {
     const newComments = Array.from(update, (element) => element.id);
     this.#film.comments = newComments;
-    this.#handleUpdateComment(updateType, this.#film.id, update, newComments);
+    this.#handleUpdateComment(updateType, this.#film, newComments);
   };
 
   remove() {

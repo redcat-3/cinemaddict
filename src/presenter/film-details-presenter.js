@@ -1,4 +1,4 @@
-import {render, replace, remove} from '../framework/render.js';
+import {render, replace, remove, RenderPosition} from '../framework/render.js';
 import FilmDetailsView from '../view/film-details.js';
 import CommentView from '../view/comment.js';
 import {UpdateType, UpdateCommentType} from '../const.js';
@@ -11,7 +11,7 @@ export default class FilmDetailsPresenter {
   #film = null;
   #commentsModel = null;
   #handlePopupControlClick = null;
-  #popupCallBack = null;
+  popupCallBack = null;
   #handleUpdateComment = null;
 
   #comments = null;
@@ -31,7 +31,7 @@ export default class FilmDetailsPresenter {
     this.#commentsModel = commentsModel;
     this.#filmContainer = filmContainer;
     this.#handlePopupControlClick = onPopupControlClick;
-    this.#popupCallBack = callBackPopup;
+    this.popupCallBack = callBackPopup;
     this.#handleUpdateComment = onCommentUpdate;
 
     this.#commentsModel.addObserver(this.#handleCommentsModelEvent);
@@ -48,9 +48,10 @@ export default class FilmDetailsPresenter {
       onFavoriteClick: this.#handleFavoriteClick,
       onUpdateComment: this.#onUpdateComment
     });
-    this.#popupCallBack(this.closePopup);
+    this.popupCallBack(this.closePopup);
     this.#filmDetailsComponent.setUserControls();
-    render(this.#filmDetailsComponent, this.#filmContainer);
+    render(this.#filmDetailsComponent, this.#filmContainer, RenderPosition.AFTEREND);
+    this.#renderComment();
     document.addEventListener('keydown', this.onEscKeyDown);
     body.classList.add('hide-overflow');
   }
@@ -97,7 +98,7 @@ export default class FilmDetailsPresenter {
     this.#handlePopupControlClick(UpdateType.PATCH, this.#film);
   };
 
-  #onUpdateComment = (updateCommentType, data) => {
+  #onUpdateComment = (updateCommentType, filmId, data) => {
     let newCommentList = [];
     switch (updateCommentType) {
       case UpdateCommentType.DELETE:
@@ -154,10 +155,10 @@ export default class FilmDetailsPresenter {
       onUpdateComment: this.#onUpdateComment
     });
     newComponent.setUserControls();
-    newComponent.#popupCallBack(this.closePopup);
+    this.popupCallBack(this.closePopup);
     replace(newComponent, this.#filmDetailsComponent);
     this.#filmDetailsComponent = newComponent;
-    this.#comments.forEach((comment) => this.#renderComment(comment));
+    this.#renderComment();
     document.addEventListener('keydown', this.onEscKeyDown);
     body.classList.add('hide-overflow');
   }

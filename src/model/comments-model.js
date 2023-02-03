@@ -1,5 +1,6 @@
 import Observable from '../framework/observable.js';
-import {UpdateType} from '../const.js';
+import {getItemById} from '../utils.js';
+import {UpdateType, UpdateCommentType} from '../const.js';
 
 export default class CommentsModel extends Observable {
   #commentsApiService = null;
@@ -29,10 +30,34 @@ export default class CommentsModel extends Observable {
     this._notify(UpdateType.INIT, this.#comments);
   }
 
-  updateComments(id, updateCommentList) {
-    this.#filmId = id;
-    this.comments = updateCommentList;
-
-    //this._notify(id, updateCommentList);
+  async updateComment(updateType, id, comment) {
+    let index = null;
+    switch (updateType) {
+      case UpdateCommentType.ADD:
+        try {
+          const response = await this.#commentsApiService.postComment(id, comment);
+          this.#comments = [response, ...this.#comments];
+          this._notify(UpdateType.PATCH, this.#comments);
+        } catch(err) {
+          throw new Error('Can\'t update comments');
+        }
+        break;
+      case UpdateCommentType.DELETE:
+        index = getItemById(this.#comments, id);
+        if (index === -1) {
+          throw new Error('Can\'t update unexisting task');
+        }
+        try {
+          await this.#commentsApiService.deleteComment(comment);
+          this.#comments = [
+            ...this.#comments.slice(0, index),
+            ...this.#comments.slice(index + 1),
+          ];
+          this._notify(UpdateType.PATCH, this.#comments);
+        } catch(err) {
+          throw new Error('Can\'t update comments');
+        }
+        break;
+    }
   }
 }

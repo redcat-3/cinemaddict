@@ -66,7 +66,7 @@ export default class FilmsPresenter {
       onControlClick: this.#handleControlClick,
       popupCallBack: this.#setOnePopup,
       popupOpen: this.#isPopupOpen,
-      onCommentUpdate: this.#handleCommentsModelEvent
+      onCommentUpdate: this.#handleCommentsUpdateEvent
     });
     filmPresenter.init();
     this.#filmsPresenter.set(film.id, filmPresenter);
@@ -144,6 +144,16 @@ export default class FilmsPresenter {
     }
   };
 
+  #handleCommentsUpdateEvent = (updateType, film, newComments) => {
+    this.#commentsModel.updateComments(updateType, film.id, newComments);
+    film.comments = newComments;
+    this.#filmsModel.updateFilm(UpdateType.PATCH, film);
+    this.#filmsPresenter.get(film.id).replace();
+    if(this.#filmDetailsPopup) {
+      this.#filmDetailsPopup.replace();
+    }
+  };
+
   #handleCommentsModelEvent = (updateType, id, update, newComments) => {
     let updateFilm = null;
     switch (updateType) {
@@ -180,11 +190,6 @@ export default class FilmsPresenter {
       case UpdateType.INIT:
         break;
     }
-  };
-
-  #handleViewAction = (updateType, update) => {
-    this.#filmsModel.updateFilm(updateType, update);
-    this.#filmFiltersModel.updateData(UpdateType.MINOR, this.#filmFiltersModel.all);
   };
 
   #handleModelEvent = (updateType, data) => {
@@ -232,7 +237,8 @@ export default class FilmsPresenter {
   };
 
   #handleControlClick = (updateType, update) => {
-    this.#handleViewAction(updateType, update);
+    this.#filmsModel.updateFilm(updateType, update);
+    this.#filmFiltersModel.updateData(UpdateType.MINOR, this.#filmFiltersModel.all);
     this.#filmsPresenter.get(update.id).replace();
     if(this.#filmDetailsPopup) {
       this.#filmDetailsPopup.replace();
