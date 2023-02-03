@@ -16,16 +16,6 @@ export default class FilmDetailsPresenter {
 
   #comments = null;
 
-  commentUpdate = {
-    id: null,
-    author: null,
-    comment: [],
-    date: null,
-    emotion: null
-  };
-
-  commentsDelete = [];
-
   constructor({film, commentsModel, filmContainer, onPopupControlClick, callBackPopup, onCommentUpdate}) {
     this.#film = film;
     this.#commentsModel = commentsModel;
@@ -42,7 +32,7 @@ export default class FilmDetailsPresenter {
     this.#filmDetailsComponent = new FilmDetailsView({
       film: this.#film,
       comments: this.#comments,
-      onClick: () => this.closePopup,
+      onClick: this.closePopup,
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
       onFavoriteClick: this.#handleFavoriteClick,
@@ -51,7 +41,6 @@ export default class FilmDetailsPresenter {
     this.popupCallBack(this.closePopup);
     this.#filmDetailsComponent.setUserControls();
     render(this.#filmDetailsComponent, this.#filmContainer, RenderPosition.AFTEREND);
-    this.#renderComment();
     document.addEventListener('keydown', this.onEscKeyDown);
     body.classList.add('hide-overflow');
   }
@@ -74,7 +63,9 @@ export default class FilmDetailsPresenter {
   };
 
   #removeComments = () => {
-    document.querySelector('.film-details__comments-list').innerHTML = '';
+    if(document.querySelector('.film-details__comments-list')) {
+      document.querySelector('.film-details__comments-list').innerHTML = '';
+    }
   };
 
   #handleWatchlistClick = () => {
@@ -98,24 +89,17 @@ export default class FilmDetailsPresenter {
     this.#handlePopupControlClick(UpdateType.PATCH, this.#film);
   };
 
-  #onUpdateComment = (updateCommentType, filmId, data) => {
-    let newCommentList = [];
+  #onUpdateComment = (updateCommentType, data) => {
     switch (updateCommentType) {
-      case UpdateCommentType.DELETE:
-        newCommentList = this.#filmDetailsComponent.comments.filter((item) => item.id !== data.id);
-        this.#filmDetailsComponent.comments = newCommentList;
-        this.#handleUpdateComment(UpdateType.PATCH, this.#filmDetailsComponent.comments);
-        break;
       case UpdateCommentType.ADD:
-        this.commentUpdate = {
-          author: 'Keks',
-          comment: data.comment,
-          date: Date.now(),
-          emotion: data.emotion
-        };
-        newCommentList = this.#filmDetailsComponent.comments.concat(this.commentUpdate);
-        this.#filmDetailsComponent.comments = newCommentList;
-        this.#handleUpdateComment(UpdateType.PATCH, this.#filmDetailsComponent.comments);
+        this.#handleUpdateComment(updateCommentType, this.#film.id, data);
+        break;
+      case UpdateCommentType.DELETE:
+        this.#handleUpdateComment(updateCommentType, this.#film.id, data);
+        break;
+      case UpdateCommentType.INIT:
+        this.#handleUpdateComment(updateCommentType, this.#film.id, data);
+        break;
     }
   };
 
@@ -123,6 +107,7 @@ export default class FilmDetailsPresenter {
     switch (updateType) {
       case UpdateType.PATCH:
         this.#filmDetailsComponent.comments = comments;
+        this.#filmDetailsComponent.setCommentsCount();
         this.#removeComments();
         comments.forEach((comment) => this.#renderComment(comment));
         break;
@@ -132,6 +117,7 @@ export default class FilmDetailsPresenter {
         break;
       case UpdateType.INIT:
         this.#filmDetailsComponent.comments = comments;
+        this.#filmDetailsComponent.setCommentsCount();
         this.#removeComments();
         comments.forEach((comment) => this.#renderComment(comment));
         break;
@@ -158,7 +144,6 @@ export default class FilmDetailsPresenter {
     this.popupCallBack(this.closePopup);
     replace(newComponent, this.#filmDetailsComponent);
     this.#filmDetailsComponent = newComponent;
-    this.#renderComment();
     document.addEventListener('keydown', this.onEscKeyDown);
     body.classList.add('hide-overflow');
   }

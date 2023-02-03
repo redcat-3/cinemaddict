@@ -36,7 +36,7 @@ export default class FilmsApiService extends ApiService {
         writers: film.filmInfo.writers,
         actors: film.filmInfo.actors,
         release: {
-          date: film.filmInfo.date instanceof Date ? film.filmInfo.date.toISOString() : null, // На сервере дата хранится в ISO формате
+          date: film.filmInfo.release.date instanceof Date ? film.filmInfo.release.date.toISOString() : null, // На сервере дата хранится в ISO формате
           'release_country': film.filmInfo.release.releaseCountry},
         duration: film.filmInfo.duration,
         genre: film.filmInfo.genre,

@@ -30,14 +30,13 @@ export default class FilmsModel extends Observable {
   }
 
   async updateFilm(updateType, update) {
-    const index = getItemById(this.#films, update.id);
-
+    const index = this.#films.findIndex((item) => item.id === update);
     if (index === -1) {
       throw new Error('Can\'t update unexisting task');
     }
 
     try {
-      const response = await this.#filmsApiService.updateFilm(update);
+      const response = await this.#filmsApiService.updateFilm(getItemById(this.#films, update));
       const updatedFilm = this.#adaptToClient(response);
       this.#films = [
         ...this.#films.slice(0, index),

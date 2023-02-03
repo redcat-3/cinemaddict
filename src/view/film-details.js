@@ -288,7 +288,7 @@ export default class FilmDetailsView extends AbstractView {
     if ((evt.ctrlKey || evt.metaKey) && evt.keyCode === 13) {
       evt.preventDefault();
       this.commentText = evt.target.value;
-      this.onAddCommentSubmit();
+      this.onAddCommentSubmit(evt);
       evt.target.disabled = true;
     }
   };
@@ -299,7 +299,14 @@ export default class FilmDetailsView extends AbstractView {
         comment: this.commentText,
         emotion: this.#emodjiChecked
       };
-      this.handleUpdateComment(UpdateCommentType.ADD, this.#film.id, comment);
+      this.handleUpdateComment(UpdateCommentType.ADD, comment);
+      this.element.querySelector('.film-details__add-emoji-label').innerHTML = '';
+      this.element.querySelector('.film-details__comment-input').value = '';
+      this.element.querySelector('.film-details__comment-input').target.disabled = false;
     }
   };
+
+  setCommentsCount() {
+    this.element.querySelector('.film-details__comments-count').textContent = this.comments.length;
+  }
 }

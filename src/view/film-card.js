@@ -40,8 +40,8 @@ export default class FilmCardView extends AbstractStatefulView {
     this.#handleWatchedClick = onWatchedClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
-    this.element.querySelector('.film-card__link')
-      .addEventListener('click', this.#onClick);
+    this.element.querySelector('a')
+      .addEventListener('click', this.#clickHandler);
     this.element.querySelector('.film-card__controls-item--add-to-watchlist')
       .addEventListener('click', this.#watchlistClickHandler);
     this.element.querySelector('.film-card__controls-item--mark-as-watched')
@@ -72,6 +72,11 @@ export default class FilmCardView extends AbstractStatefulView {
   reset() {
     this.updateElement(this.#film);
   }
+
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onClick(this.#film);
+  };
 
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();

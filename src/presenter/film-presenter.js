@@ -1,25 +1,20 @@
 import {render, replace, remove} from '../framework/render.js';
 import FilmCardView from '../view/film-card.js';
-import FilmDetailsPresenter from './film-details-presenter.js';
 import {UpdateType} from '../const.js';
 
 export default class FilmPresenter {
   #filmContainer = null;
   #filmComponent = null;
   #film = null;
-  #commentsModel = null;
   #handleControlClick = null;
-  #popupCallBack = null;
   #popupOpen = null;
   #handleUpdateComment = null;
   #filmDetailsPresenter = null;
 
-  constructor({film, commentsModel, filmContainer, onControlClick, popupCallBack, popupOpen, onCommentUpdate}) {
+  constructor({film, filmContainer, onControlClick, popupOpen, onCommentUpdate}) {
     this.#filmContainer = filmContainer;
     this.#film = film;
-    this.#commentsModel = commentsModel;
     this.#handleControlClick = onControlClick;
-    this.#popupCallBack = popupCallBack;
     this.#popupOpen = popupOpen;
     this.#handleUpdateComment = onCommentUpdate;
   }
@@ -27,25 +22,13 @@ export default class FilmPresenter {
   init() {
     this.#filmComponent = new FilmCardView({
       film: this.#film,
-      onClick:() => {
-        this.#filmDetailsPresenter = new FilmDetailsPresenter({
-          film: this.#film,
-          commentsModel: this.#commentsModel,
-          filmContainer: this.#filmContainer,
-          onPopupControlClick: this.#handlePopupControlClick,
-          callBackPopup: this.#popupCallBack,
-          onCommentUpdate: this.#commentUpdateHandler
-        });
-        this.#filmDetailsPresenter.init();
-        this.#popupOpen(this.#filmDetailsPresenter);
-      },
+      onClick: this.#popupOpen,
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
       onFavoriteClick: this.#handleFavoriteClick,
     });
     this.#filmComponent.setUserControls();
     render(this.#filmComponent, this.#filmContainer);
-    this.#popupOpen(this.#filmDetailsPresenter);
   }
 
   #handleWatchlistClick = () => {
@@ -94,17 +77,7 @@ export default class FilmPresenter {
   replace() {
     const newComponent = new FilmCardView({
       film: this.#film,
-      onClick:() => {this.#filmDetailsPresenter = new FilmDetailsPresenter({
-        film: this.#film,
-        commentsModel: this.#commentsModel,
-        filmContainer: this.#filmContainer,
-        onPopupControlClick: this.#handlePopupControlClick,
-        callBackPopup: this.#popupCallBack,
-        onCommentUpdate: this.#commentUpdateHandler
-      });
-      this.#filmDetailsPresenter.init();
-      this.#popupOpen(this.#filmDetailsPresenter);
-      },
+      onClick: this.#popupOpen,
       onWatchlistClick: this.#handleWatchlistClick,
       onWatchedClick: this.#handleWatchedClick,
       onFavoriteClick: this.#handleFavoriteClick
@@ -112,7 +85,6 @@ export default class FilmPresenter {
     newComponent.setUserControls();
     replace(newComponent, this.#filmComponent);
     this.#filmComponent = newComponent;
-    this.#popupOpen(this.#filmDetailsPresenter);
   }
 }
 

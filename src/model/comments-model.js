@@ -1,5 +1,4 @@
 import Observable from '../framework/observable.js';
-import {getItemById} from '../utils.js';
 import {UpdateType, UpdateCommentType} from '../const.js';
 
 export default class CommentsModel extends Observable {
@@ -36,14 +35,14 @@ export default class CommentsModel extends Observable {
       case UpdateCommentType.ADD:
         try {
           const response = await this.#commentsApiService.postComment(id, comment);
-          this.#comments = [response, ...this.#comments];
-          this._notify(UpdateType.PATCH, this.#comments);
+          this.#comments = [...response.comments];
+          this._notify(updateType, id);
         } catch(err) {
           throw new Error('Can\'t update comments');
         }
         break;
       case UpdateCommentType.DELETE:
-        index = getItemById(this.#comments, id);
+        index = this.#comments.indexOf(comment);
         if (index === -1) {
           throw new Error('Can\'t update unexisting task');
         }
@@ -53,7 +52,7 @@ export default class CommentsModel extends Observable {
             ...this.#comments.slice(0, index),
             ...this.#comments.slice(index + 1),
           ];
-          this._notify(UpdateType.PATCH, this.#comments);
+          this._notify(updateType, id);
         } catch(err) {
           throw new Error('Can\'t update comments');
         }
