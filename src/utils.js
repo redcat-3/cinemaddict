@@ -1,8 +1,9 @@
 import dayjs from 'dayjs';
+import fromnow from 'fromnow';
 
 const FILM_DATE_FORMAT = 'YYYY';
 const RELEASE_DATE_FORMAT = 'D MMMM YYYY';
-const COMMENT_DATE_FORMAT = 'YYYY/MM/DD HH:mm';
+// const COMMENT_DATE_FORMAT = 'YYYY/MM/DD HH:mm';
 
 function getReleaseDate(date) {
   return date ? dayjs(date).format(RELEASE_DATE_FORMAT) : '';
@@ -13,7 +14,7 @@ function getFilmYear(date) {
 }
 
 function getCommentDate(date) {
-  return date ? dayjs(date).format(COMMENT_DATE_FORMAT) : '';
+  return date ? fromnow(dayjs(date), { max:2, suffix:true, and:true }) : '';
 }
 
 const getDuration = (duration) => `${Math.round(duration / 60)}h ${duration % 60}m`;

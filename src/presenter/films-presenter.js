@@ -4,6 +4,8 @@ import FilmPresenter from './film-presenter.js';
 import FilmDetailsPresenter from './film-details-presenter.js';
 import FilmListView from '../view/film-list.js';
 import ShowMorePresenter from './show-more-presenter.js';
+import TopRatedPresenter from './top-rated-presenter.js';
+import MostCommentedPresenter from './most-commented-presenter.js';
 import EmptyView from '../view/empty.js';
 import LoadingView from '../view/loading.js';
 import SortListView from '../view/sort-list.js';
@@ -25,6 +27,8 @@ export default class FilmsPresenter {
 
   #showMorePresenter = null;
   #filmDetailsPresenter = null;
+  #topRatedPresenter = null;
+  #mostCommentedPresenter = null;
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #currentSortType = SortType.DEFAULT;
   #filmsPresenter = new Map();
@@ -82,6 +86,32 @@ export default class FilmsPresenter {
     this.#showMorePresenter.init();
   }
 
+  #renderTopRatedFilms() {
+    this.#topRatedPresenter = new TopRatedPresenter({
+      filmContainer: document.querySelector('.films'),
+      filmsModel: this.#filmsModel,
+      commentsModel: this.#commentsModel,
+      onControlClick: this.#handleControlClick,
+      popupCallBack: this.#setOnePopup,
+      popupOpen: this.#openPopup,
+      onCommentUpdate: this.#handleCommentsUpdateEvent
+    });
+    this.#topRatedPresenter.init();
+  }
+
+  #renderMostCommentedFilms() {
+    this.#mostCommentedPresenter = new MostCommentedPresenter({
+      filmContainer: document.querySelector('.films'),
+      filmsModel: this.#filmsModel,
+      commentsModel: this.#commentsModel,
+      onControlClick: this.#handleControlClick,
+      popupCallBack: this.#setOnePopup,
+      popupOpen: this.#openPopup,
+      onCommentUpdate: this.#handleCommentsUpdateEvent
+    });
+    this.#mostCommentedPresenter.init();
+  }
+
   #renderFilms(films) {
     films.forEach((film) => this.#renderFilm(film));
   }
@@ -105,6 +135,12 @@ export default class FilmsPresenter {
     this.#renderFilms(films.slice(0, Math.min(filmCount, this.#renderedFilmCount)));
     if (filmCount > this.#renderedFilmCount) {
       this.#renderShowMoreButton();
+    }
+    if(!(this.#filmFiltersModel.all.every((film) => film.filmInfo.rating === 0))) {
+      this.#renderTopRatedFilms();
+    }
+    if(!(this.#filmFiltersModel.all.every((film) => film.comments.length === 0))) {
+      this.#renderMostCommentedFilms();
     }
   }
 

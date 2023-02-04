@@ -6,12 +6,14 @@ import CommentsModel from './model/comments-model.js';
 import FilmFiltersModel from './model/film-filters-model.js';
 import FilmsApiService from './films-api-service.js';
 import CommentsApiService from './comments-api-service.js';
+import FooterPresenter from './presenter/footer-presenter.js';
 
 const AUTHORIZATION = 'Basic er883jdzbdw';
 const END_POINT = 'https://19.ecmascript.pages.academy/cinemaddict';
 
 const siteMainElement = document.querySelector('.main');
 const siteHeaderElement = document.querySelector('.header');
+const siteFooterElement = document.querySelector('.footer');
 const filmsModel = new FilmsModel({
   filmsApiService: new FilmsApiService(END_POINT, AUTHORIZATION)
 });
@@ -26,6 +28,10 @@ const filmsPresenter = new FilmsPresenter({
   filmFiltersModel
 });
 const headerPresenter = new HeaderPresenter({headerContainer: siteHeaderElement});
+const footerPresenter = new FooterPresenter({
+  footerContainer: siteFooterElement,
+  filmsModel,
+});
 
 const listFilterPresenter = new ListFilterPresenter({
   listFilterContainer: siteMainElement,
@@ -33,6 +39,7 @@ const listFilterPresenter = new ListFilterPresenter({
 });
 
 headerPresenter.init();
+footerPresenter.init();
 listFilterPresenter.init();
 filmsPresenter.init();
 filmsModel.init();

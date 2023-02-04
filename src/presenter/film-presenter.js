@@ -9,7 +9,6 @@ export default class FilmPresenter {
   #handleControlClick = null;
   #popupOpen = null;
   #handleUpdateComment = null;
-  #filmDetailsPresenter = null;
 
   constructor({film, filmContainer, onControlClick, popupOpen, onCommentUpdate}) {
     this.#filmContainer = filmContainer;
