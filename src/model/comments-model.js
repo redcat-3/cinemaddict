@@ -1,10 +1,9 @@
 import Observable from '../framework/observable.js';
-import {UpdateType, UpdateCommentType} from '../const.js';
+import { adaptToClient } from '../utils.js';
 
 export default class CommentsModel extends Observable {
   #commentsApiService = null;
   #comments = [];
-  #filmId = null;
 
   constructor({commentsApiService}) {
     super();
@@ -15,48 +14,41 @@ export default class CommentsModel extends Observable {
     return this.#comments;
   }
 
-  set comments(comments) {
-    this.#comments = comments;
-  }
-
   async init(id) {
-    try {
-      this.#filmId = id;
-      this.#comments = await this.#commentsApiService.getComments(id);
-    } catch(err) {
-      this.#comments = [];
-    }
-    this._notify(UpdateType.INIT, this.#comments);
+    this.#comments = await this.#commentsApiService.loadComments(id);
   }
 
-  async updateComment(updateType, id, comment) {
-    let index = null;
-    switch (updateType) {
-      case UpdateCommentType.ADD:
-        try {
-          const response = await this.#commentsApiService.postComment(id, comment);
-          this.#comments = [...response.comments];
-          this._notify(updateType, id);
-        } catch(err) {
-          throw new Error('Can\'t update comments');
-        }
-        break;
-      case UpdateCommentType.DELETE:
-        index = this.#comments.indexOf(comment);
-        if (index === -1) {
-          throw new Error('Can\'t update unexisting task');
-        }
-        try {
-          await this.#commentsApiService.deleteComment(comment);
-          this.#comments = [
-            ...this.#comments.slice(0, index),
-            ...this.#comments.slice(index + 1),
-          ];
-          this._notify(updateType, id);
-        } catch(err) {
-          throw new Error('Can\'t update comments');
-        }
-        break;
+  async addComment(updateType, { comment, film, scroll }) {
+    try {
+      const { comments, movie } = await this.#commentsApiService.addComment(comment, film);
+
+      this.#comments = comments;
+      const adaptedFilm = adaptToClient(movie);
+      const update = {
+        film: adaptedFilm,
+        scroll: scroll
+      };
+
+      this._notify(updateType, update);
+
+    } catch (err) {
+      throw new Error('Can\'t add comment');
+    }
+  }
+
+  async deleteComment(updateType, update) {
+    const index = this.#comments.findIndex((comment) => comment.id === update.id);
+    if (index === -1) {
+      throw new Error('Can\'t delete unexisting comment');
+    }
+
+    try {
+      await this.#commentsApiService.deleteComment(update.id);
+      this.#comments = this.#comments.filter((comment) => comment.id !== update.id);
+
+      this._notify(updateType, update);
+    } catch (err) {
+      throw new Error('Can\'t delete comment');
     }
   }
 }
