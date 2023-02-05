@@ -27,7 +27,10 @@ const filmsPresenter = new FilmsPresenter({
   commentsModel,
   filmFiltersModel
 });
-const headerPresenter = new HeaderPresenter({headerContainer: siteHeaderElement});
+const headerPresenter = new HeaderPresenter({
+  headerContainer: siteHeaderElement,
+  filmFiltersModel
+});
 const footerPresenter = new FooterPresenter({
   footerContainer: siteFooterElement,
   filmsModel,

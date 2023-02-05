@@ -27,6 +27,10 @@ export default class FilmDetailsPresenter {
     this.#commentsModel.addObserver(this.#handleCommentsModelEvent);
   }
 
+  get film() {
+    return this.#film;
+  }
+
   init() {
     this.#commentsModel.init(this.#film.id);
     this.#filmDetailsComponent = new FilmDetailsView({
@@ -110,10 +114,6 @@ export default class FilmDetailsPresenter {
         this.#filmDetailsComponent.setCommentsCount();
         this.#removeComments();
         comments.forEach((comment) => this.#renderComment(comment));
-        break;
-      case UpdateType.MINOR:
-        break;
-      case UpdateType.MAJOR:
         break;
       case UpdateType.INIT:
         this.#filmDetailsComponent.comments = comments;

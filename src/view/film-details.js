@@ -289,7 +289,7 @@ export default class FilmDetailsView extends AbstractView {
       evt.preventDefault();
       this.commentText = evt.target.value;
       this.onAddCommentSubmit(evt);
-      evt.target.disabled = true;
+      // evt.target.disabled = true;
     }
   };
 
@@ -302,7 +302,7 @@ export default class FilmDetailsView extends AbstractView {
       this.handleUpdateComment(UpdateCommentType.ADD, comment);
       this.element.querySelector('.film-details__add-emoji-label').innerHTML = '';
       this.element.querySelector('.film-details__comment-input').value = '';
-      this.element.querySelector('.film-details__comment-input').target.disabled = false;
+      //this.element.querySelector('.film-details__comment-input').target.disabled = false;
     }
   };
 

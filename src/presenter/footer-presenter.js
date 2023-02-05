@@ -1,5 +1,5 @@
 import FooterStatisticView from '../view/footer-statistic.js';
-import {render} from '../render.js';
+import {render} from '../framework/render.js';
 import {UpdateType} from '../const.js';
 
 export default class FooterPresenter {
@@ -26,15 +26,11 @@ export default class FooterPresenter {
   #handleFilmsEvent = (updateType, films) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        break;
       case UpdateType.MINOR:
-        break;
       case UpdateType.MAJOR:
-        this.update(films);
         break;
       case UpdateType.INIT:
         this.update(films);
-
         break;
     }
   };

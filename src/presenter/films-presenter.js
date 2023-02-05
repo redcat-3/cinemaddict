@@ -4,8 +4,7 @@ import FilmPresenter from './film-presenter.js';
 import FilmDetailsPresenter from './film-details-presenter.js';
 import FilmListView from '../view/film-list.js';
 import ShowMorePresenter from './show-more-presenter.js';
-import TopRatedPresenter from './top-rated-presenter.js';
-import MostCommentedPresenter from './most-commented-presenter.js';
+import ExtraPresenter from './extra-presenter.js';
 import EmptyView from '../view/empty.js';
 import LoadingView from '../view/loading.js';
 import SortListView from '../view/sort-list.js';
@@ -27,8 +26,7 @@ export default class FilmsPresenter {
 
   #showMorePresenter = null;
   #filmDetailsPresenter = null;
-  #topRatedPresenter = null;
-  #mostCommentedPresenter = null;
+  #extraPresenter = null;
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #currentSortType = SortType.DEFAULT;
   #filmsPresenter = new Map();
@@ -86,8 +84,8 @@ export default class FilmsPresenter {
     this.#showMorePresenter.init();
   }
 
-  #renderTopRatedFilms() {
-    this.#topRatedPresenter = new TopRatedPresenter({
+  #renderExtraFilms() {
+    this.#extraPresenter = new ExtraPresenter({
       filmContainer: document.querySelector('.films'),
       filmsModel: this.#filmsModel,
       commentsModel: this.#commentsModel,
@@ -96,20 +94,7 @@ export default class FilmsPresenter {
       popupOpen: this.#openPopup,
       onCommentUpdate: this.#handleCommentsUpdateEvent
     });
-    this.#topRatedPresenter.init();
-  }
-
-  #renderMostCommentedFilms() {
-    this.#mostCommentedPresenter = new MostCommentedPresenter({
-      filmContainer: document.querySelector('.films'),
-      filmsModel: this.#filmsModel,
-      commentsModel: this.#commentsModel,
-      onControlClick: this.#handleControlClick,
-      popupCallBack: this.#setOnePopup,
-      popupOpen: this.#openPopup,
-      onCommentUpdate: this.#handleCommentsUpdateEvent
-    });
-    this.#mostCommentedPresenter.init();
+    this.#extraPresenter.init();
   }
 
   #renderFilms(films) {
@@ -136,12 +121,8 @@ export default class FilmsPresenter {
     if (filmCount > this.#renderedFilmCount) {
       this.#renderShowMoreButton();
     }
-    if(!(this.#filmsModel.films.every((film) => film.filmInfo.rating === 0))) {
-      this.#renderTopRatedFilms();
-    }
-    if(!(this.#filmsModel.films.every((film) => film.comments.length === 0))) {
-      this.#renderMostCommentedFilms();
-    }
+
+    this.#renderExtraFilms();
   }
 
   #renderSort() {
@@ -193,14 +174,15 @@ export default class FilmsPresenter {
     this.#commentsModel.updateComment(updateType, filmId, comment);
   };
 
-  #handleCommentsModelEvent = (updateType, id) => {
+  #handleCommentsModelEvent = (updateType, comments) => {
+    const id = this.#filmDetailsPresenter.film.id;
     switch (updateType) {
       case UpdateCommentType.ADD:
-        this.#filmsModel.updateFilm(UpdateType.PATCH, id);
+        getItemById(this.#filmsModel.films, id).comments.push(id);
         this.#filmsPresenter.get(id).replace();
         break;
       case UpdateCommentType.DELETE:
-        this.#filmsModel.updateFilm(UpdateType.PATCH, id);
+        getItemById(this.#filmsModel.films, id).comments.pop(id);
         this.#filmsPresenter.get(id).replace();
         break;
     }
