@@ -7,30 +7,34 @@ import FilmFiltersModel from './model/film-filters-model.js';
 import FilmsApiService from './films-api-service.js';
 import CommentsApiService from './comments-api-service.js';
 import FooterPresenter from './presenter/footer-presenter.js';
-
-const AUTHORIZATION = 'Basic er883jdzbdw';
-const END_POINT = 'https://19.ecmascript.pages.academy/cinemaddict';
+import { AUTHORIZATION, END_POINT } from './const.js';
 
 const siteMainElement = document.querySelector('.main');
 const siteHeaderElement = document.querySelector('.header');
-const siteFooterElement = document.querySelector('.footer');
+const siteFooterElement = document.querySelector('.footer__statistics');
+
 const filmsModel = new FilmsModel({
   filmsApiService: new FilmsApiService(END_POINT, AUTHORIZATION)
 });
+
 const commentsModel = new CommentsModel({
   commentsApiService: new CommentsApiService(END_POINT, AUTHORIZATION)
 });
-const filmFiltersModel = new FilmFiltersModel([...filmsModel.films]);
+
+const filmFiltersModel = new FilmFiltersModel();
+
 const filmsPresenter = new FilmsPresenter({
   filmContainer: siteMainElement,
   filmsModel,
   commentsModel,
   filmFiltersModel
 });
+
 const headerPresenter = new HeaderPresenter({
   headerContainer: siteHeaderElement,
-  filmFiltersModel
+  filmsModel
 });
+
 const footerPresenter = new FooterPresenter({
   footerContainer: siteFooterElement,
   filmsModel,
@@ -38,7 +42,8 @@ const footerPresenter = new FooterPresenter({
 
 const listFilterPresenter = new ListFilterPresenter({
   listFilterContainer: siteMainElement,
-  filmFiltersModel
+  filmFiltersModel,
+  filmsModel
 });
 
 headerPresenter.init();

@@ -1,40 +1,39 @@
 import ProfileView from '../view/profile.js';
-import {render, remove} from '../framework/render.js';
-import {UpdateType} from '../const.js';
+import {render, replace, remove} from '../framework/render.js';
+import { getUserRating } from '../utils.js';
 
 export default class HeaderPresenter {
   #headerContainer = null;
-  #filmFiltersModel = null;
-  #rang = null;
+  #filmsModel = null;
   #headerComponent = null;
 
-  constructor({headerContainer, filmFiltersModel}) {
+  constructor({headerContainer, filmsModel}) {
     this.#headerContainer = headerContainer;
-    this.#filmFiltersModel = filmFiltersModel;
+    this.#filmsModel = filmsModel;
 
-    this.#filmFiltersModel.addObserver(this.#handleFilterChange);
+    this.#filmsModel.addObserver(this.#handleModelEvent);
   }
 
   init() {
-    this.#headerComponent = new ProfileView(this.#rang);
-    render(this.#headerComponent, this.#headerContainer);
-  }
+    const prevHeaderComponent = this.#headerComponent;
+    const userRang = getUserRating(this.#filmsModel.films);
+    this.#headerComponent = new ProfileView({rang: userRang});
 
-  update(filters) {
-    this.#rang = filters.watched;
-    remove(this.#headerComponent);
-    this.#headerComponent = new ProfileView(this.#rang);
-    render(this.#headerComponent, this.#headerContainer);
-  }
-
-  #handleFilterChange = (updateType, filters) => {
-    switch (updateType) {
-      case UpdateType.PATCH:
-      case UpdateType.MINOR:
-      case UpdateType.MAJOR:
-      case UpdateType.INIT:
-        this.update(filters);
-        break;
+    if (prevHeaderComponent === null) {
+      render(this.#headerComponent, this.#headerContainer);
+      return;
     }
+
+    render(this.#headerComponent, this.#headerContainer);
+    replace(this.#headerComponent, prevHeaderComponent);
+    remove(prevHeaderComponent);
+  }
+
+  destroy() {
+    remove(this.#headerComponent);
+  }
+
+  #handleModelEvent = () => {
+    this.init();
   };
 }

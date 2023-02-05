@@ -1,88 +1,196 @@
-import {render, replace, remove} from '../framework/render.js';
-import FilmCardView from '../view/film-card.js';
-import {UpdateType} from '../const.js';
+import FilmCardView from '../view/film-card-view.js';
+import { isEscapeEvent } from '../utils.js';
+import { UpdateType, UserAction } from '../const.js';
+import FilmPopupView from '../view/film-popup-view.js';
+import { render, replace, remove } from '../framework/render.js';
+
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  OPEN: 'OPEN',
+};
 
 export default class FilmPresenter {
   #filmContainer = null;
+
   #filmComponent = null;
+  #filmPopup = null;
+
   #film = null;
-  #handleControlClick = null;
-  #popupOpen = null;
+  #handleDataChange = null;
+  #handleModeChange = null;
+  #currentFilterType = null;
+  #commentsModel = null;
+  #mode = Mode.DEFAULT;
 
-  constructor({film, filmContainer, onControlClick, popupOpen}) {
+  constructor({filmContainer, onDataChange, onModeChange, currentFilterType, commentsModel}) {
     this.#filmContainer = filmContainer;
+    this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
+    this.#currentFilterType = currentFilterType;
+    this.#commentsModel = commentsModel;
+  }
+
+  init(film, scrollPosition = 0) {
     this.#film = film;
-    this.#handleControlClick = onControlClick;
-    this.#popupOpen = popupOpen;
-  }
 
-  init() {
+    const prevFilmComponent = this.#filmComponent;
+    const prevPopupComponent = this.#filmPopup;
+
     this.#filmComponent = new FilmCardView({
-      film: this.#film,
-      onClick: this.#popupOpen,
-      onWatchlistClick: this.#handleWatchlistClick,
-      onWatchedClick: this.#handleWatchedClick,
-      onFavoriteClick: this.#handleFavoriteClick,
+      film: film,
+      onOpenClick: () => this.#openPopupClickHandler(film),
+      onControlsClick: this.#handleControlsClick,
+      currentFilterType: this.#currentFilterType,
     });
-    this.#filmComponent.setUserControls();
-    render(this.#filmComponent, this.#filmContainer);
+
+    if (prevFilmComponent === null) {
+      render(this.#filmComponent, this.#filmContainer);
+    } else {
+      replace(this.#filmComponent, prevFilmComponent);
+    }
+
+    if (this.#mode === Mode.OPEN) {
+      this.#filmPopup = new FilmPopupView({
+        film: film,
+        comments: this.#commentsModel.comments,
+        onCloseClick: () => this.#closePopupClickHandler(film),
+        onControlsClick: this.#handleControlsClick,
+        currentFilterType: this.#currentFilterType,
+        onDeleteClick: this.#handleDeleteClick,
+        onAddComment: this.#handleAddComment,
+      });
+      replace(this.#filmPopup, prevPopupComponent);
+      this.#filmPopup.scrollPopup(scrollPosition);
+    }
+
+    remove(prevFilmComponent);
+    remove(prevPopupComponent);
   }
 
-  #handleWatchlistClick = () => {
-    this.#film.userDetails.watchlist = !this.#film.userDetails.watchlist;
-    this.#filmComponent.setUserControls();
-    this.#handleControlClick(
-      UpdateType.PATCH,
-      this.#film
+  destroy() {
+    remove(this.#filmComponent);
+    remove(this.#filmPopup);
+  }
+
+  resetView() {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#closePopupClickHandler();
+    }
+  }
+
+  setSaving() {
+    if (this.#mode === Mode.OPEN) {
+      this.#filmPopup.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting(id) {
+    if (this.#mode === Mode.OPEN) {
+      this.#filmPopup.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+        deletingId: id,
+      });
+    }
+  }
+
+  setAborting(action, id) {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#filmComponent.shake();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#filmPopup.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+        deletingId: null,
+      });
+    };
+
+    switch(action) {
+      case UserAction.UPDATE_FILM:
+        this.#filmPopup.setElementAnimation(action, resetFormState);
+        break;
+      case UserAction.ADD_COMMENT:
+        this.#filmPopup.setElementAnimation(action, resetFormState);
+        break;
+      case UserAction.DELETE_COMMENT:
+        this.#filmPopup.setElementAnimation(action, resetFormState, id);
+        break;
+      default:
+        throw new Error(`Unknown state!, ${UpdateType}`);
+    }
+  }
+
+  #handleControlsClick = (updatedDetails, updateType = UpdateType.PATCH, scrollPosition = 0) => {
+    this.#handleDataChange(
+      UserAction.UPDATE_FILM,
+      updateType,
+      {
+        film: {...this.#film, userDetails: updatedDetails},
+        scroll: scrollPosition
+      },
     );
   };
 
-  #handleWatchedClick = () => {
-    this.#film.userDetails.alreadyWatched = !this.#film.userDetails.alreadyWatched;
-    this.#filmComponent.setUserControls();
-    this.#handleControlClick(
-      UpdateType.PATCH,
-      this.#film);
-  };
-
-  #handleFavoriteClick = () => {
-    this.#film.userDetails.favorite = !this.#film.userDetails.favorite;
-    this.#filmComponent.setUserControls();
-    this.#handleControlClick(
-      UpdateType.PATCH,
-      this.#film);
-  };
-
-  // #handlePopupControlClick = (updateType, update) => {
-  //   this.#film.userDetails.watchlist = update.userDetails.watchlist;
-  //   this.#film.userDetails.alreadyWatched = update.userDetails.alreadyWatched;
-  //   this.#film.userDetails.favorite = update.userDetails.favorite;
-  //   this.#filmComponent.setUserControls();
-  //   this.#handleControlClick(updateType, update);
-  // };
-
-  // #commentUpdateHandler = (updateType, update) => {
-  //   const newComments = Array.from(update, (element) => element.id);
-  //   this.#film.comments = newComments;
-  //   this.#handleUpdateComment(updateType, this.#film, newComments);
-  // };
-
-  remove() {
-    remove(this.#filmComponent);
-  }
-
-  replace() {
-    const newComponent = new FilmCardView({
-      film: this.#film,
-      onClick: this.#popupOpen,
-      onWatchlistClick: this.#handleWatchlistClick,
-      onWatchedClick: this.#handleWatchedClick,
-      onFavoriteClick: this.#handleFavoriteClick
+  async #openPopupClickHandler(film) {
+    await this.#commentsModel.init(film.id);
+    this.#filmPopup = new FilmPopupView({
+      film: film,
+      comments: this.#commentsModel.comments,
+      onCloseClick: () => this.#closePopupClickHandler(film),
+      onControlsClick: this.#handleControlsClick,
+      currentFilterType: this.#currentFilterType,
+      onDeleteClick: this.#handleDeleteClick,
+      onAddComment: this.#handleAddComment
     });
-    newComponent.setUserControls();
-    replace(newComponent, this.#filmComponent);
-    this.#filmComponent = newComponent;
+    this.#appendPopup();
   }
+
+  #appendPopup() {
+    this.#handleModeChange();
+    document.body.appendChild(this.#filmPopup.element);
+    document.body.classList.add('hide-overflow');
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.OPEN;
+  }
+
+  #removePopup() {
+    document.body.removeChild(this.#filmPopup.element);
+    document.body.classList.remove('hide-overflow');
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
+  }
+
+  #closePopupClickHandler = () => {
+    this.#removePopup();
+  };
+
+  #escKeyDownHandler = (evt) => {
+    if (isEscapeEvent(evt)) {
+      evt.preventDefault();
+      this.#closePopupClickHandler();
+    }
+  };
+
+  #handleDeleteClick = (id) => {
+    this.#handleDataChange(
+      UserAction.DELETE_COMMENT,
+      UpdateType.PATCH,
+      id,
+    );
+  };
+
+  #handleAddComment = (data) => {
+    this.#handleDataChange(
+      UserAction.ADD_COMMENT,
+      UpdateType.PATCH,
+      data,
+    );
+  };
 }
-
-

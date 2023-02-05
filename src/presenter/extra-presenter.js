@@ -5,23 +5,28 @@ import {UpdateType} from '../const.js';
 
 export default class ExtraPresenter {
   #filmContainer = null;
+
+  #filmComponent = null;
+  #filmPopup = null;
+
+  #film = null;
+  #handleDataChange = null;
+  #handleModeChange = null;
+  #currentFilterType = null;
+  #commentsModel = null;
   #filmsModel = null;
   #films = null;
-  #commentsModel = null;
-  #onControlClick = null;
-  #popupCallBack = null;
-  #popupOpen = null;
 
   #mostCommentedComponent = new ExtraView('Most commented');
   #topRatedComponent = new ExtraView('Top rated');
 
-  constructor({filmContainer, filmsModel, commentsModel, onControlClick, popupCallBack, popupOpen}) {
-    this.#filmContainer = filmContainer;
-    this.#filmsModel = filmsModel;
+  constructor({filmExtraContainer, onDataChange, onModeChange, currentFilterType, commentsModel, filmsModel}) {
+    this.#filmContainer = filmExtraContainer;
+    this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
+    this.#currentFilterType = currentFilterType;
     this.#commentsModel = commentsModel;
-    this.#onControlClick = onControlClick;
-    this.#popupCallBack = popupCallBack;
-    this.#popupOpen = popupOpen;
+    this.#filmsModel = filmsModel;
 
     this.#filmsModel.addObserver(this.#handleFilmsEvent);
     this.#commentsModel.addObserver(this.#handleCommentsEvent);
@@ -55,14 +60,13 @@ export default class ExtraPresenter {
 
   #renderFilm(film, filmContainer) {
     const filmPresenter = new FilmPresenter({
-      film,
-      commentsModel: this.#commentsModel,
       filmContainer,
-      onControlClick: this.#onControlClick,
-      popupCallBack: this.#popupCallBack,
-      popupOpen: this.#popupOpen,
+      onDataChange: this.#handleDataChange,
+      onModeChange: this.#handleModeChange,
+      currentFilterType: this.#currentFilterType,
+      commentsModel: this.#commentsModel
     });
-    filmPresenter.init();
+    filmPresenter.init(film);
   }
 
   #renderMostCommentedFilms(films) {

@@ -20,7 +20,7 @@ export default class FooterPresenter {
 
   update(films) {
     this.#countOfFilms = films.length;
-    render(new FooterStatisticView(films.length), this.#footerContainer.querySelector('.footer__statistics'));
+    render(new FooterStatisticView(this.#countOfFilms), this.#footerContainer);
   }
 
   #handleFilmsEvent = (updateType, films) => {

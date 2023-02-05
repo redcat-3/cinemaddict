@@ -1,47 +1,77 @@
 import ListFilterView from '../view/list-filter.js';
 import {render, replace, remove} from '../framework/render.js';
-import {UpdateType} from '../const.js';
+import {UpdateType, FilterType} from '../const.js';
+import {filter} from '../utils.js';
 
 export default class ListFilterPresenter {
   #listFilterContainer = null;
   #filmFiltersModel = null;
+  #filmsModel = null;
+
   #listFilterComponent = null;
 
-  #currentFilterType = 'all';
-
-  constructor({listFilterContainer, filmFiltersModel}) {
+  constructor({listFilterContainer, filmFiltersModel, filmsModel}) {
     this.#listFilterContainer = listFilterContainer;
     this.#filmFiltersModel = filmFiltersModel;
+    this.#filmsModel = filmsModel;
 
-    this.#filmFiltersModel.addObserver(this.#handleModelUpdate);
+    this.#filmsModel.addObserver(this.#handleModelEvent);
+    this.#filmFiltersModel.addObserver(this.#handleModelEvent);
+  }
+
+  get filters() {
+    const films = this.#filmsModel.films;
+    return [
+      {
+        type: FilterType.ALL,
+        name: 'All Movies',
+        count: filter[FilterType.ALL](films).length,
+      },
+      {
+        type: FilterType.WATCHLIST,
+        name: 'Wathlist',
+        count: filter[FilterType.WATCHLIST](films).length,
+      },
+      {
+        type: FilterType.HISTORY,
+        name: 'History',
+        count: filter[FilterType.HISTORY](films).length,
+      },
+      {
+        type: FilterType.FAVORITE,
+        name: 'Favorite',
+        count: filter[FilterType.FAVORITE](films).length,
+      },
+    ];
   }
 
   init() {
-    this.#listFilterComponent = new ListFilterView(this.#filmFiltersModel.userFilters, this.#onFilterChange, this.#currentFilterType);
-    render(this.#listFilterComponent, this.#listFilterContainer);
-  }
+    const filters = this.filters;
+    const prevFilterComponent = this.#listFilterComponent;
 
-  #onFilterChange = (filterType) => {
-    if(this.#currentFilterType === filterType) {
+    this.#listFilterComponent = new ListFilterView({
+      filters,
+      currentFilterType: this.#filmFiltersModel.filter,
+      onFilterTypeChange: this.#handleFilterTypeChange
+    });
+
+    if (prevFilterComponent === null) {
+      render(this.#listFilterComponent, this.#listFilterContainer);
       return;
     }
-    this.#currentFilterType = filterType;
-    this.#filmFiltersModel.updateFilter(UpdateType.MINOR, filterType);
-    this.update(this.#filmFiltersModel.userFilters);
-    this.#listFilterComponent.setActiveFilterControl();
-  };
-
-  #handleModelUpdate = (updateType, userFilters) => {
-    this.update(userFilters);
-  };
-
-  update(userFilters) {
-    const updateComponent = new ListFilterView(userFilters, this.#onFilterChange, this.#currentFilterType);
-    replace(updateComponent, this.#listFilterComponent);
-    this.#listFilterComponent = updateComponent;
+    replace(this.#listFilterComponent, prevFilterComponent);
+    remove(prevFilterComponent);
   }
 
-  remove() {
-    remove(this.#listFilterComponent);
-  }
+  #handleModelEvent = () => {
+    this.init();
+  };
+
+  #handleFilterTypeChange = (filterType) => {
+    if (this.#filmFiltersModel.filter === filterType) {
+      return;
+    }
+
+    this.#filmFiltersModel.setFilter(UpdateType.MAJOR, filterType);
+  };
 }
