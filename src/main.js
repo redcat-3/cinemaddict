@@ -20,7 +20,7 @@ const filmsModel = new FilmsModel({
 const commentsModel = new CommentsModel({
   commentsApiService: new CommentsApiService(END_POINT, AUTHORIZATION)
 });
-const filmFiltersModel = new FilmFiltersModel(filmsModel.films);
+const filmFiltersModel = new FilmFiltersModel([...filmsModel.films]);
 const filmsPresenter = new FilmsPresenter({
   filmContainer: siteMainElement,
   filmsModel,

@@ -1,6 +1,6 @@
 import MostCommentedView from '../view/most-commented.js';
 import FilmPresenter from './film-presenter.js';
-import {render, RenderPosition} from '../render.js';
+import {render, RenderPosition, remove} from '../framework/render.js';
 import {UpdateType} from '../const.js';
 
 export default class MostCommentedPresenter {
@@ -29,10 +29,13 @@ export default class MostCommentedPresenter {
 
   init() {
     render(this.#mostCommentedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
+    this.#renderMostCommentedFilms(this.#filmsModel.films);
   }
 
   update(films) {
     this.#films = [...films];
+    remove(this.#mostCommentedComponent);
+    render(this.#mostCommentedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
     this.#renderMostCommentedFilms(this.#films);
   }
 

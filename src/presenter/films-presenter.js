@@ -136,10 +136,10 @@ export default class FilmsPresenter {
     if (filmCount > this.#renderedFilmCount) {
       this.#renderShowMoreButton();
     }
-    if(!(this.#filmFiltersModel.all.every((film) => film.filmInfo.rating === 0))) {
+    if(!(this.#filmsModel.films.every((film) => film.filmInfo.rating === 0))) {
       this.#renderTopRatedFilms();
     }
-    if(!(this.#filmFiltersModel.all.every((film) => film.comments.length === 0))) {
+    if(!(this.#filmsModel.films.every((film) => film.comments.length === 0))) {
       this.#renderMostCommentedFilms();
     }
   }

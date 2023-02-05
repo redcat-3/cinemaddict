@@ -1,6 +1,6 @@
 import TopRatedView from '../view/top-rated.js';
 import FilmPresenter from './film-presenter.js';
-import {render, RenderPosition} from '../render.js';
+import {render, RenderPosition, remove} from '../framework/render.js';
 import {UpdateType} from '../const.js';
 
 export default class TopRatedPresenter {
@@ -29,10 +29,13 @@ export default class TopRatedPresenter {
 
   init() {
     render(this.#topRatedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
+    this.#renderTopRatedFilms(this.#filmsModel.films);
   }
 
   update(films) {
     this.#films = [...films];
+    remove(this.#topRatedComponent);
+    render(this.#topRatedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
     this.#renderTopRatedFilms(this.#films);
   }
 
