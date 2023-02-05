@@ -1,5 +1,5 @@
 import {render, RenderPosition, remove} from '../framework/render.js';
-import { filter } from '../utils.js';
+import { filter, getItemById } from '../utils.js';
 import {sortByReleaseDate} from '../utils.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import FilmPresenter from './film-presenter.js';
@@ -167,16 +167,20 @@ export default class FilmsPresenter {
         this.#filmsPresenter.get(update.film.id).setSaving();
         try {
           await this.#commentsModel.addComment(updateType, update);
+          getItemById(this.#filmsModel.films, update.film.id).comments.push(update.film.id);
+          this.#filmsPresenter.get(update.film.id).init(getItemById(this.#filmsModel.films, update.film.id), update?.scroll);
         } catch(err) {
           this.#filmsPresenter.get(update.film.id).setAborting(UserAction.ADD_COMMENT);
         }
         break;
       case UserAction.DELETE_COMMENT:
-        this.#filmsPresenter.get(update.film.id).setDeleting(update.id);
+        this.#filmsPresenter.get(update.film.id).setDeleting(update);
         try {
           await this.#commentsModel.deleteComment(updateType, update);
+          getItemById(this.#filmsModel.films, update.film.id).comments.pop();
+          this.#filmsPresenter.get(update.film.id).init(getItemById(this.#filmsModel.films, update.film.id), update?.scroll);
         } catch(err) {
-          this.#filmsPresenter.get(update.film.id).setAborting(UserAction.DELETE_COMMENT, update.id);
+          this.#filmsPresenter.get(update.film.id).setAborting(UserAction.DELETE_COMMENT, update);
         }
         break;
       default:

@@ -25,10 +25,6 @@ export default class FooterPresenter {
 
   #handleFilmsEvent = (updateType, films) => {
     switch (updateType) {
-      case UpdateType.PATCH:
-      case UpdateType.MINOR:
-      case UpdateType.MAJOR:
-        break;
       case UpdateType.INIT:
         this.update(films);
         break;
