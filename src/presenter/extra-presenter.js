@@ -11,21 +11,20 @@ export default class ExtraPresenter {
   #onControlClick = null;
   #popupCallBack = null;
   #popupOpen = null;
-  #onCommentUpdate = null;
 
   #mostCommentedComponent = new ExtraView('Most commented');
   #topRatedComponent = new ExtraView('Top rated');
 
-  constructor({filmContainer, filmsModel, commentsModel, onControlClick, popupCallBack, popupOpen, onCommentUpdate}) {
+  constructor({filmContainer, filmsModel, commentsModel, onControlClick, popupCallBack, popupOpen}) {
     this.#filmContainer = filmContainer;
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
     this.#onControlClick = onControlClick;
     this.#popupCallBack = popupCallBack;
     this.#popupOpen = popupOpen;
-    this.#onCommentUpdate = onCommentUpdate;
 
     this.#filmsModel.addObserver(this.#handleFilmsEvent);
+    this.#commentsModel.addObserver(this.#handleCommentsEvent);
   }
 
   init() {
@@ -62,7 +61,6 @@ export default class ExtraPresenter {
       onControlClick: this.#onControlClick,
       popupCallBack: this.#popupCallBack,
       popupOpen: this.#popupOpen,
-      onCommentUpdate: this.#onCommentUpdate
     });
     filmPresenter.init();
   }
@@ -82,17 +80,15 @@ export default class ExtraPresenter {
   #handleFilmsEvent = (updateType, films) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.update(films);
-        break;
       case UpdateType.MINOR:
-        this.update(films);
-        break;
       case UpdateType.MAJOR:
-        this.update(films);
-        break;
       case UpdateType.INIT:
         this.update(films);
         break;
     }
+  };
+
+  #handleCommentsEvent = () => {
+    this.update(this.#filmsModel.films);
   };
 }

@@ -8,14 +8,12 @@ export default class FilmPresenter {
   #film = null;
   #handleControlClick = null;
   #popupOpen = null;
-  #handleUpdateComment = null;
 
-  constructor({film, filmContainer, onControlClick, popupOpen, onCommentUpdate}) {
+  constructor({film, filmContainer, onControlClick, popupOpen}) {
     this.#filmContainer = filmContainer;
     this.#film = film;
     this.#handleControlClick = onControlClick;
     this.#popupOpen = popupOpen;
-    this.#handleUpdateComment = onCommentUpdate;
   }
 
   init() {
@@ -55,19 +53,19 @@ export default class FilmPresenter {
       this.#film);
   };
 
-  #handlePopupControlClick = (updateType, update) => {
-    this.#film.userDetails.watchlist = update.userDetails.watchlist;
-    this.#film.userDetails.alreadyWatched = update.userDetails.alreadyWatched;
-    this.#film.userDetails.favorite = update.userDetails.favorite;
-    this.#filmComponent.setUserControls();
-    this.#handleControlClick(updateType, update);
-  };
+  // #handlePopupControlClick = (updateType, update) => {
+  //   this.#film.userDetails.watchlist = update.userDetails.watchlist;
+  //   this.#film.userDetails.alreadyWatched = update.userDetails.alreadyWatched;
+  //   this.#film.userDetails.favorite = update.userDetails.favorite;
+  //   this.#filmComponent.setUserControls();
+  //   this.#handleControlClick(updateType, update);
+  // };
 
-  #commentUpdateHandler = (updateType, update) => {
-    const newComments = Array.from(update, (element) => element.id);
-    this.#film.comments = newComments;
-    this.#handleUpdateComment(updateType, this.#film, newComments);
-  };
+  // #commentUpdateHandler = (updateType, update) => {
+  //   const newComments = Array.from(update, (element) => element.id);
+  //   this.#film.comments = newComments;
+  //   this.#handleUpdateComment(updateType, this.#film, newComments);
+  // };
 
   remove() {
     remove(this.#filmComponent);

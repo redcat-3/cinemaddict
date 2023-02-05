@@ -69,7 +69,6 @@ export default class FilmsPresenter {
       onControlClick: this.#handleControlClick,
       popupCallBack: this.#setOnePopup,
       popupOpen: this.#openPopup,
-      onCommentUpdate: this.#handleCommentsUpdateEvent
     });
     filmPresenter.init();
     this.#filmsPresenter.set(film.id, filmPresenter);
@@ -92,7 +91,6 @@ export default class FilmsPresenter {
       onControlClick: this.#handleControlClick,
       popupCallBack: this.#setOnePopup,
       popupOpen: this.#openPopup,
-      onCommentUpdate: this.#handleCommentsUpdateEvent
     });
     this.#extraPresenter.init();
   }
@@ -174,15 +172,16 @@ export default class FilmsPresenter {
     this.#commentsModel.updateComment(updateType, filmId, comment);
   };
 
-  #handleCommentsModelEvent = (updateType, comments) => {
-    const id = this.#filmDetailsPresenter.film.id;
+  #handleCommentsModelEvent = (updateType, id) => {
     switch (updateType) {
       case UpdateCommentType.ADD:
-        getItemById(this.#filmsModel.films, id).comments.push(id);
+        this.#commentsModel.init(id);
+        this.#filmsModel.films[id].comments.push(id);
         this.#filmsPresenter.get(id).replace();
         break;
       case UpdateCommentType.DELETE:
-        getItemById(this.#filmsModel.films, id).comments.pop(id);
+        this.#commentsModel.init(id);
+        this.#filmsModel.films[id].comments.pop();
         this.#filmsPresenter.get(id).replace();
         break;
     }
