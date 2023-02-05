@@ -1,12 +1,14 @@
 import Observable from '../framework/observable.js';
-import {createComments} from '../mock/film.js';
+import {UpdateType, UpdateCommentType} from '../const.js';
 
 export default class CommentsModel extends Observable {
-  #comments = null;
+  #commentsApiService = null;
+  #comments = [];
+  #filmId = null;
 
-  constructor(films) {
+  constructor({commentsApiService}) {
     super();
-    this.#comments = Array.from(films, (film) => this.#createNewComments(film));
+    this.#commentsApiService = commentsApiService;
   }
 
   get comments() {
@@ -17,32 +19,44 @@ export default class CommentsModel extends Observable {
     this.#comments = comments;
   }
 
-  #createNewComments (film) {
-    const comment = {
-      id: film.id,
-      commentList: createComments(film.comments)
-    };
-    return comment;
+  async init(id) {
+    try {
+      this.#filmId = id;
+      this.#comments = await this.#commentsApiService.getComments(id);
+    } catch(err) {
+      this.#comments = [];
+    }
+    this._notify(UpdateType.INIT, this.#comments);
   }
 
-  updateComments(id, updateCommentList) {
-    const index = this.comments.findIndex((item) => item.id === id);
-
-    if (index === -1) {
-      throw new Error('Can\'t update unexisting comment');
+  async updateComment(updateType, id, comment) {
+    let index = null;
+    switch (updateType) {
+      case UpdateCommentType.ADD:
+        try {
+          const response = await this.#commentsApiService.postComment(id, comment);
+          this.#comments = [...response.comments];
+          this._notify(updateType, id);
+        } catch(err) {
+          throw new Error('Can\'t update comments');
+        }
+        break;
+      case UpdateCommentType.DELETE:
+        index = this.#comments.indexOf(comment);
+        if (index === -1) {
+          throw new Error('Can\'t update unexisting task');
+        }
+        try {
+          await this.#commentsApiService.deleteComment(comment);
+          this.#comments = [
+            ...this.#comments.slice(0, index),
+            ...this.#comments.slice(index + 1),
+          ];
+          this._notify(updateType, id);
+        } catch(err) {
+          throw new Error('Can\'t update comments');
+        }
+        break;
     }
-
-    const comment = {
-      id,
-      commentList: updateCommentList
-    };
-
-    this.comments = [
-      ...this.#comments.slice(0, index),
-      comment,
-      ...this.#comments.slice(index + 1),
-    ];
-
-    //this._notify(id, updateCommentList);
   }
 }

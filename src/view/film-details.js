@@ -1,7 +1,6 @@
-import he from 'he';
 import {createElement} from '../framework/render.js';
 import AbstractView from '../framework/view/abstract-view.js';
-import {getReleaseDate, getDuration, getCommentDate} from '../utils.js';
+import {getReleaseDate, getDuration} from '../utils.js';
 import {UpdateCommentType} from '../const.js';
 
 const EMOJI = {
@@ -20,7 +19,7 @@ function getGenreWord(genres) {
   }
 }
 
-function createFilmDetailsTemplate(film, commentList) {
+function createFilmDetailsTemplate(film) {
   const {filmInfo, comments} = film;
   return `<section class="film-details">
   <div class="film-details__inner">
@@ -73,9 +72,9 @@ function createFilmDetailsTemplate(film, commentList) {
               <td class="film-details__cell">${filmInfo.release.releaseCountry}</td>
             </tr>
             <tr class="film-details__row">
-              <td class="film-details__term">${getGenreWord(filmInfo.genres)}</td>
+              <td class="film-details__term">${getGenreWord(filmInfo.genre)}</td>
               <td class="film-details__cell">
-                <span class="film-details__genre">${filmInfo.genres.join(' ')}</span></td>
+                <span class="film-details__genre">${filmInfo.genre.join(' ')}</span></td>
             </tr>
           </table>
 
@@ -94,19 +93,7 @@ function createFilmDetailsTemplate(film, commentList) {
       <section class="film-details__comments-wrap">
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
-        <ul class="film-details__comments-list">${commentList.map((comment) => `<li class="film-details__comment" data-comment-id=${comment.id}>
-              <span class="film-details__comment-emoji">
-                <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt=${comment.emotion}>
-              </span>
-              <div>
-                <p class="film-details__comment-text">${he.encode(`${comment.comment}`)}</p>
-                <p class="film-details__comment-info">
-                  <span class="film-details__comment-author">${comment.author}</span>
-                  <span class="film-details__comment-day">${getCommentDate(comment.date)}</span>
-                  <button class="film-details__comment-delete" data-comment-id=${comment.id}>Delete</button>
-                </p>
-              </div>
-            </li>`).join(' ')}
+        <ul class="film-details__comments-list">
         </ul>
 
         <form class="film-details__new-comment" action="" method="get">
@@ -144,21 +131,21 @@ function createFilmDetailsTemplate(film, commentList) {
 </section>`;
 }
 
-function createCommentTemplate(comment) {
-  return `<li class="film-details__comment" data-comment-id=${comment.id}>
-    <span class="film-details__comment-emoji">
-      <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt=${comment.emotion}>
-    </span>
-    <div>
-      <p class="film-details__comment-text">${he.encode(`${comment.comment}`)}</p>
-      <p class="film-details__comment-info">
-        <span class="film-details__comment-author">${comment.author}</span>
-        <span class="film-details__comment-day">${getCommentDate(comment.date)}</span>
-        <button class="film-details__comment-delete" data-comment-id=${comment.id}>Delete</button>
-      </p>
-    </div>
-  </li>`;
-}
+// function createCommentTemplate(comment) {
+//   return `<li class="film-details__comment" data-comment-id=${comment.id}>
+//     <span class="film-details__comment-emoji">
+//       <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt=${comment.emotion}>
+//     </span>
+//     <div>
+//       <p class="film-details__comment-text">${he.encode(`${comment.comment}`)}</p>
+//       <p class="film-details__comment-info">
+//         <span class="film-details__comment-author">${comment.author}</span>
+//         <span class="film-details__comment-day">${getCommentDate(comment.date)}</span>
+//         <button class="film-details__comment-delete" data-comment-id=${comment.id}>Delete</button>
+//       </p>
+//     </div>
+//   </li>`;
+// }
 
 function createEmodjiImgTemplate() {
   return '<img width="55" height="55"></img>';
@@ -178,7 +165,7 @@ function createControlButtonFavoriteTemplate() {
 
 export default class FilmDetailsView extends AbstractView {
   #film = null;
-  commentList = null;
+  comments = null;
   #emodjiChecked = null;
   commentText = null;
   #onClick = null;
@@ -187,10 +174,10 @@ export default class FilmDetailsView extends AbstractView {
   #handleFavoriteClick = null;
   handleUpdateComment = null;
 
-  constructor({film, commentList, onClick, onWatchlistClick, onWatchedClick, onFavoriteClick, onUpdateComment}) {
+  constructor({film, comments, onClick, onWatchlistClick, onWatchedClick, onFavoriteClick, onUpdateComment}) {
     super();
     this.#film = film;
-    this.commentList = commentList;
+    this.comments = comments;
     this.#onClick = onClick;
     this.#handleWatchlistClick = onWatchlistClick;
     this.#handleWatchedClick = onWatchedClick;
@@ -216,14 +203,11 @@ export default class FilmDetailsView extends AbstractView {
     this.element.querySelector('#emoji-angry')
       .addEventListener('click', this.#onEmojiClick);
 
-    this.element.querySelectorAll('.film-details__comment-delete')
-      .forEach((item) => item.addEventListener('click', this.#onCommentDeleteClick));
-
     this.element.querySelector('.film-details__comment-input').addEventListener('keypress', this.#keycheck);
   }
 
   get template() {
-    return createFilmDetailsTemplate(this.#film, this.commentList);
+    return createFilmDetailsTemplate(this.#film);
   }
 
   setUserControls() {
@@ -270,13 +254,13 @@ export default class FilmDetailsView extends AbstractView {
       .addEventListener('click', this.#favoritelistClickHandler);
   }
 
-  addComment(data) {
-    this.element.querySelector('.film-details__add-emoji-label').innerHTML = '';
-    const commentTemplateElement = createCommentTemplate(data);
-    const commentElement = createElement(commentTemplateElement);
-    this.element.querySelector('.film-details__comment-input').value = '';
-    this.element.querySelector('.film-details__comments-list').appendChild(commentElement);
-  }
+  // addComment(data) {
+  //   this.element.querySelector('.film-details__add-emoji-label').innerHTML = '';
+  //   const commentTemplateElement = createCommentTemplate(data);
+  //   const commentElement = createElement(commentTemplateElement);
+  //   this.element.querySelector('.film-details__comment-input').value = '';
+  //   this.element.querySelector('.film-details__comments-list').appendChild(commentElement);
+  // }
 
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
@@ -300,26 +284,12 @@ export default class FilmDetailsView extends AbstractView {
     evt.target.checked = true;
   };
 
-  #onCommentDeleteClick = (evt) => {
-    evt.preventDefault();
-    let commentElement = null;
-    for(let i = 0; i < this.element.querySelectorAll('.film-details__comment').length; i++) {
-      if(this.element.querySelectorAll('.film-details__comment')[i].dataset.commentId === evt.target.dataset.commentId) {
-        commentElement = this.element.querySelectorAll('.film-details__comment')[i];
-      }
-    }
-    this.element.querySelector('.film-details__comments-list').removeChild(commentElement);
-    this.handleUpdateComment(UpdateCommentType.DELETE, evt.target.dataset.commentId);
-    this.element.querySelectorAll('.film-details__comment-delete')
-      .forEach((item) => item.addEventListener('click', this.#onCommentDeleteClick));
-  };
-
   #keycheck = (evt) => {
     if ((evt.ctrlKey || evt.metaKey) && evt.keyCode === 13) {
       evt.preventDefault();
-      //document.querySelector('.film-details__new-comment').submit();
       this.commentText = evt.target.value;
-      this.onAddCommentSubmit();
+      this.onAddCommentSubmit(evt);
+      // evt.target.disabled = true;
     }
   };
 
@@ -330,6 +300,13 @@ export default class FilmDetailsView extends AbstractView {
         emotion: this.#emodjiChecked
       };
       this.handleUpdateComment(UpdateCommentType.ADD, comment);
+      this.element.querySelector('.film-details__add-emoji-label').innerHTML = '';
+      this.element.querySelector('.film-details__comment-input').value = '';
+      //this.element.querySelector('.film-details__comment-input').target.disabled = false;
     }
   };
+
+  setCommentsCount() {
+    this.element.querySelector('.film-details__comments-count').textContent = this.comments.length;
+  }
 }

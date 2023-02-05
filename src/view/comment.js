@@ -1,6 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import he from 'he';
 import {getCommentDate} from '../utils.js';
+import {UpdateCommentType} from '../const.js';
 
 function createCommentTemplate(comment) {
   return `<li class="film-details__comment">
@@ -19,17 +20,25 @@ function createCommentTemplate(comment) {
 }
 
 export default class CommentView extends AbstractView {
-  #comment = null;
+  comment = null;
   #onCommentDeleteClick = null;
 
   constructor(comment, onCommentDeleteClick) {
     super();
-    this.#comment = comment;
+    this.comment = comment;
+    this.#onCommentDeleteClick = onCommentDeleteClick;
 
-    this.element.querySelector('.film-details__comment-delete').addEventListener('click', onCommentDeleteClick(this.#comment));
+    this.element.querySelector('.film-details__comment-delete').addEventListener('click', this.#handleCommentDeleteClick);
   }
 
   get template() {
-    return createCommentTemplate(this.#comment);
+    return createCommentTemplate(this.comment);
   }
+
+  #handleCommentDeleteClick = (evt) => {
+    evt.preventDefault();
+    evt.target.disabled = true;
+    evt.target.textContent = 'Deleting...';
+    this.#onCommentDeleteClick(UpdateCommentType.DELETE, this.comment);
+  };
 }

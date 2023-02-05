@@ -10,7 +10,7 @@ function createFilmCardTemplate(film) {
     <p class="film-card__info">
       <span class="film-card__year">${getFilmYear(filmInfo.release.date)}</span>
       <span class="film-card__duration">${getDuration(filmInfo.duration)}</span>
-      <span class="film-card__genre">${filmInfo.genres.join(' ')}</span>
+      <span class="film-card__genre">${filmInfo.genre.join(' ')}</span>
     </p>
     <img src=${filmInfo.poster} alt="" class="film-card__poster">
     <p class="film-card__description">${filmInfo.description}</p>
@@ -40,8 +40,8 @@ export default class FilmCardView extends AbstractStatefulView {
     this.#handleWatchedClick = onWatchedClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
-    this.element.querySelector('.film-card__link')
-      .addEventListener('click', this.#onClick);
+    this.element.querySelector('a')
+      .addEventListener('click', this.#clickHandler);
     this.element.querySelector('.film-card__controls-item--add-to-watchlist')
       .addEventListener('click', this.#watchlistClickHandler);
     this.element.querySelector('.film-card__controls-item--mark-as-watched')
@@ -72,6 +72,11 @@ export default class FilmCardView extends AbstractStatefulView {
   reset() {
     this.updateElement(this.#film);
   }
+
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onClick(this.#film);
+  };
 
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
