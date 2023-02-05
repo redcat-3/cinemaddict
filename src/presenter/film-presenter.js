@@ -37,7 +37,7 @@ export default class FilmPresenter {
     const prevPopupComponent = this.#filmPopup;
 
     this.#filmComponent = new FilmCardView({
-      film: film,
+      film,
       onOpenClick: () => this.#openPopupClickHandler(film),
       onControlsClick: this.#handleControlsClick,
       currentFilterType: this.#currentFilterType,
