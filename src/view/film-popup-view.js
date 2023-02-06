@@ -1,6 +1,6 @@
 import he from 'he';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import {getDuration, getReleaseDate } from '../utils.js';
+import {getDuration, getCommentDate, getReleaseDate, isCtrlEnterEvent} from '../utils.js';
 import { EMOJI, UpdateType, FilterType, SHAKE_ANIMATION_TIMEOUT, SHAKE_CLASS_NAME, } from '../const.js';
 
 const ClassName = {
@@ -18,7 +18,7 @@ const createCommentTemplate = (comments, isDeleting, isDisabled, deletingId) => 
       <p class="film-details__comment-text">${he.encode(comment.comment)}</p>
       <p class="film-details__comment-info">
         <span class="film-details__comment-author">${he.encode(comment.author)}</span>
-        <span class="film-details__comment-day">${he.encode(getReleaseDate(comment.date))}</span>
+        <span class="film-details__comment-day">${he.encode(getCommentDate(comment.date))}</span>
         <button class="film-details__comment-delete" data-id="${he.encode(comment.id)}" ${isDisabled ? 'disabled' : ''}>
         ${isDeleting && deletingId === comment.id ? 'Deleting...' : 'Delete'}
         </button>
@@ -243,8 +243,9 @@ export default class FilmPopupView extends AbstractStatefulView {
   }
 
   get filmComments() {
-    const commentsSet = new Set(this.#film.comments);
-    return this.#comments.filter((comment) => commentsSet.has(comment.id));
+    const commentsSet = this.#comments.map((comment) => comment.id);
+    this.#film.comments = commentsSet;
+    return this.#comments;
   }
 
   get scrollPosition() {
@@ -311,7 +312,7 @@ export default class FilmPopupView extends AbstractStatefulView {
     this.element.querySelectorAll('.film-details__comment-delete')
       .forEach((el) => el.addEventListener('click', this.#commentDeleteClickHandler));
 
-    document.addEventListener('keypress', this.#commentAddHandler);
+    document.addEventListener('keydown', this.#commentAddHandler);
   };
 
   _restoreHandlers() {
@@ -345,7 +346,7 @@ export default class FilmPopupView extends AbstractStatefulView {
   };
 
   #commentAddHandler = (evt) => {
-    if ((evt.ctrlKey || evt.metaKey) && evt.keyCode === 13) {
+    if (isCtrlEnterEvent(evt)) {
       evt.preventDefault();
       const comment = this._state.comment;
       const emotion = this._state.emotion;

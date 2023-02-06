@@ -53,7 +53,7 @@ const EMOJI = [
 ];
 const FILM_COUNT_PER_STEP = 5;
 const TEXT_LIMIT = 140;
-const AUTHORIZATION = 'Basic kTy9gI98jhz2327rD';
+const AUTHORIZATION = 'Basic er883jdzbdw';
 const END_POINT = 'https://19.ecmascript.pages.academy/cinemaddict';
 const SHAKE_ANIMATION_TIMEOUT = 600;
 const SHAKE_CLASS_NAME = 'shake';
