@@ -1,15 +1,10 @@
-import ExtraView from '../view/extra.js';
+import ExtraView from '../view/extra-view.js';
 import FilmPresenter from './film-presenter.js';
 import {render, RenderPosition, remove} from '../framework/render.js';
 import {UpdateType} from '../const.js';
 
 export default class ExtraPresenter {
   #filmContainer = null;
-
-  #filmComponent = null;
-  #filmPopup = null;
-
-  #film = null;
   #handleDataChange = null;
   #handleModeChange = null;
   #currentFilterType = null;

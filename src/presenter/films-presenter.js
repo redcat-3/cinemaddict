@@ -1,15 +1,14 @@
 import {render, RenderPosition, remove} from '../framework/render.js';
-import { filter } from '../utils.js';
-import {sortByReleaseDate} from '../utils.js';
+import {sortByReleaseDate, filter} from '../utils.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import FilmPresenter from './film-presenter.js';
-import FilmListView from '../view/film-list.js';
+import FilmListView from '../view/film-list-view.js';
 import ShowMorePresenter from './show-more-presenter.js';
 import ExtraPresenter from './extra-presenter.js';
-import EmptyView from '../view/empty.js';
+import EmptyView from '../view/empty-view.js';
 import NoFilmsErrorView from '../view/no-films-view.js';
-import LoadingView from '../view/loading.js';
-import SortListView from '../view/sort-list.js';
+import LoadingView from '../view/loading-view.js';
+import SortListView from '../view/sort-list-view.js';
 import {FILM_COUNT_PER_STEP, SortType, TimeLimit, UpdateType, UserAction} from '../const.js';
 
 export default class FilmsPresenter {
@@ -129,11 +128,13 @@ export default class FilmsPresenter {
   }
 
   #renderSort() {
-    if(!this.#sortComponent) {
-      this.#sortComponent = new SortListView({
-        onSortTypeChange: this.#onSortTypeChange
-      });
-      render(this.#sortComponent, this.#filmContainer, RenderPosition.AFTERBEGIN);
+    if(this.films.length !== 0) {
+      if(!this.#sortComponent) {
+        this.#sortComponent = new SortListView({
+          onSortTypeChange: this.#onSortTypeChange
+        });
+        render(this.#sortComponent, this.#filmContainer, RenderPosition.AFTERBEGIN);
+      }
     }
   }
 

@@ -1,10 +1,9 @@
 import dayjs from 'dayjs';
 import fromnow from 'fromnow';
-import { FilterType, UserRatings, TIMEOUT_DELAY } from './const.js';
+import { FilterType, UserRatings } from './const.js';
 
 const FILM_DATE_FORMAT = 'YYYY';
 const RELEASE_DATE_FORMAT = 'D MMMM YYYY';
-// const COMMENT_DATE_FORMAT = 'YYYY/MM/DD HH:mm';
 
 function getReleaseDate(date) {
   return date ? dayjs(date).format(RELEASE_DATE_FORMAT) : '';
@@ -73,7 +72,6 @@ const adaptToClient = (film) => {
       favorite: film['user_details'].favorite}
   };
 
-  // Ненужные ключи мы удаляем
   delete adaptedFilm ['film_info'];
   delete adaptedFilm ['user_details'];
 
@@ -102,14 +100,6 @@ const getUserRating = (films) => {
   return UserRatings.MOVIE_BUFF.rating;
 };
 
-const debounce = (callback, timeoutDelay = TIMEOUT_DELAY) => {
-  let timeoutId;
-  return (...rest) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
-  };
-};
-
 export {
   getReleaseDate,
   getFilmYear,
@@ -123,5 +113,4 @@ export {
   adaptToClient,
   filter,
   getUserRating,
-  debounce
 };

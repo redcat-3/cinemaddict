@@ -1,4 +1,4 @@
-import ProfileView from '../view/profile.js';
+import ProfileView from '../view/profile-view.js';
 import {render, replace, remove} from '../framework/render.js';
 import { getUserRating } from '../utils.js';
 
