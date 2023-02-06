@@ -1,6 +1,6 @@
 import he from 'he';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import {getDuration, getReleaseDate, isCtrlEnterEvent } from '../utils.js';
+import {getDuration, getReleaseDate } from '../utils.js';
 import { EMOJI, UpdateType, FilterType, SHAKE_ANIMATION_TIMEOUT, SHAKE_CLASS_NAME, } from '../const.js';
 
 const ClassName = {
@@ -311,7 +311,7 @@ export default class FilmPopupView extends AbstractStatefulView {
     this.element.querySelectorAll('.film-details__comment-delete')
       .forEach((el) => el.addEventListener('click', this.#commentDeleteClickHandler));
 
-    document.addEventListener('keydown', this.#commentAddHandler);
+    document.addEventListener('keypress', this.#commentAddHandler);
   };
 
   _restoreHandlers() {
@@ -345,7 +345,7 @@ export default class FilmPopupView extends AbstractStatefulView {
   };
 
   #commentAddHandler = (evt) => {
-    if (isCtrlEnterEvent(evt)) {
+    if ((evt.ctrlKey || evt.metaKey) && evt.keyCode === 13) {
       evt.preventDefault();
       const comment = this._state.comment;
       const emotion = this._state.emotion;
