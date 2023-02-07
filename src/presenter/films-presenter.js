@@ -62,8 +62,20 @@ export default class FilmsPresenter {
   }
 
   init() {
-    this.#renderSort();
     this.#renderFilmList();
+  }
+
+  #renderSort() {
+    const prevsortComponent = this.#sortComponent;
+    this.#sortComponent = new SortListView({
+      onSortTypeChange: this.#onSortTypeChange
+    });
+    if (prevsortComponent === null) {
+      render(this.#sortComponent, this.#filmListComponent.getFilmList(), RenderPosition.BEFOREBEGIN);
+    } else {
+      render(this.#sortComponent, this.#filmListComponent.getFilmList(), RenderPosition.BEFOREBEGIN);
+    }
+    this.#sortComponent.setButtonActive(this.#currentSortType);
   }
 
   #renderFilmList() {
@@ -75,15 +87,16 @@ export default class FilmsPresenter {
     const films = [...this.films];
     const filmCount = films.length;
     if(filmCount === 0) {
-      this.#renderEmptyList();
-      return;
-    }
-    this.#renderFilms(films.slice(0, Math.min(filmCount, this.#renderedFilmCount)));
-    if (filmCount > this.#renderedFilmCount) {
-      this.#renderShowMoreButton();
-    }
+      this.#renderEmptyList(this.#filmFiltersModel.filter);
+    } else {
+      this.#renderSort();
+      this.#renderFilms(films.slice(0, Math.min(filmCount, this.#renderedFilmCount)));
+      if (filmCount > this.#renderedFilmCount) {
+        this.#renderShowMoreButton();
+      }
 
-    this.#renderExtraFilms();
+      this.#renderExtraFilms();
+    }
   }
 
 
@@ -125,17 +138,6 @@ export default class FilmsPresenter {
 
   #renderLoading() {
     render(this.#loadingComponent, this.#filmListComponent.getFilmList(), RenderPosition.AFTERBEGIN);
-  }
-
-  #renderSort() {
-    if(this.films.length !== 0) {
-      if(!this.#sortComponent) {
-        this.#sortComponent = new SortListView({
-          onSortTypeChange: this.#onSortTypeChange
-        });
-        render(this.#sortComponent, this.#filmContainer, RenderPosition.AFTERBEGIN);
-      }
-    }
   }
 
   #renderEmptyList() {
@@ -237,7 +239,6 @@ export default class FilmsPresenter {
     }
     this.#currentSortType = sortType;
     this.#clearFilmList({resetRenderedFilmCount: true});
-    this.#renderSort();
     this.#renderFilmList();
   };
 
@@ -245,6 +246,9 @@ export default class FilmsPresenter {
     const filmCount = this.films.length;
     this.#filmsPresenter.forEach((presenter) => presenter.destroy());
     this.#filmsPresenter.clear();
+
+    remove(this.#sortComponent);
+
 
     remove(this.#emptyListComponent);
     if(this.#showMorePresenter) {

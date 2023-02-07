@@ -85,8 +85,9 @@ export default class FilmCardView extends AbstractView {
     this.element.querySelector('.film-card__link')
       .addEventListener('click', this.#handleOpenClick);
 
-    this.element.querySelector('.film-card__controls')
-      .addEventListener('click', this.#controlsClickHandler);
+    this.element.querySelectorAll('.film-card__controls-item').forEach((element) => {
+      element.addEventListener('click', this.#controlsClickHandler);
+    });
   }
 
   get template() {

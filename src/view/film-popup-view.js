@@ -1,6 +1,6 @@
 import he from 'he';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import {getDuration, getCommentDate, getReleaseDate, isCtrlEnterEvent} from '../utils.js';
+import {getDuration, getCommentDate, getReleaseDate} from '../utils.js';
 import { EMOJI, UpdateType, FilterType, SHAKE_ANIMATION_TIMEOUT, SHAKE_CLASS_NAME, } from '../const.js';
 
 const ClassName = {
@@ -12,14 +12,14 @@ const ClassName = {
 const createCommentTemplate = (comments, isDeleting, isDisabled, deletingId) => comments.map((comment) => `
   <li class="film-details__comment" data-id-deleting="${he.encode(comment.id)}">
     <span class="film-details__comment-emoji">
-      <img src="./images/emoji/${he.encode(comment.emotion)}.png" width="55" height="55" alt="emoji-smile">
+      <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt="emoji-smile">
     </span>
     <div>
       <p class="film-details__comment-text">${he.encode(comment.comment)}</p>
       <p class="film-details__comment-info">
         <span class="film-details__comment-author">${he.encode(comment.author)}</span>
-        <span class="film-details__comment-day">${he.encode(getCommentDate(comment.date))}</span>
-        <button class="film-details__comment-delete" data-id="${he.encode(comment.id)}" ${isDisabled ? 'disabled' : ''}>
+        <span class="film-details__comment-day">${getCommentDate(comment.date)}</span>
+        <button class="film-details__comment-delete" data-id="${comment.id}" ${isDisabled ? 'disabled' : ''}>
         ${isDeleting && deletingId === comment.id ? 'Deleting...' : 'Delete'}
         </button>
       </p>
@@ -27,7 +27,7 @@ const createCommentTemplate = (comments, isDeleting, isDisabled, deletingId) => 
   </li>
 `).join('');
 
-const createNewCommentTemplate = (currentEmotion, isDisabled, isSaving) => EMOJI.map((emotion) => (`
+const createNewEmodjiTemplate = (currentEmotion, isDisabled, isSaving) => EMOJI.map((emotion) => (`
     <input
       class="film-details__emoji-item visually-hidden"
       name="comment-emoji"
@@ -45,7 +45,7 @@ const createNewCommentTemplate = (currentEmotion, isDisabled, isSaving) => EMOJI
   `)).join('');
 
 const createFilmPopupTemplate = (film, filmComments, state) => {
-  const {emotion, comment, isDeleting, isDisabled, isSaving, deletingId} = state;
+  const {emotion, isDeleting, isDisabled, isSaving, deletingId} = state;
 
   const {
     title,
@@ -75,7 +75,7 @@ const createFilmPopupTemplate = (film, filmComments, state) => {
   const activeFavoriteClassName = favorite ? 'film-details__control-button--active' : '';
 
   const commentTemplate = createCommentTemplate(filmComments, isDeleting, isDisabled, deletingId);
-  const newCommentTemplate = createNewCommentTemplate(emotion, isDisabled, isSaving);
+  const newEmodjiTemplate = createNewEmodjiTemplate(emotion, isDisabled, isSaving);
 
   return (
     `
@@ -176,7 +176,7 @@ const createFilmPopupTemplate = (film, filmComments, state) => {
             <ul class="film-details__comments-list">
               ${commentTemplate}
             </ul>
-            <form class="film-details__new-comment" action="" method="get" ${isDisabled ? 'disabled' : ''}>
+            <form class="film-details__new-comment" action="" method="get">
               <div class="film-details__add-emoji-label">
                ${emotion ? `<img src="./images/emoji/${he.encode(emotion)}.png" width="55" height="55" alt="emoji">` : ''}
               </div>
@@ -184,10 +184,10 @@ const createFilmPopupTemplate = (film, filmComments, state) => {
                 <textarea
                   class="film-details__comment-input"
                   placeholder="Select reaction below and write comment here"
-                  name="comment">${he.encode(comment)}</textarea>
+                  name="comment" ${isSaving ? 'disabled' : ''}></textarea>
               </label>
               <div class="film-details__emoji-list">
-                ${newCommentTemplate}
+                ${newEmodjiTemplate}
               </div>
             </form>
           </section>
@@ -204,22 +204,17 @@ export default class FilmPopupView extends AbstractStatefulView {
   #handleCloseClick = null;
   #handleControlsClick = null;
   #handleDeleteClick = null;
-  #handleAddComment = null;
-  #currentFilterType = null;
 
   constructor({
     film,
     comments,
     onCloseClick,
     onControlsClick,
-    currentFilterType,
     onDeleteClick,
-    onAddComment,
   }) {
     super();
     this.#film = film;
     this.#comments = comments;
-    this.#currentFilterType = currentFilterType;
     this._setState ({
       emotion: null,
       comment: '',
@@ -232,7 +227,6 @@ export default class FilmPopupView extends AbstractStatefulView {
     this.#handleCloseClick = onCloseClick;
     this.#handleControlsClick = onControlsClick;
     this.#handleDeleteClick = onDeleteClick;
-    this.#handleAddComment = onAddComment;
 
     this._restoreHandlers();
   }
@@ -262,6 +256,13 @@ export default class FilmPopupView extends AbstractStatefulView {
     this.scrollPopup(scrollPosition);
   }
 
+  getFormData() {
+    return {
+      comment: this._state.comment,
+      emotion: this._state.emotion,
+    };
+  }
+
   #controlsClickHandler = (evt) => {
     evt.preventDefault();
 
@@ -270,29 +271,34 @@ export default class FilmPopupView extends AbstractStatefulView {
     }
 
     let updatedDetails = this.#film.userDetails;
-    let updateType;
 
     switch (evt.target.dataset.control) {
       case FilterType.WATCHLIST: {
-        updatedDetails = { ...updatedDetails, watchlist: !this.#film.userDetails.watchlist};
-        updateType = this.#currentFilterType === FilterType.WATCHLIST ? UpdateType.MINOR : UpdateType.PATCH;
+        updatedDetails = {
+          ...updatedDetails,
+          watchlist: !this.#film.userDetails.watchlist,
+        };
         break;
       }
       case FilterType.HISTORY: {
-        updatedDetails = { ...updatedDetails, alreadyWatched: !this.#film.userDetails.alreadyWatched };
-        updateType = this.#currentFilterType === FilterType.HISTORY ? UpdateType.MINOR : UpdateType.PATCH;
+        updatedDetails = {
+          ...updatedDetails,
+          alreadyWatched: !this.#film.userDetails.alreadyWatched,
+        };
         break;
       }
       case FilterType.FAVORITE: {
-        updatedDetails = { ...updatedDetails, favorite: !this.#film.userDetails.favorite };
-        updateType = this.#currentFilterType === FilterType.FAVORITE ? UpdateType.MINOR : UpdateType.PATCH;
+        updatedDetails = {
+          ...updatedDetails,
+          favorite: !this.#film.userDetails.favorite,
+        };
         break;
       }
       default:
         throw new Error('Unknown state!');
     }
 
-    this.#handleControlsClick(updatedDetails, updateType, this.scrollPosition);
+    this.#handleControlsClick(updatedDetails, UpdateType.PATCH, this.scrollPosition);
   };
 
   #setInnerHandlers = () => {
@@ -311,8 +317,6 @@ export default class FilmPopupView extends AbstractStatefulView {
 
     this.element.querySelectorAll('.film-details__comment-delete')
       .forEach((el) => el.addEventListener('click', this.#commentDeleteClickHandler));
-
-    document.addEventListener('keydown', this.#commentAddHandler);
   };
 
   _restoreHandlers() {
@@ -341,28 +345,24 @@ export default class FilmPopupView extends AbstractStatefulView {
   #commentInputHandler = (evt) => {
     evt.preventDefault();
     this._setState({
-      comment: evt.target.value
+      comment: evt.target.value,
+      isSaving: true
     });
-  };
-
-  #commentAddHandler = (evt) => {
-    if (isCtrlEnterEvent(evt)) {
-      evt.preventDefault();
-      const comment = this._state.comment;
-      const emotion = this._state.emotion;
-
-      const userComment = {
-        comment,
-        emotion,
-      };
-
-      this.#handleAddComment({comment: userComment, film: this.#film, scroll: this.scrollPosition});
-      document.removeEventListener('keydown', this.#commentAddHandler);
-    }
   };
 
   #commentDeleteClickHandler = (evt) =>{
     evt.preventDefault();
-    this.#handleDeleteClick({id: evt.target.dataset.id, film: this.#film, scroll: this.scrollPosition});
+    this._setState({
+      isDeleting: true,
+    });
+    this.updateElement(this._setState);
+    this.#handleDeleteClick({
+      id: evt.target.dataset.id,
+      film: this.#film,
+      scroll: this.scrollPosition});
+    this._setState({
+      isDeleting: true,
+    });
+    this.updateElement(this._setState);
   };
 }
