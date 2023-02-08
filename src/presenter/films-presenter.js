@@ -180,7 +180,7 @@ export default class FilmsPresenter {
           await this.#commentsModel.deleteComment(updateType, update);
           this.#filmsPresenter.get(update.film.id).init(update.film, update?.scroll);
         } catch(err) {
-          this.#filmsPresenter.get(update.film.id).setAborting(UserAction.DELETE_COMMENT, update);
+          this.#filmsPresenter.get(update.film.id).setAborting(UserAction.DELETE_COMMENT, update.id);
         }
         break;
       default:
