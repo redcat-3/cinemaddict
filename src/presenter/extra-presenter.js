@@ -11,6 +11,7 @@ export default class ExtraPresenter {
   #commentsModel = null;
   #filmsModel = null;
   #films = null;
+  #filmsPresenter = null;
 
   #mostCommentedComponent = new ExtraView('Most commented');
   #topRatedComponent = new ExtraView('Top rated');
@@ -27,20 +28,9 @@ export default class ExtraPresenter {
     this.#commentsModel.addObserver(this.#handleCommentsEvent);
   }
 
-  init() {
+  init(filmsPresenter) {
     this.#films = this.#filmsModel.films;
-    if(!(this.#filmsModel.films.every((film) => film.comments.length === 0))) {
-      render(this.#mostCommentedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
-    }
-    if(!(this.#filmsModel.films.every((film) => film.filmInfo.totalRating === 0))) {
-      render(this.#topRatedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
-    }
-  }
-
-  update(films) {
-    this.#films = [...films];
-    remove(this.#mostCommentedComponent);
-    remove(this.#topRatedComponent);
+    this.#filmsPresenter = filmsPresenter;
     if(!(this.#filmsModel.films.every((film) => film.comments.length === 0))) {
       render(this.#mostCommentedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
       this.#mostCommentedComponent.setMostCommented();
@@ -53,6 +43,22 @@ export default class ExtraPresenter {
     }
   }
 
+  update(films) {
+    this.#films = [...films];
+    remove(this.#mostCommentedComponent);
+    remove(this.#topRatedComponent);
+    if(!(this.#filmsModel.films.every((film) => film.comments.length === 0))) {
+      render(this.#mostCommentedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
+    }
+    if(!(this.#filmsModel.films.every((film) => film.filmInfo.totalRating === 0))) {
+      render(this.#topRatedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
+    }
+    this.#mostCommentedComponent.setMostCommented();
+    this.#renderMostCommentedFilms(this.#films);
+    this.#topRatedComponent.setTopRated();
+    this.#renderTopRatedFilms(this.#films);
+  }
+
   #renderFilm(film, filmContainer) {
     const filmPresenter = new FilmPresenter({
       filmContainer,
@@ -62,18 +68,19 @@ export default class ExtraPresenter {
       commentsModel: this.#commentsModel
     });
     filmPresenter.init(film);
+    this.#filmsPresenter.set(film.id, filmPresenter);
   }
 
   #renderMostCommentedFilms(films) {
     films.sort((a, b) => b.comments.length - a.comments.length);
-    this.#renderFilm(films[0], document.querySelector('.most_commented'));
-    this.#renderFilm(films[1], document.querySelector('.most_commented'));
+    this.#renderFilm(films[0], this.#mostCommentedComponent.element.querySelector('.most_commented'));
+    this.#renderFilm(films[1], this.#mostCommentedComponent.element.querySelector('.most_commented'));
   }
 
   #renderTopRatedFilms(films) {
     films.sort((a, b) => b.filmInfo.totalRating - a.filmInfo.totalRating);
-    this.#renderFilm(films[0], document.querySelector('.top_rated'));
-    this.#renderFilm(films[1], document.querySelector('.top_rated'));
+    this.#renderFilm(films[0], this.#topRatedComponent.element.querySelector('.top_rated'));
+    this.#renderFilm(films[1], this.#topRatedComponent.element.querySelector('.top_rated'));
   }
 
   #handleFilmsEvent = (updateType, films) => {
@@ -90,4 +97,9 @@ export default class ExtraPresenter {
   #handleCommentsEvent = () => {
     this.update(this.#filmsModel.films);
   };
+
+  destroy() {
+    remove(this.#mostCommentedComponent);
+    remove(this.#topRatedComponent);
+  }
 }

@@ -133,7 +133,7 @@ export default class FilmPresenter {
     scrollPosition = 0
   ) => {
     this.#handleDataChange(UserAction.UPDATE_FILM, updateType, {
-      film: {...this.#film, userDetails: updatedDetails},
+      userDetails: updatedDetails,
       scroll: scrollPosition
     });
   };
@@ -153,7 +153,7 @@ export default class FilmPresenter {
 
   #appendPopup() {
     this.#handleModeChange();
-    document.querySelector('.films-list__container').appendChild(this.#filmPopup.element);
+    document.body.appendChild(this.#filmPopup.element);
     document.body.classList.add('hide-overflow');
     document.addEventListener('keydown', this.#escKeyDownHandler);
     document.addEventListener('keydown', this.#commentAddHandler);
@@ -161,7 +161,7 @@ export default class FilmPresenter {
   }
 
   #removePopup() {
-    document.querySelector('.films-list__container').removeChild(this.#filmPopup.element);
+    document.body.removeChild(this.#filmPopup.element);
     document.body.classList.remove('hide-overflow');
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     document.removeEventListener('keydown', this.#commentAddHandler);

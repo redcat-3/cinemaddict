@@ -1,5 +1,5 @@
 import {render, RenderPosition, remove} from '../framework/render.js';
-import {sortByReleaseDate, filter} from '../utils.js';
+import {sortByReleaseDate, filter, getItemById} from '../utils.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import FilmPresenter from './film-presenter.js';
 import FilmListView from '../view/film-list-view.js';
@@ -129,7 +129,7 @@ export default class FilmsPresenter {
       commentsModel: this.#commentsModel,
       filmsModel: this.#filmsModel
     });
-    this.#extraPresenter.init();
+    this.#extraPresenter.init(this.#filmsPresenter);
   }
 
   #renderFilms(films) {
@@ -161,7 +161,10 @@ export default class FilmsPresenter {
 
         this.#filmsPresenter.get(update.film.id).setSaving();
         try {
-          await this.#filmsModel.updateFilm(updateType, update);
+          const updatedDetails = update.userDetails;
+          const updatedScroll = update.scroll;
+          const updatedFilm = {...getItemById(this.#filmsModel.films, update.film.id), userDetails: updatedDetails};
+          await this.#filmsModel.updateFilm(updateType, { updatedFilm, updatedScroll});
         } catch(err) {
           this.#filmsPresenter.get(update.film.id).setAborting(UserAction.UPDATE_FILM);
         }
@@ -169,7 +172,10 @@ export default class FilmsPresenter {
       case UserAction.ADD_COMMENT:
         this.#filmsPresenter.get(update.film.id).setSaving();
         try {
-          await this.#commentsModel.addComment(updateType, update);
+          const updatedComment = update.comment;
+          const updatedScroll = update.scroll;
+          const updatedFilm = getItemById(this.#filmsModel.films, update.film.id);
+          await this.#commentsModel.addComment(updateType, { updatedComment, updatedFilm, updatedScroll});
           this.#filmsPresenter.get(update.film.id).init(update.film, update?.scroll);
         } catch(err) {
           this.#filmsPresenter.get(update.film.id).setAborting(UserAction.ADD_COMMENT);
@@ -246,10 +252,8 @@ export default class FilmsPresenter {
     const filmCount = this.films.length;
     this.#filmsPresenter.forEach((presenter) => presenter.destroy());
     this.#filmsPresenter.clear();
-
+    this.#extraPresenter.destroy();
     remove(this.#sortComponent);
-
-
     remove(this.#emptyListComponent);
     if(this.#showMorePresenter) {
       this.#showMorePresenter.remove();
