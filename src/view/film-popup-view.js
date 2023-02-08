@@ -45,7 +45,7 @@ const createNewEmodjiTemplate = (currentEmotion, isDisabled, isSaving) => EMOJI.
   `)).join('');
 
 const createFilmPopupTemplate = (film, filmComments, state) => {
-  const {emotion, comment, isDeleting, isDisabled, isSaving, deletingId} = state;
+  const {emotion, isDeleting, isDisabled, isSaving, deletingId, comment} = state;
 
   const {
     title,
