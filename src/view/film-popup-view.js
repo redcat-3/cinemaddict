@@ -323,9 +323,9 @@ export default class FilmPopupView extends AbstractStatefulView {
     this.#setInnerHandlers();
   }
 
-  setElementAnimation(action, callback, id) {
-
-    const element = this.element.querySelector(ClassName[action](id));
+  setElementAnimation(action, callback, data) {
+    console.log(this.element, ClassName[action](data.id))
+    const element = this.element.querySelector(ClassName[action](data.id));
     element.classList.add(SHAKE_CLASS_NAME);
 
     setTimeout(() => {

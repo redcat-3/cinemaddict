@@ -105,8 +105,8 @@ export default class ExtraPresenter {
     }
   };
 
-  #handleCommentsEvent = () => {
-    this.update(this.#filmsModel.films);
+  #handleCommentsEvent = (updateType, update) => {
+    this.update(update);
   };
 
   destroy() {
