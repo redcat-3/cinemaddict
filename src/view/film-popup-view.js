@@ -45,7 +45,7 @@ const createNewEmodjiTemplate = (currentEmotion, isDisabled, isSaving) => EMOJI.
   `)).join('');
 
 const createFilmPopupTemplate = (film, filmComments, state) => {
-  const {emotion, isDeleting, isDisabled, isSaving, deletingId} = state;
+  const {emotion, comment, isDeleting, isDisabled, isSaving, deletingId} = state;
 
   const {
     title,
@@ -74,7 +74,7 @@ const createFilmPopupTemplate = (film, filmComments, state) => {
   const activeAsWatchedClassName = alreadyWatched ? 'film-details__control-button--active' : '';
   const activeFavoriteClassName = favorite ? 'film-details__control-button--active' : '';
 
-  const commentTemplate = createCommentTemplate(filmComments, isDeleting, isDisabled, deletingId);
+  const commentTemplate = createCommentTemplate(filmComments, comment, isDeleting, isDisabled, deletingId);
   const newEmodjiTemplate = createNewEmodjiTemplate(emotion, isDisabled, isSaving);
 
   return (
@@ -184,7 +184,7 @@ const createFilmPopupTemplate = (film, filmComments, state) => {
                 <textarea
                   class="film-details__comment-input"
                   placeholder="Select reaction below and write comment here"
-                  name="comment" ${isSaving ? 'disabled' : ''}></textarea>
+                  name="comment" ${isSaving ? 'disabled' : ''}>${comment}</textarea>
               </label>
               <div class="film-details__emoji-list">
                 ${newEmodjiTemplate}
@@ -336,7 +336,6 @@ export default class FilmPopupView extends AbstractStatefulView {
 
   #emotionChangeHandler = (evt) => {
     evt.preventDefault();
-
     this.updateElement({
       emotion: evt.target.value,
     });
@@ -346,16 +345,11 @@ export default class FilmPopupView extends AbstractStatefulView {
     evt.preventDefault();
     this._setState({
       comment: evt.target.value,
-      isSaving: true
     });
   };
 
   #commentDeleteClickHandler = (evt) =>{
     evt.preventDefault();
-    this._setState({
-      isDeleting: true,
-    });
-    this.updateElement(this._setState);
     this.#handleDeleteClick({
       id: evt.target.dataset.id,
       film: this.#film,

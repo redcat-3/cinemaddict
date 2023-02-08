@@ -1,5 +1,5 @@
 import {render, RenderPosition, remove} from '../framework/render.js';
-import {sortByReleaseDate, filter, getItemById} from '../utils.js';
+import {sortByReleaseDate, filter} from '../utils.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import FilmPresenter from './film-presenter.js';
 import FilmListView from '../view/film-list-view.js';
@@ -161,10 +161,7 @@ export default class FilmsPresenter {
 
         this.#filmsPresenter.get(update.film.id).setSaving();
         try {
-          const updatedDetails = update.userDetails;
-          const updatedScroll = update.scroll;
-          const updatedFilm = {...getItemById(this.#filmsModel.films, update.film.id), userDetails: updatedDetails};
-          await this.#filmsModel.updateFilm(updateType, { updatedFilm, updatedScroll});
+          await this.#filmsModel.updateFilm(updateType, update);
         } catch(err) {
           this.#filmsPresenter.get(update.film.id).setAborting(UserAction.UPDATE_FILM);
         }
@@ -172,10 +169,7 @@ export default class FilmsPresenter {
       case UserAction.ADD_COMMENT:
         this.#filmsPresenter.get(update.film.id).setSaving();
         try {
-          const updatedComment = update.comment;
-          const updatedScroll = update.scroll;
-          const updatedFilm = getItemById(this.#filmsModel.films, update.film.id);
-          await this.#commentsModel.addComment(updateType, { updatedComment, updatedFilm, updatedScroll});
+          await this.#commentsModel.addComment(updateType, update);
           this.#filmsPresenter.get(update.film.id).init(update.film, update?.scroll);
         } catch(err) {
           this.#filmsPresenter.get(update.film.id).setAborting(UserAction.ADD_COMMENT);
