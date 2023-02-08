@@ -43,14 +43,23 @@ export default class ExtraPresenter {
     }
   }
 
-  update(films) {
-    this.#films = [...films];
+  update({ film }) {
+    const index = this.#films.findIndex((item) => item.id === film.id);
+    if (index === -1) {
+      return;
+    }
+    this.#films = [
+      ...this.#films.slice(0, index),
+      film,
+      ...this.#films.slice(index + 1),
+    ];
+
     remove(this.#mostCommentedComponent);
     remove(this.#topRatedComponent);
-    if(!(this.#filmsModel.films.every((film) => film.comments.length === 0))) {
+    if(!(this.#filmsModel.films.every((item) => item.comments.length === 0))) {
       render(this.#mostCommentedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
     }
-    if(!(this.#filmsModel.films.every((film) => film.filmInfo.totalRating === 0))) {
+    if(!(this.#filmsModel.films.every((item) => item.filmInfo.totalRating === 0))) {
       render(this.#topRatedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
     }
     this.#mostCommentedComponent.setMostCommented();
@@ -83,13 +92,15 @@ export default class ExtraPresenter {
     this.#renderFilm(films[1], this.#topRatedComponent.element.querySelector('.top_rated'));
   }
 
-  #handleFilmsEvent = (updateType, films) => {
+  #handleFilmsEvent = (updateType, update) => {
     switch (updateType) {
       case UpdateType.PATCH:
       case UpdateType.MINOR:
+        this.update(update);
+        break;
       case UpdateType.MAJOR:
       case UpdateType.INIT:
-        this.update(films);
+        this.#films = update;
         break;
     }
   };

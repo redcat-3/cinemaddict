@@ -237,8 +237,8 @@ export default class FilmPopupView extends AbstractStatefulView {
   }
 
   get filmComments() {
-    const commentsSet = this.#comments.map((comment) => comment.id);
-    this.#film.comments = commentsSet;
+    // const commentsSet = this.#comments.map((comment) => comment.id);
+    // this.#film.comments = commentsSet;
     return this.#comments;
   }
 
@@ -354,9 +354,5 @@ export default class FilmPopupView extends AbstractStatefulView {
       id: evt.target.dataset.id,
       film: this.#film,
       scroll: this.scrollPosition});
-    this._setState({
-      isDeleting: true,
-    });
-    this.updateElement(this._setState);
   };
 }
