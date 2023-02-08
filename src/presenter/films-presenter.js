@@ -175,7 +175,7 @@ export default class FilmsPresenter {
         }
         break;
       case UserAction.DELETE_COMMENT:
-        this.#filmsPresenter.get(update.film.id).setDeleting(update);
+        this.#filmsPresenter.get(update.film.id).setDeleting(update.id);
         try {
           await this.#commentsModel.deleteComment(updateType, update);
           this.#filmsPresenter.get(update.film.id).init(update.film, update?.scroll);

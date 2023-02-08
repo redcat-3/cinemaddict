@@ -175,6 +175,9 @@ export default class FilmPresenter {
   #commentAddHandler = (evt) => {
     if (isCtrlEnterEvent(evt)) {
       evt.preventDefault();
+      if(this.#filmPopup.getFormData() === null) {
+        this.setAborting(UserAction.ADD_COMMENT, this.#film.id);
+      }
       this.#handleDataChange(UserAction.ADD_COMMENT, UpdateType.PATCH, {
         comment: this.#filmPopup.getFormData(),
         film: this.#film,
@@ -190,11 +193,15 @@ export default class FilmPresenter {
     }
   };
 
-  #handleDeleteClick = (id) => {
-    this.#handleDataChange(
-      UserAction.DELETE_COMMENT,
-      UpdateType.PATCH,
-      id,
-    );
+  #handleDeleteClick = (update) => {
+    if(this.#commentsModel.comments.some((comment) => comment.id === update.id)){
+      this.#handleDataChange(
+        UserAction.DELETE_COMMENT,
+        UpdateType.PATCH,
+        update,
+      );
+    } else {
+      this.setAborting(UserAction.DELETE_COMMENT, update.id);
+    }
   };
 }

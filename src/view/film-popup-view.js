@@ -20,7 +20,7 @@ const createCommentTemplate = (comments, isDeleting, isDisabled, deletingId) => 
         <span class="film-details__comment-author">${he.encode(comment.author)}</span>
         <span class="film-details__comment-day">${getCommentDate(comment.date)}</span>
         <button class="film-details__comment-delete" data-id="${comment.id}" ${isDisabled ? 'disabled' : ''}>
-        ${isDeleting && deletingId === comment.id ? 'Deleting...' : 'Delete'}
+        ${isDeleting && (deletingId === comment.id) ? 'Deleting...' : 'Delete'}
         </button>
       </p>
     </div>
@@ -237,8 +237,8 @@ export default class FilmPopupView extends AbstractStatefulView {
   }
 
   get filmComments() {
-    // const commentsSet = this.#comments.map((comment) => comment.id);
-    // this.#film.comments = commentsSet;
+    const commentsSet = this.#comments.map((comment) => comment.id);
+    this.#film.comments = commentsSet;
     return this.#comments;
   }
 
@@ -257,6 +257,9 @@ export default class FilmPopupView extends AbstractStatefulView {
   }
 
   getFormData() {
+    if(this._state.comment === null || this._state.emotion === null) {
+      return null;
+    }
     return {
       comment: this._state.comment,
       emotion: this._state.emotion,
@@ -324,8 +327,7 @@ export default class FilmPopupView extends AbstractStatefulView {
   }
 
   setElementAnimation(action, callback, data) {
-    console.log(this.element, ClassName[action](data.id))
-    const element = this.element.querySelector(ClassName[action](data.id));
+    const element = this.element.querySelector(ClassName[action](data));
     element.classList.add(SHAKE_CLASS_NAME);
 
     setTimeout(() => {
