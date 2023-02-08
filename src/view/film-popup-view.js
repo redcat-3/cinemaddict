@@ -45,7 +45,7 @@ const createNewEmodjiTemplate = (currentEmotion, isDisabled, isSaving) => EMOJI.
   `)).join('');
 
 const createFilmPopupTemplate = (film, filmComments, state) => {
-  const {emotion, isDeleting, isDisabled, isSaving, deletingId} = state;
+  const {emotion, isDeleting, isDisabled, isSaving, deletingId, comment} = state;
 
   const {
     title,
@@ -184,7 +184,7 @@ const createFilmPopupTemplate = (film, filmComments, state) => {
                 <textarea
                   class="film-details__comment-input"
                   placeholder="Select reaction below and write comment here"
-                  name="comment" ${isSaving ? 'disabled' : ''}></textarea>
+                  name="comment" ${isSaving ? 'disabled' : ''}>${comment}</textarea>
               </label>
               <div class="film-details__emoji-list">
                 ${newEmodjiTemplate}
@@ -346,7 +346,6 @@ export default class FilmPopupView extends AbstractStatefulView {
     evt.preventDefault();
     this._setState({
       comment: evt.target.value,
-      isSaving: true
     });
   };
 
