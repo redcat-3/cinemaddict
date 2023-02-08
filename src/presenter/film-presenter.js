@@ -133,7 +133,7 @@ export default class FilmPresenter {
     scrollPosition = 0
   ) => {
     this.#handleDataChange(UserAction.UPDATE_FILM, updateType, {
-      userDetails: updatedDetails,
+      film: {...this.#film, userDetails: updatedDetails},
       scroll: scrollPosition
     });
   };

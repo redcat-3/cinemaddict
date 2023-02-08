@@ -74,7 +74,7 @@ const createFilmPopupTemplate = (film, filmComments, state) => {
   const activeAsWatchedClassName = alreadyWatched ? 'film-details__control-button--active' : '';
   const activeFavoriteClassName = favorite ? 'film-details__control-button--active' : '';
 
-  const commentTemplate = createCommentTemplate(filmComments, isDeleting, isDisabled, deletingId);
+  const commentTemplate = createCommentTemplate(filmComments, comment, isDeleting, isDisabled, deletingId);
   const newEmodjiTemplate = createNewEmodjiTemplate(emotion, isDisabled, isSaving);
 
   return (
@@ -336,7 +336,6 @@ export default class FilmPopupView extends AbstractStatefulView {
 
   #emotionChangeHandler = (evt) => {
     evt.preventDefault();
-
     this.updateElement({
       emotion: evt.target.value,
     });
@@ -351,10 +350,6 @@ export default class FilmPopupView extends AbstractStatefulView {
 
   #commentDeleteClickHandler = (evt) =>{
     evt.preventDefault();
-    this._setState({
-      isDeleting: true,
-    });
-    this.updateElement(this._setState);
     this.#handleDeleteClick({
       id: evt.target.dataset.id,
       film: this.#film,
