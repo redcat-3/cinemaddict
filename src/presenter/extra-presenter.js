@@ -43,16 +43,7 @@ export default class ExtraPresenter {
     }
   }
 
-  update({ film }) {
-    const index = this.#films.findIndex((item) => item.id === film.id);
-    if (index === -1) {
-      return;
-    }
-    this.#films = [
-      ...this.#films.slice(0, index),
-      film,
-      ...this.#films.slice(index + 1),
-    ];
+  update() {
 
     remove(this.#mostCommentedComponent);
     remove(this.#topRatedComponent);
@@ -103,9 +94,28 @@ export default class ExtraPresenter {
         this.#films = update;
         break;
     }
+    this.#extraPresenter.forEach((presenter) => presenter.resetView());
   };
 
   #handleCommentsEvent = (updateType, update) => {
+    const index = this.#films.findIndex((item) => item.id === update.film.id);
+    if (index === -1) {
+      return;
+    }
+    this.#films = [
+      ...this.#films.slice(0, index),
+      update.film,
+      ...this.#films.slice(index + 1),
+    ];
+
+    if(this.#extraPresenter.get(update.film.id)) {
+      this.#extraPresenter.get(update.film.id).init(update.film, scroll);
+      const extraFilms = [...this.#films.sort((a, b) => b.filmInfo.totalRating - a.filmInfo.totalRating).slice(0, 2)].concat(...this.#films.sort((a, b) => b.comments.length - a.comments.length).slice(0, 2));
+      if(!extraFilms.some((item) => item.id === update.film.id)) {
+        this.update(update);
+      }
+      return;
+    }
     this.update(update);
   };
 

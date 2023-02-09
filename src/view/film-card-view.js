@@ -27,14 +27,14 @@ function createCardTemplate(film) {
   return (
     `<article class="film-card">
       <a class="film-card__link">
-        <h3 class="film-card__title">${he.encode(title)}</h3>
+        <h3 class="film-card__title">${title}</h3>
         <p class="film-card__rating">${totalRating}</p>
         <p class="film-card__info">
-          <span class="film-card__year">${he.encode(getFilmYear(release.date))}</span>
-          <span class="film-card__duration">${he.encode(getDuration(duration))}</span>
-          <span class="film-card__genre">${he.encode(genre.join(', '))}</span>
+          <span class="film-card__year">${getFilmYear(release.date)}</span>
+          <span class="film-card__duration">${getDuration(duration)}</span>
+          <span class="film-card__genre">${genre.join(', ')}</span>
         </p>
-        <img src="${he.encode(poster)}" alt="" class="film-card__poster">
+        <img src="${poster}" alt="" class="film-card__poster">
         <p class="film-card__description">
           ${description.length > TEXT_LIMIT ? `${he.encode(description.slice(0, TEXT_LIMIT))}...` : description}
         </p>

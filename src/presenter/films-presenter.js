@@ -152,6 +152,7 @@ export default class FilmsPresenter {
 
   #handleModeChange = () => {
     this.#filmsPresenter.forEach((presenter) => presenter.resetView());
+    this.#extraPresenter.forEach((presenter) => presenter.resetView());
   };
 
   #handleViewAction = async (actionType, updateType, update) => {
