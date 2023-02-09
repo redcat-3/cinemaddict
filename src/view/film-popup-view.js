@@ -4,13 +4,14 @@ import {getDuration, getCommentDate, getReleaseDate} from '../utils.js';
 import { EMOJI, UpdateType, FilterType, SHAKE_ANIMATION_TIMEOUT, SHAKE_CLASS_NAME, } from '../const.js';
 
 const ClassName = {
-  'UPDATE_FILM': () => '.film-details__controls',
+  'UPDATE_FILM': () => '.film-details',
+  'UPDATE_FILM_CONTROLS': () => '.film-details__controls',
   'DELETE_COMMENT': (deletingId) => `.film-details__comment[data-id-deleting="${deletingId}"]`,
   'ADD_COMMENT': () => '.film-details__new-comment',
 };
 
 const createCommentTemplate = (comments, isDeleting, isDisabled, deletingId) => comments.map((comment) => `
-  <li class="film-details__comment" data-id-deleting="${he.encode(comment.id)}">
+  <li class="film-details__comment" data-id-deleting="${comment.id}">
     <span class="film-details__comment-emoji">
       <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt="emoji-smile">
     </span>
@@ -32,15 +33,15 @@ const createNewEmodjiTemplate = (currentEmotion, isDisabled, isSaving) => EMOJI.
       class="film-details__emoji-item visually-hidden"
       name="comment-emoji"
       type="radio"
-      id="emoji-${he.encode(emotion)}" value="${he.encode(emotion)}"
+      id="emoji-${emotion}" value="${emotion}"
       ${currentEmotion === emotion ? 'checked' : ''}
       ${isDisabled ? 'disabled' : ''}
       ${isSaving ? 'disabled' : ''}
       >
     <label
       class="film-details__emoji-label"
-      for="emoji-${he.encode(emotion)}">
-        <img src="./images/emoji/${he.encode(emotion)}.png" width="30" height="30" alt="emoji">
+      for="emoji-${emotion}">
+        <img src="./images/emoji/${emotion}.png" width="30" height="30" alt="emoji">
     </label>
   `)).join('');
 
@@ -87,14 +88,14 @@ const createFilmPopupTemplate = (film, filmComments, state) => {
           </div>
           <div class="film-details__info-wrap">
             <div class="film-details__poster">
-              <img class="film-details__poster-img" src="${he.encode(poster)}" alt="">
+              <img class="film-details__poster-img" src="${poster}" alt="">
               <p class="film-details__age">${ageRating}+</p>
             </div>
             <div class="film-details__info">
               <div class="film-details__info-head">
                 <div class="film-details__title-wrap">
-                  <h3 class="film-details__title">${he.encode(title)}</h3>
-                  <p class="film-details__title-original">Original: ${he.encode(alternativeTitle)}</p>
+                  <h3 class="film-details__title">${title}</h3>
+                  <p class="film-details__title-original">Original: ${alternativeTitle}</p>
                 </div>
                 <div class="film-details__rating">
                   <p class="film-details__total-rating">${totalRating}</p>
@@ -103,37 +104,37 @@ const createFilmPopupTemplate = (film, filmComments, state) => {
               <table class="film-details__table">
                 <tr class="film-details__row">
                   <td class="film-details__term">Director</td>
-                  <td class="film-details__cell">${he.encode(director)}</td>
+                  <td class="film-details__cell">${director}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Writers</td>
-                  <td class="film-details__cell">${he.encode(writers.join(', '))}</td>
+                  <td class="film-details__cell">${writers.join(', ')}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Actors</td>
-                  <td class="film-details__cell">${he.encode(actors.join(', '))}</td>
+                  <td class="film-details__cell">${actors.join(', ')}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Release Date</td>
-                  <td class="film-details__cell">${he.encode(getReleaseDate(date))}</td>
+                  <td class="film-details__cell">${getReleaseDate(date)}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Duration</td>
-                  <td class="film-details__cell">${he.encode(getDuration(duration))}</td>
+                  <td class="film-details__cell">${getDuration(duration)}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">Country</td>
-                  <td class="film-details__cell">${he.encode(releaseCountry)}</td>
+                  <td class="film-details__cell">${releaseCountry}</td>
                 </tr>
                 <tr class="film-details__row">
                   <td class="film-details__term">
                     ${genre.length === 1 ? 'Genre' : 'Genres'}</td>
                   <td class="film-details__cell">
-                    <span class="film-details__genre">${he.encode(genre.join(', '))}</span>
+                    <span class="film-details__genre">${genre.join(', ')}</span>
                 </td>
                 </tr>
               </table>
-              <p class="film-details__film-description">${he.encode(description)}</p>
+              <p class="film-details__film-description">${description}</p>
             </div>
           </div>
           <section class="film-details__controls">
@@ -178,13 +179,13 @@ const createFilmPopupTemplate = (film, filmComments, state) => {
             </ul>
             <form class="film-details__new-comment" action="" method="get">
               <div class="film-details__add-emoji-label">
-               ${emotion ? `<img src="./images/emoji/${he.encode(emotion)}.png" width="55" height="55" alt="emoji">` : ''}
+               ${emotion ? `<img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji">` : ''}
               </div>
               <label class="film-details__comment-label">
                 <textarea
                   class="film-details__comment-input"
                   placeholder="Select reaction below and write comment here"
-                  name="comment" ${isSaving ? 'disabled' : ''}>${comment}</textarea>
+                  name="comment" ${isSaving ? 'disabled' : ''}>${he.encode(comment)}</textarea>
               </label>
               <div class="film-details__emoji-list">
                 ${newEmodjiTemplate}

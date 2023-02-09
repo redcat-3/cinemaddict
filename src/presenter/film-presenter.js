@@ -113,7 +113,7 @@ export default class FilmPresenter {
     };
 
     switch(action) {
-      case UserAction.UPDATE_FILM:
+      case UserAction.UPDATE_FILM_CONTROLS:
         this.#filmPopup.setElementAnimation(action, resetFormState);
         break;
       case UserAction.ADD_COMMENT:
@@ -132,7 +132,7 @@ export default class FilmPresenter {
     updateType = UpdateType.PATCH,
     scrollPosition = 0
   ) => {
-    this.#handleDataChange(UserAction.UPDATE_FILM, updateType, {
+    this.#handleDataChange(UserAction.UPDATE_FILM_CONTROLS, updateType, {
       film: {...this.#film, userDetails: updatedDetails},
       scroll: scrollPosition
     });

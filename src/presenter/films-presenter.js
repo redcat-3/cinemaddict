@@ -25,7 +25,7 @@ export default class FilmsPresenter {
   #noFilmsErrorComponent = new NoFilmsErrorView();
 
   #showMorePresenter = null;
-  #extraPresenter = null;
+  #extraPresenter = new Map();
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #currentSortType = SortType.DEFAULT;
   #filmsPresenter = new Map();
@@ -88,6 +88,7 @@ export default class FilmsPresenter {
     const filmCount = films.length;
     if(filmCount === 0) {
       this.#renderEmptyList(this.#filmFiltersModel.filter);
+      this.#renderExtraFilms();
     } else {
       this.#renderSort();
       this.#renderFilms(films.slice(0, Math.min(filmCount, this.#renderedFilmCount)));
@@ -121,7 +122,7 @@ export default class FilmsPresenter {
   }
 
   #renderExtraFilms() {
-    this.#extraPresenter = new ExtraPresenter({
+    const extraPresenter = new ExtraPresenter({
       filmExtraContainer: this.#filmListComponent.element,
       onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
@@ -129,7 +130,7 @@ export default class FilmsPresenter {
       commentsModel: this.#commentsModel,
       filmsModel: this.#filmsModel
     });
-    this.#extraPresenter.init(this.#filmsPresenter);
+    extraPresenter.init(this.#extraPresenter);
   }
 
   #renderFilms(films) {
@@ -156,31 +157,70 @@ export default class FilmsPresenter {
   #handleViewAction = async (actionType, updateType, update) => {
     this.#uiBlocker.block();
     switch (actionType) {
-      case UserAction.UPDATE_FILM:
-
-        this.#filmsPresenter.get(update.film.id).setSaving();
+      case UserAction.UPDATE_FILM_CONTROLS:
+        if(this.#filmsPresenter.get(update.film.id)) {
+          this.#filmsPresenter.get(update.film.id).setSaving();
+        }
+        if(this.#extraPresenter.get(update.film.id)) {
+          this.#extraPresenter.get(update.film.id).setSaving();
+        }
         try {
           await this.#filmsModel.updateFilm(updateType, update);
         } catch(err) {
-          this.#filmsPresenter.get(update.film.id).setAborting(UserAction.UPDATE_FILM);
+          if(this.#filmsPresenter.get(update.film.id)) {
+            this.#filmsPresenter.get(update.film.id).setAborting(UserAction.UPDATE_FILM_CONTROLS);
+          }
+          if(this.#extraPresenter.get(update.film.id)) {
+            this.#extraPresenter.get(update.film.id).setAborting(UserAction.UPDATE_FILM_CONTROLS);
+          }
         }
         break;
       case UserAction.ADD_COMMENT:
-        this.#filmsPresenter.get(update.film.id).setSaving();
+        if(this.#filmsPresenter.get(update.film.id)) {
+          this.#filmsPresenter.get(update.film.id).setSaving();
+        }
+        if(this.#extraPresenter.get(update.film.id)) {
+          this.#extraPresenter.get(update.film.id).setSaving();
+        }
         try {
           await this.#commentsModel.addComment(updateType, update);
-          this.#filmsPresenter.get(update.film.id).init(update.film, update?.scroll);
+          if(this.#filmsPresenter.get(update.film.id)) {
+            this.#filmsPresenter.get(update.film.id).init(update.film, update?.scroll);
+          }
+          if(this.#extraPresenter.get(update.film.id)) {
+            this.#extraPresenter.get(update.film.id).init(update.film, update?.scroll);
+          }
         } catch(err) {
-          this.#filmsPresenter.get(update.film.id).setAborting(UserAction.ADD_COMMENT);
+          if(this.#filmsPresenter.get(update.film.id)) {
+            this.#filmsPresenter.get(update.film.id).setAborting(UserAction.ADD_COMMENT);
+          }
+          if(this.#extraPresenter.get(update.film.id)) {
+            this.#extraPresenter.get(update.film.id).setAborting(UserAction.ADD_COMMENT);
+          }
         }
         break;
       case UserAction.DELETE_COMMENT:
-        this.#filmsPresenter.get(update.film.id).setDeleting(update.id);
+        if(this.#filmsPresenter.get(update.film.id)) {
+          this.#filmsPresenter.get(update.film.id).setDeleting(update.id);
+        }
+        if(this.#extraPresenter.get(update.film.id)) {
+          this.#extraPresenter.get(update.film.id).setDeleting(update.id);
+        }
         try {
           await this.#commentsModel.deleteComment(updateType, update);
-          this.#filmsPresenter.get(update.film.id).init(update.film, update?.scroll);
+          if(this.#filmsPresenter.get(update.film.id)) {
+            this.#filmsPresenter.get(update.film.id).init(update.film, update?.scroll);
+          }
+          if(this.#extraPresenter.get(update.film.id)) {
+            this.#extraPresenter.get(update.film.id).init(update.film, update?.scroll);
+          }
         } catch(err) {
-          this.#filmsPresenter.get(update.film.id).setAborting(UserAction.DELETE_COMMENT, update.id);
+          if(this.#filmsPresenter.get(update.film.id)) {
+            this.#filmsPresenter.get(update.film.id).setAborting(UserAction.DELETE_COMMENT, update.id);
+          }
+          if(this.#extraPresenter.get(update.film.id)) {
+            this.#extraPresenter.get(update.film.id).setAborting(UserAction.UPDATE_FILM);
+          }
         }
         break;
       default:
@@ -193,7 +233,12 @@ export default class FilmsPresenter {
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#filmsPresenter.get(data.film.id).init(data.film, data?.scroll);
+        if(this.#filmsPresenter.get(data.film.id)) {
+          this.#filmsPresenter.get(data.film.id).init(data.film, data?.scroll);
+        }
+        if(this.#extraPresenter.get(data.film.id)) {
+          this.#extraPresenter.get(data.film.id).init(data.film, data?.scroll);
+        }
         break;
       case UpdateType.MINOR:
         this.#clearFilmList();
@@ -245,7 +290,8 @@ export default class FilmsPresenter {
     const filmCount = this.films.length;
     this.#filmsPresenter.forEach((presenter) => presenter.destroy());
     this.#filmsPresenter.clear();
-    this.#extraPresenter.destroy();
+    this.#extraPresenter.forEach((presenter) => presenter.destroy());
+    this.#extraPresenter.clear();
     remove(this.#sortComponent);
     remove(this.#emptyListComponent);
     if(this.#showMorePresenter) {
