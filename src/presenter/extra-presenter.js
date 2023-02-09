@@ -6,23 +6,23 @@ import {UpdateType} from '../const.js';
 export default class ExtraPresenter {
   #filmContainer = null;
   #handleDataChange = null;
-  #handleModeChange = null;
   #currentFilterType = null;
   #commentsModel = null;
   #filmsModel = null;
   #films = null;
   #extraPresenter = null;
+  #popupPresenter = null;
 
   #mostCommentedComponent = new ExtraView('Most commented');
   #topRatedComponent = new ExtraView('Top rated');
 
-  constructor({filmExtraContainer, onDataChange, onModeChange, currentFilterType, commentsModel, filmsModel}) {
+  constructor({filmExtraContainer, onDataChange, currentFilterType, commentsModel, filmsModel, popupPresenter}) {
     this.#filmContainer = filmExtraContainer;
     this.#handleDataChange = onDataChange;
-    this.#handleModeChange = onModeChange;
     this.#currentFilterType = currentFilterType;
     this.#commentsModel = commentsModel;
     this.#filmsModel = filmsModel;
+    this.#popupPresenter = popupPresenter;
 
     this.#filmsModel.addObserver(this.#handleFilmsEvent);
     this.#commentsModel.addObserver(this.#handleCommentsEvent);
@@ -63,13 +63,17 @@ export default class ExtraPresenter {
     const filmPresenter = new FilmPresenter({
       filmContainer,
       onDataChange: this.#handleDataChange,
-      onModeChange: this.#handleModeChange,
+      onOpenPopup: () => this.#handleOpenPopup(film),
       currentFilterType: this.#currentFilterType,
       commentsModel: this.#commentsModel
     });
     filmPresenter.init(film);
     this.#extraPresenter.set(film.id, filmPresenter);
   }
+
+  #handleOpenPopup = (film) => {
+    this.#popupPresenter.init(film);
+  };
 
   #renderMostCommentedFilms(films) {
     films.sort((a, b) => b.comments.length - a.comments.length);
@@ -94,7 +98,6 @@ export default class ExtraPresenter {
         this.#films = update;
         break;
     }
-    this.#extraPresenter.forEach((presenter) => presenter.resetView());
   };
 
   #handleCommentsEvent = (updateType, update) => {

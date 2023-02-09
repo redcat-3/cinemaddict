@@ -54,7 +54,6 @@ export default class CommentsModel extends Observable {
 
       this._notify(updateType, update);
     } catch (err) {
-      console.log(123, err);
       throw new Error('Can\'t delete comment');
     }
   }

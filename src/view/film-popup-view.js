@@ -1,13 +1,12 @@
 import he from 'he';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {getDuration, getCommentDate, getReleaseDate} from '../utils.js';
-import { EMOJI, UpdateType, FilterType, SHAKE_ANIMATION_TIMEOUT, SHAKE_CLASS_NAME, } from '../const.js';
+import { EMOJI, FilterType, SHAKE_ANIMATION_TIMEOUT, SHAKE_CLASS_NAME, UserAction } from '../const.js';
 
 const ClassName = {
-  'UPDATE_FILM': () => '.film-details',
-  'UPDATE_FILM_CONTROLS': () => '.film-details__controls',
+  'UPDATE_FILM': () => '.film-details__controls',
   'DELETE_COMMENT': (deletingId) => `.film-details__comment[data-id-deleting="${deletingId}"]`,
-  'ADD_COMMENT': () => '.film-details__new-comment',
+  'ADD_COMMENT': () => '.film-details__comment-input',
 };
 
 const createCommentTemplate = (comments, isDeleting, isDisabled, deletingId) => comments.map((comment) => `
@@ -251,10 +250,45 @@ export default class FilmPopupView extends AbstractStatefulView {
     this.element.scrollTo(0, scrollPosition);
   }
 
-  updateElement(update) {
-    const scrollPosition = this.scrollPosition;
-    super.updateElement(update);
-    this.scrollPopup(scrollPosition);
+  setDisabled() {
+    const element = this.element.querySelector(ClassName['UPDATE_FILM']);
+    element.querySelector('.film-details__control-button--watchlist').disabled = true;
+    element.querySelector('.film-details__control-button--watched').disabled = true;
+    element.querySelector('.film-details__control-button--favorite').disabled = true;
+  }
+
+  setSaving() {
+    const element = this.element.querySelector('.film-details__comment-input');
+    element.disabled = true;
+  }
+
+  setDeleting(id) {
+    const element = this.element.querySelector(ClassName['DELETE_COMMENT'](id));
+    element.querySelector('.film-details__comment-delete').textContent = 'Deleting...';
+    element.querySelector('.film-details__comment-delete').disabled = true;
+  }
+
+  reset(action, id) {
+    let element = null;
+    switch (action) {
+      case UserAction.UPDATE_FILM:
+        element = this.element.querySelector(ClassName['action']);
+        element.querySelector('.film-details__control-button--watchlist').disabled = false;
+        element.querySelector('.film-details__control-button--watched').disabled = false;
+        element.querySelector('.film-details__control-button--favorite').disabled = false;
+        break;
+      case UserAction.ADD_COMMENT:
+        element = this.element.querySelector(ClassName['action']);
+        element.disabled = false;
+        break;
+      case UserAction.DELETE_COMMENT:
+        element = this.element.querySelector(ClassName['action'](id));
+        element.querySelector('.film-details__comment-delete').textContent = 'Delete';
+        element.querySelector('.film-details__comment-delete').disabled = false;
+        break;
+      default:
+        throw new Error(`Unknown state!, ${action}`);
+    }
   }
 
   getFormData() {
@@ -275,6 +309,7 @@ export default class FilmPopupView extends AbstractStatefulView {
     }
 
     let updatedDetails = this.#film.userDetails;
+    let activeFilter;
 
     switch (evt.target.dataset.control) {
       case FilterType.WATCHLIST: {
@@ -282,6 +317,7 @@ export default class FilmPopupView extends AbstractStatefulView {
           ...updatedDetails,
           watchlist: !this.#film.userDetails.watchlist,
         };
+        activeFilter = FilterType.WATCHLIST;
         break;
       }
       case FilterType.HISTORY: {
@@ -289,6 +325,7 @@ export default class FilmPopupView extends AbstractStatefulView {
           ...updatedDetails,
           alreadyWatched: !this.#film.userDetails.alreadyWatched,
         };
+        activeFilter = FilterType.HISTORY;
         break;
       }
       case FilterType.FAVORITE: {
@@ -302,7 +339,7 @@ export default class FilmPopupView extends AbstractStatefulView {
         throw new Error('Unknown state!');
     }
 
-    this.#handleControlsClick(updatedDetails, UpdateType.PATCH, this.scrollPosition);
+    this.#handleControlsClick(updatedDetails, activeFilter, this.scrollPosition);
   };
 
   #setInnerHandlers = () => {
@@ -335,6 +372,12 @@ export default class FilmPopupView extends AbstractStatefulView {
       element.classList.remove(SHAKE_CLASS_NAME);
       callback();
     }, SHAKE_ANIMATION_TIMEOUT);
+  }
+
+  updateElement(update) {
+    const scrollPosition = this.scrollPosition;
+    super.updateElement(update);
+    this.scrollPopup(scrollPosition);
   }
 
   #emotionChangeHandler = (evt) => {

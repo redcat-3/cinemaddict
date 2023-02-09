@@ -2,6 +2,7 @@ import {render, RenderPosition, remove} from '../framework/render.js';
 import {sortByReleaseDate, filter} from '../utils.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import FilmPresenter from './film-presenter.js';
+import PopupPresenter from './popup-presenter';
 import FilmListView from '../view/film-list-view.js';
 import ShowMorePresenter from './show-more-presenter.js';
 import ExtraPresenter from './extra-presenter.js';
@@ -25,10 +26,12 @@ export default class FilmsPresenter {
   #noFilmsErrorComponent = new NoFilmsErrorView();
 
   #showMorePresenter = null;
+  #filmsPresenter = new Map();
   #extraPresenter = new Map();
+  #popupPresenter = null;
+
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #currentSortType = SortType.DEFAULT;
-  #filmsPresenter = new Map();
   #isLoading = true;
   #uiBlocker = new UiBlocker ({
     lowerLimit: TimeLimit.LOWER_LIMIT,
@@ -63,6 +66,12 @@ export default class FilmsPresenter {
 
   init() {
     this.#renderFilmList();
+    this.#popupPresenter = new PopupPresenter({
+      filmsModel: this.#filmsModel,
+      commentsModel: this.#commentsModel,
+      filterModel: this.#filmFiltersModel,
+      onDataChange: this.#handleViewAction
+    });
   }
 
   #renderSort() {
@@ -105,9 +114,9 @@ export default class FilmsPresenter {
     const filmPresenter = new FilmPresenter({
       filmContainer: this.#filmListComponent.getFilmListContainer(),
       onDataChange: this.#handleViewAction,
-      onModeChange: this.#handleModeChange,
       currentFilterType: this.#filmFiltersModel.filter,
-      commentsModel: this.#commentsModel
+      commentsModel: this.#commentsModel,
+      onOpenPopup: () => this.#handleOpenPopup(film)
     });
     filmPresenter.init(film, comments);
     this.#filmsPresenter.set(film.id, filmPresenter);
@@ -125,10 +134,10 @@ export default class FilmsPresenter {
     const extraPresenter = new ExtraPresenter({
       filmExtraContainer: this.#filmListComponent.element,
       onDataChange: this.#handleViewAction,
-      onModeChange: this.#handleModeChange,
       currentFilterType: this.#filmFiltersModel.filter,
       commentsModel: this.#commentsModel,
-      filmsModel: this.#filmsModel
+      filmsModel: this.#filmsModel,
+      popupPresenter: this.#popupPresenter
     });
     extraPresenter.init(this.#extraPresenter);
   }
@@ -150,78 +159,47 @@ export default class FilmsPresenter {
     render(this.#noFilmsErrorComponent, this.#filmListComponent.getFilmListContainer(), RenderPosition.AFTERBEGIN);
   }
 
-  #handleModeChange = () => {
-    this.#filmsPresenter.forEach((presenter) => presenter.resetView());
-    this.#extraPresenter.forEach((presenter) => presenter.resetView());
+  #handleOpenPopup = (film) => {
+    this.#popupPresenter.init(film);
   };
 
   #handleViewAction = async (actionType, updateType, update) => {
     this.#uiBlocker.block();
     switch (actionType) {
-      case UserAction.UPDATE_FILM_CONTROLS:
-        if(this.#filmsPresenter.get(update.film.id)) {
-          this.#filmsPresenter.get(update.film.id).setSaving();
-        }
-        if(this.#extraPresenter.get(update.film.id)) {
-          this.#extraPresenter.get(update.film.id).setSaving();
-        }
+      case UserAction.UPDATE_FILM:
+        this.#popupPresenter?.setSaving();
         try {
           await this.#filmsModel.updateFilm(updateType, update);
         } catch(err) {
-          if(this.#filmsPresenter.get(update.film.id)) {
-            this.#filmsPresenter.get(update.film.id).setAborting(UserAction.UPDATE_FILM_CONTROLS);
-          }
-          if(this.#extraPresenter.get(update.film.id)) {
-            this.#extraPresenter.get(update.film.id).setAborting(UserAction.UPDATE_FILM_CONTROLS);
+          console.log(err);
+          if(this.#popupPresenter.isOpen === true) {
+            this.#popupPresenter.setAborting(UserAction.UPDATE_FILM);
+          } else {
+            if(this.#filmsPresenter.get(update.film.id)){
+              this.#filmsPresenter.get(update.film.id).setAborting();
+            }
+            if(this.#extraPresenter.get(update.film.id)){
+              this.#extraPresenter.get(update.film.id).setAborting();
+            }
           }
         }
         break;
       case UserAction.ADD_COMMENT:
-        if(this.#filmsPresenter.get(update.film.id)) {
-          this.#filmsPresenter.get(update.film.id).setSaving();
-        }
-        if(this.#extraPresenter.get(update.film.id)) {
-          this.#extraPresenter.get(update.film.id).setSaving();
-        }
+        this.#popupPresenter.setSaving();
         try {
           await this.#commentsModel.addComment(updateType, update);
-          if(this.#filmsPresenter.get(update.film.id)) {
-            this.#filmsPresenter.get(update.film.id).init(update.film, update?.scroll);
-          }
-          if(this.#extraPresenter.get(update.film.id)) {
-            this.#extraPresenter.get(update.film.id).init(update.film, update?.scroll);
-          }
         } catch(err) {
-          if(this.#filmsPresenter.get(update.film.id)) {
-            this.#filmsPresenter.get(update.film.id).setAborting(UserAction.ADD_COMMENT);
-          }
-          if(this.#extraPresenter.get(update.film.id)) {
-            this.#extraPresenter.get(update.film.id).setAborting(UserAction.ADD_COMMENT);
-          }
+          console.log(err);
+          this.#popupPresenter.setAborting(UserAction.ADD_COMMENT);
         }
         break;
       case UserAction.DELETE_COMMENT:
-        if(this.#filmsPresenter.get(update.film.id)) {
-          this.#filmsPresenter.get(update.film.id).setDeleting(update.id);
-        }
-        if(this.#extraPresenter.get(update.film.id)) {
-          this.#extraPresenter.get(update.film.id).setDeleting(update.id);
-        }
+        this.#popupPresenter.setDeleting(update.id);
         try {
           await this.#commentsModel.deleteComment(updateType, update);
-          if(this.#filmsPresenter.get(update.film.id)) {
-            this.#filmsPresenter.get(update.film.id).init(update.film, update?.scroll);
-          }
-          if(this.#extraPresenter.get(update.film.id)) {
-            this.#extraPresenter.get(update.film.id).init(update.film, update?.scroll);
-          }
         } catch(err) {
-          if(this.#filmsPresenter.get(update.film.id)) {
-            this.#filmsPresenter.get(update.film.id).setAborting(UserAction.DELETE_COMMENT, update.id);
-          }
-          if(this.#extraPresenter.get(update.film.id)) {
-            this.#extraPresenter.get(update.film.id).setAborting(UserAction.UPDATE_FILM);
-          }
+          console.log(err);
+          this.#popupPresenter.setAborting(UserAction.DELETE_COMMENT, update.id);
         }
         break;
       default:
@@ -235,10 +213,10 @@ export default class FilmsPresenter {
     switch (updateType) {
       case UpdateType.PATCH:
         if(this.#filmsPresenter.get(data.film.id)) {
-          this.#filmsPresenter.get(data.film.id).init(data.film, data?.scroll);
+          this.#filmsPresenter.get(data.film.id).init(data.film);
         }
         if(this.#extraPresenter.get(data.film.id)) {
-          this.#extraPresenter.get(data.film.id).init(data.film, data?.scroll);
+          this.#extraPresenter.get(data.film.id).init(data.film);
         }
         break;
       case UpdateType.MINOR:
@@ -303,7 +281,8 @@ export default class FilmsPresenter {
     if (resetRenderedFilmCount) {
       this.#renderedFilmCount = FILM_COUNT_PER_STEP;
     } else {
-      this.#renderedFilmCount = Math.min(filmCount, this.#renderedFilmCount);
+      const computedRenderedFilmCount = Math.min(Math.min(filmCount, this.#renderedFilmCount), FILM_COUNT_PER_STEP);
+      this.#renderedFilmCount = computedRenderedFilmCount < FILM_COUNT_PER_STEP ? FILM_COUNT_PER_STEP : computedRenderedFilmCount;
     }
 
     if (resetSortType) {
