@@ -171,7 +171,6 @@ export default class FilmsPresenter {
         try {
           await this.#filmsModel.updateFilm(updateType, update);
         } catch(err) {
-          console.log(err);
           if(this.#popupPresenter.isOpen === true) {
             this.#popupPresenter.setAborting(UserAction.UPDATE_FILM);
           } else {
@@ -189,7 +188,6 @@ export default class FilmsPresenter {
         try {
           await this.#commentsModel.addComment(updateType, update);
         } catch(err) {
-          console.log(err);
           this.#popupPresenter.setAborting(UserAction.ADD_COMMENT);
         }
         break;
@@ -198,7 +196,6 @@ export default class FilmsPresenter {
         try {
           await this.#commentsModel.deleteComment(updateType, update);
         } catch(err) {
-          console.log(err);
           this.#popupPresenter.setAborting(UserAction.DELETE_COMMENT, update.id);
         }
         break;
