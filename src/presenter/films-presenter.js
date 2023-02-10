@@ -170,7 +170,7 @@ export default class FilmsPresenter {
         this.#popupPresenter?.setSaving();
         try {
           if(this.#popupPresenter.isOpen === true) {
-            await this.#filmsModel.updateFilm(updateType, update);
+            await this.#filmsModel.updateFilm(UpdateType.MINOR, update);
           }
           await this.#filmsModel.updateFilm(updateType, update);
         } catch(err) {
