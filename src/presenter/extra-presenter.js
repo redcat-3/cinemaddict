@@ -33,12 +33,10 @@ export default class ExtraPresenter {
     this.#extraPresenter = extraPresenter;
     if(!(this.#filmsModel.films.every((film) => film.comments.length === 0))) {
       render(this.#mostCommentedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
-      this.#mostCommentedComponent.setMostCommented();
       this.#renderMostCommentedFilms(this.#films);
     }
     if(!(this.#filmsModel.films.every((film) => film.filmInfo.totalRating === 0))) {
       render(this.#topRatedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
-      this.#topRatedComponent.setTopRated();
       this.#renderTopRatedFilms(this.#films);
     }
   }
@@ -49,12 +47,10 @@ export default class ExtraPresenter {
     remove(this.#topRatedComponent);
     if(!(this.#filmsModel.films.every((item) => item.comments.length === 0))) {
       render(this.#mostCommentedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
-      this.#mostCommentedComponent.setMostCommented();
       this.#renderMostCommentedFilms(this.#films);
     }
     if(!(this.#filmsModel.films.every((item) => item.filmInfo.totalRating === 0))) {
       render(this.#topRatedComponent, this.#filmContainer, RenderPosition.BEFOREEND);
-      this.#topRatedComponent.setTopRated();
       this.#renderTopRatedFilms(this.#films);
     }
   }
@@ -77,14 +73,14 @@ export default class ExtraPresenter {
 
   #renderMostCommentedFilms(films) {
     films.sort((a, b) => b.comments.length - a.comments.length);
-    this.#renderFilm(films[0], this.#mostCommentedComponent.element.querySelector('.most_commented'));
-    this.#renderFilm(films[1], this.#mostCommentedComponent.element.querySelector('.most_commented'));
+    this.#renderFilm(films[0], this.#mostCommentedComponent.getFilmList());
+    this.#renderFilm(films[1], this.#mostCommentedComponent.getFilmList());
   }
 
   #renderTopRatedFilms(films) {
     films.sort((a, b) => b.filmInfo.totalRating - a.filmInfo.totalRating);
-    this.#renderFilm(films[0], this.#topRatedComponent.element.querySelector('.top_rated'));
-    this.#renderFilm(films[1], this.#topRatedComponent.element.querySelector('.top_rated'));
+    this.#renderFilm(films[0], this.#topRatedComponent.getFilmList());
+    this.#renderFilm(films[1], this.#topRatedComponent.getFilmList());
   }
 
   #handleFilmsEvent = (updateType, update) => {
@@ -112,7 +108,7 @@ export default class ExtraPresenter {
     ];
 
     if(this.#extraPresenter.get(update.film.id)) {
-      this.#extraPresenter.get(update.film.id).init(update.film, scroll);
+      //this.#extraPresenter.get(update.film.id).init(update.film, scroll);
       const extraFilms = [...this.#films.sort((a, b) => b.filmInfo.totalRating - a.filmInfo.totalRating).slice(0, 2)].concat(...this.#films.sort((a, b) => b.comments.length - a.comments.length).slice(0, 2));
       if(!extraFilms.some((item) => item.id === update.film.id)) {
         this.update(update);

@@ -20,7 +20,7 @@ const createCommentTemplate = (comments, isDeleting, isDisabled, deletingId) => 
         <span class="film-details__comment-author">${he.encode(comment.author)}</span>
         <span class="film-details__comment-day">${getCommentDate(comment.date)}</span>
         <button class="film-details__comment-delete" data-id="${comment.id}" ${isDisabled ? 'disabled' : ''}>
-        ${(isDeleting && (deletingId === comment.id)) ? 'Deleting...' : 'Delete'}
+        ${isDeleting && deletingId === comment.id ? 'Deleting...' : 'Delete'}
         </button>
       </p>
     </div>
@@ -292,7 +292,7 @@ export default class FilmPopupView extends AbstractStatefulView {
   }
 
   getFormData() {
-    if(this._state.comment === null || this._state.emotion === null) {
+    if(this._state.comment === null || this._state.comment === '' || this._state.emotion === null ) {
       return null;
     }
     return {
