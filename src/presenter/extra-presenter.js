@@ -97,6 +97,9 @@ export default class ExtraPresenter {
   };
 
   #handleCommentsEvent = (updateType, update) => {
+    if(updateType === UpdateType.INIT) {
+      return;
+    }
     const index = this.#films.findIndex((item) => item.id === update.film.id);
     if (index === -1) {
       return;

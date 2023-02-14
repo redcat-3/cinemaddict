@@ -7,7 +7,7 @@ function createPopupCommentHeaderTemplate(film) {
 export default class PopupCommentHeaderView extends AbstractView {
   #film = null;
 
-  constructor({film}) {
+  constructor(film) {
     super();
     this.#film = film;
   }

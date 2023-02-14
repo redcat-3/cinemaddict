@@ -56,6 +56,10 @@ export default class PopupCommentNewView extends AbstractStatefulView {
     return createPopupCommentNewTemplate(this._state);
   }
 
+  updateElement(update) {
+    super.updateElement(update);
+  }
+
   reset = () => {
     this.updateElement(this._state);
   };
@@ -86,7 +90,7 @@ export default class PopupCommentNewView extends AbstractStatefulView {
     evt.preventDefault();
     if (!this._state.isSaving) {
       this.updateElement({
-        emotion: evt.target.dataset.emoji,
+        emotion: evt.target.value,
       });
     }
   };

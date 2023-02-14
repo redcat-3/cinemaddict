@@ -1,178 +1,270 @@
-import { isCtrlEnterEvent, isEscapeEvent } from '../utils';
-import { remove, render, replace } from '../framework/render';
+import PopupView from '../view/popup-view.js';
+import PopupFilmDetailsView from '../view/popup-film-details-view.js';
+import PopupFilmControlsView from '../view/popup-film-controls-view.js';
+import PopupCommentContainerView from '../view/popup-comment-container-view.js';
+import PopupCommentHeaderView from '../view/popup-comment-header-view.js';
+import PopupCommentListView from '../view/popup-comment-list-view.js';
+import PopupCommentNewView from '../view/popup-comment-new-view.js';
+import PopupCommentView from '../view/popup-comment-view.js';
+import PopupCommentLoadingView from '../view/popup-comment-loading-view.js';
+
+import { isCtrlEnterEvent } from '../utils';
+import { remove, render, RenderPosition } from '../framework/render';
 import { UpdateType, UserAction } from '../const';
-import FilmPopupView from '../view/film-popup-view';
+//import FilmPopupView from '../view/film-popup-view';
 
 export default class PopupPresenter {
+  #popupComponent = new PopupView();
+  #popupCommentContainerComponent = new PopupCommentContainerView();
+  #popupCommentListComponent = new PopupCommentListView();
+
   #film = null;
-  #filmPopupComponent = null;
-  #isOpen = false;
-  #filmsModel = null;
   #commentsModel = null;
   #filterModel = null;
-  #handleDataChange = null;
+  #filmsModel = null;
+  #handleViewAction = null;
 
-  constructor({filmsModel, commentsModel, onDataChange, filterModel}) {
+  #popupFilmDetailsComponent = null;
+  #popupFilmControlsComponent = null;
+  #popupCommentHeaderComponent = null;
+  #popupCommentNewComponent = null;
+  #popupCommentLoadingComponent = null;
+
+  #comments = [];
+  #commentViews = [];
+
+  #isLoading = true;
+  #isOpen = false;
+
+  constructor({filmsModel, commentsModel, onViewAction, filterModel}) {
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
     this.#filterModel = filterModel;
-    this.#handleDataChange = onDataChange;
+    this.#handleViewAction = onViewAction;
 
-    this.#filmsModel.addObserver(this.#handleModelEvent);
-    this.#commentsModel.addObserver(this.#handleModelEvent);
+    this.#filmsModel.addObserver(this.#handleFilmsModelEvent);
+    this.#commentsModel.addObserver(this.#handleCommentsModelEvent);
   }
 
   get isOpen() {
     return this.#isOpen;
   }
 
-  async init(film) {
+  init(film) {
     if (this.#isOpen) {
-      this.#destroy();
+      this.removePopup();
     }
 
     this.#film = film;
+    this.#commentsModel.init(this.#film.id);
 
-    await this.#commentsModel.init(this.#film.id);
+    this.#popupCommentHeaderComponent = new PopupCommentHeaderView(this.#film);
 
-    this.#filmPopupComponent = new FilmPopupView({
+    this.#popupFilmDetailsComponent = new PopupFilmDetailsView({
       film: this.#film,
-      comments: this.#commentsModel.comments,
-      onCloseClick: this.#closePopupClickHandler,
-      onControlsClick: this.#handleControlsClick,
-      onDeleteClick: this.#handleDeleteClick,
+      onXClick: this.removePopup,
     });
 
-    render(this.#filmPopupComponent, document.body);
+    this.#popupFilmControlsComponent = new PopupFilmControlsView({
+      film: this.#film,
+      onWatchlistClick: this.#watchlistClickHandler,
+      onAlreadyWatchedClick: this.#alreadyWatchedClickHandler,
+      onFavoriteClick: this.#favoriteClickHandler,
+    });
+
+    if (!this.#popupCommentNewComponent) {
+      this.#popupCommentNewComponent = new PopupCommentNewView({onFormSubmit: this.#handleFormSubmit, film: this.#film});
+    }
+
+    render(this.#popupComponent, document.body);
+
+    render(this.#popupFilmDetailsComponent, this.#popupComponent.element.firstElementChild);
+    render(this.#popupFilmControlsComponent, this.#popupComponent.element.firstElementChild, RenderPosition.BEFOREEND);
+
+    render(this.#popupCommentContainerComponent, this.#popupComponent.element.firstElementChild);
+    render(this.#popupCommentHeaderComponent, this.#popupCommentContainerComponent.element.firstElementChild);
+    if (this.#isLoading) {
+      this.#renderLoading();
+    }
+    render(this.#popupCommentListComponent, this.#popupCommentContainerComponent.element.firstElementChild);
+    render(this.#popupCommentNewComponent, this.#popupCommentContainerComponent.element.firstElementChild);
     document.body.classList.add('hide-overflow');
     document.addEventListener('keydown', this.#escKeyDownHandler);
     document.addEventListener('keydown', this.#commentAddHandler);
     this.#isOpen = true;
   }
 
-  update({film, scroll = 0}) {
-    if (!this.#isOpen) {
-      return;
-    }
-
-    this.#film = film;
-    const prevPopupComponent = this.#filmPopupComponent;
-
-    this.#filmPopupComponent = new FilmPopupView({
-      film: this.#film,
-      comments: this.#commentsModel.comments,
-      onCloseClick: this.#closePopupClickHandler,
-      onControlsClick: this.#handleControlsClick,
-      onDeleteClick: this.#handleDeleteClick,
-    });
-
-    replace(this.#filmPopupComponent, prevPopupComponent);
-    this.#filmPopupComponent.scrollPopup(scroll);
-
-    remove(prevPopupComponent);
-  }
-
-  setSaving() {
-    if (!this.#isOpen) {
-      return;
-    }
-    this.#filmPopupComponent.setSaving();
-  }
-
-  setDeleting(id) {
-    if (!this.#isOpen) {
-      return;
-    }
-    this.#filmPopupComponent.setDeleting(id);
-  }
-
-  setAborting(action, id) {
-    if (!this.#isOpen) {
-      return;
-    }
-
-    const resetFormState = () => {
-      this.#filmPopupComponent.reset(action, id);
-    };
-
-    switch (action) {
-      case UserAction.UPDATE_FILM:
-        this.#filmPopupComponent.setElementAnimation(action, resetFormState);
-        break;
-      case UserAction.ADD_COMMENT:
-        this.#filmPopupComponent.setElementAnimation(action, resetFormState);
-        break;
-      case UserAction.DELETE_COMMENT:
-        this.#filmPopupComponent.setElementAnimation(action, resetFormState, id);
-        break;
-      default:
-        throw new Error(`Unknown state!, ${UpdateType}`);
-    }
-  }
-
-  #destroy() {
-    this.#isOpen = false;
-    this.#film = null;
-    remove(this.#filmPopupComponent);
-    document.body.classList.remove('hide-overflow');
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
-    document.removeEventListener('keydown', this.#commentAddHandler);
-  }
-
-  #closePopupClickHandler = () => {
-    this.#destroy();
-  };
-
   #commentAddHandler = (evt) => {
     if (isCtrlEnterEvent(evt)) {
       evt.preventDefault();
-      if(this.#filmPopupComponent.getFormData() === null) {
-        this.setAborting(UserAction.ADD_COMMENT);
-        return;
-      }
-      this.#handleDataChange(UserAction.ADD_COMMENT, UpdateType.PATCH, {
-        comment: this.#filmPopupComponent.getFormData(),
+      this.#handleViewAction(UserAction.ADD_COMMENT, UpdateType.PATCH, {
+        comment: this.#popupCommentNewComponent.getFormData(),
         film: this.#film,
-        scroll: this.#filmPopupComponent.scrollPosition,
+        scroll: this.#popupFilmDetailsComponent.scrollPosition,
       });
     }
   };
 
-  #handleDeleteClick = (payload) => {
-    if(this.#commentsModel.comments.filter((comment) => comment.id !== payload.id)) {
-      this.#handleDataChange(UserAction.DELETE_COMMENT, UpdateType.PATCH, payload);
-      return;
+  setAborting(actionType, comment) {
+    if (actionType === UserAction.ADD_COMMENT) {
+      this.#popupCommentNewComponent.shake(this.#popupCommentNewComponent.updateElement({isDisabled: false}));
+    } else if (actionType === UserAction.DELETE_COMMENT) {
+      const shakingCommentView = this.#commentViews.find((commentView) => commentView.id === comment.id);
+
+      const resetFormState = () => {
+        shakingCommentView.updateElement({isDeleting: false});
+      };
+
+      shakingCommentView.shake(resetFormState);
+    } else if (actionType === UserAction.UPDATE_FILM) {
+      this.#popupFilmControlsComponent.shake();
     }
-    this.setAborting(UserAction.DELETE_COMMENT, payload.id);
-  };
+  }
 
-  #handleControlsClick = (
-    updatedDetails,
-    activeFilter,
-    scrollPosition = 0
-  ) => {
-    const updateType = activeFilter === this.#filterModel.filter ? UpdateType.MINOR : UpdateType.PATCH;
-
-    this.#handleDataChange(UserAction.UPDATE_FILM, updateType, {
-      film: { ...this.#film, userDetails: updatedDetails },
-      scroll: scrollPosition,
+  setDisabled() {
+    this.#popupCommentNewComponent.updateElement({
+      isDisabled: true,
     });
+  }
+
+  setDeleting(commentComponent) {
+    commentComponent.updateElement({
+      isDeleting: true,
+    });
+  }
+
+  resetForm = () => {
+    this.#popupCommentNewComponent.reset();
   };
 
-  #handleModelEvent = (updateType, data) => {
-    switch (updateType) {
-      case UpdateType.PATCH:
-      case UpdateType.MINOR:
-      case UpdateType.MAJOR:
-        this.update(data);
-        break;
+  earsePopup = () => {
+    remove(this.#popupFilmDetailsComponent);
+    remove(this.#popupFilmControlsComponent);
+    remove(this.#popupCommentHeaderComponent);
+    this.#commentViews.forEach((commentView) => remove(commentView));
+
+    this.#popupComponent.element.remove();
+  };
+
+  removePopup = () => {
+    document.body.classList.remove('hide-overflow');
+    document.body.removeEventListener('keydown', this.#escKeyDownHandler);
+
+    remove(this.#popupComponent);
+    this.#popupComponent.reset();
+
+    remove(this.#popupCommentContainerComponent);
+    remove(this.#popupCommentHeaderComponent);
+    remove(this.#popupCommentListComponent);
+    this.#commentViews.forEach((commentView) => remove(commentView));
+
+    remove(this.#popupCommentNewComponent);
+    this.#popupCommentNewComponent?.reset();
+
+    remove(this.#popupFilmDetailsComponent);
+    remove(this.#popupFilmControlsComponent);
+    document.body.classList.remove('hide-overflow');
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    document.removeEventListener('keydown', this.#commentAddHandler);
+    this.#isLoading = true;
+  };
+
+  #renderLoading() {
+    this.#popupCommentLoadingComponent = new PopupCommentLoadingView();
+    render(this.#popupCommentLoadingComponent, this.#popupCommentContainerComponent.element.firstElementChild);
+  }
+
+  #handleCommentsModelEvent = (updateType) => {
+    if (updateType === UpdateType.INIT) {
+      this.#isLoading = false;
+      remove(this.#popupCommentLoadingComponent);
     }
+
+    this.#comments = this.#commentsModel.comments;
+    for (const comment of this.#comments) {
+      const commentView = new PopupCommentView({comment, onDeleteClick: this.#handleDeleteClick});
+      render(commentView, this.#popupCommentListComponent.element);
+      this.#commentViews.push(commentView);
+    }
+  };
+
+  #handleFilmsModelEvent = () => {
+    if (this.#isOpen) {
+      this.earsePopup();
+      this.init( this.#filmsModel.films.find( (element) => element.id === this.#film.id ) );
+    }
+  };
+
+  #handleFormSubmit = (comment) => {
+    this.setDisabled();
+
+    this.#handleViewAction(
+      UserAction.ADD_COMMENT,
+      UpdateType.PATCH,
+      comment,
+    );
+  };
+
+  #handleDeleteClick = (comment, commentComponent) => {
+    this.setDeleting(commentComponent);
+
+    this.#handleViewAction(
+      UserAction.DELETE_COMMENT,
+      UpdateType.PATCH,
+      comment,
+      this.#film
+    );
   };
 
   #escKeyDownHandler = (evt) => {
-    if (isEscapeEvent(evt)) {
+    if (evt.code === 'Escape') {
       evt.preventDefault();
-      this.#destroy();
+      this.removePopup();
     }
+  };
+
+  #watchlistClickHandler = () => {
+    this.#handleViewAction(
+      UserAction.UPDATE_FILM,
+      UpdateType.MINOR,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          watchlist: !this.#film.userDetails.watchlist
+        }
+      },
+      this,
+    );
+  };
+
+  #alreadyWatchedClickHandler = () => {
+    this.#handleViewAction(
+      UserAction.UPDATE_FILM,
+      UpdateType.MINOR,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          alreadyWatched: !this.#film.userDetails.alreadyWatched
+        }
+      },
+      this,
+    );
+  };
+
+  #favoriteClickHandler = () => {
+    this.#handleViewAction(
+      UserAction.UPDATE_FILM,
+      UpdateType.MINOR,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          favorite: !this.#film.userDetails.favorite
+        }
+      },
+      this,
+    );
   };
 }

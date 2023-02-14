@@ -67,10 +67,11 @@ export default class FilmsPresenter {
   init() {
     this.#renderFilmList();
     this.#popupPresenter = new PopupPresenter({
+
       filmsModel: this.#filmsModel,
       commentsModel: this.#commentsModel,
       filterModel: this.#filmFiltersModel,
-      onDataChange: this.#handleViewAction
+      onViewAction: this.#handleViewAction
     });
   }
 

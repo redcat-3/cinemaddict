@@ -1,5 +1,6 @@
 import Observable from '../framework/observable.js';
 import { adaptToClient } from '../utils.js';
+import { UpdateType } from '../const';
 
 export default class CommentsModel extends Observable {
   #commentsApiService = null;
@@ -15,7 +16,12 @@ export default class CommentsModel extends Observable {
   }
 
   async init(id) {
-    this.#comments = await this.#commentsApiService.loadComments(id);
+    try {
+      this.#comments = await this.#commentsApiService.loadComments(id);
+    } catch(err) {
+      this.#comments = [];
+    }
+    this._notify(UpdateType.INIT, this.#comments);
   }
 
   async addComment(updateType, { comment, film, scroll }) {
