@@ -40,13 +40,13 @@ function createPopupCommentNewTemplate(state) {
 export default class PopupCommentNewView extends AbstractStatefulView {
   #film = null;
 
-  constructor({isSaving}, onFormSubmit, film) {
+  constructor(isSaving, film) {
     super();
     this.#film = film;
     this._setState ({
       emotion: null,
       comment: '',
-      isSaving
+      isSaving: isSaving.isSaving
     });
 
     this._restoreHandlers();
@@ -65,8 +65,10 @@ export default class PopupCommentNewView extends AbstractStatefulView {
   };
 
   _restoreHandlers() {
-    this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#chooseEmojiHandler);
-    this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#commentInputHandler);
+    this.element.querySelector('.film-details__emoji-list')
+      .addEventListener('change', this.#emotionChangeHandler);
+    this.element.querySelector('.film-details__comment-input')
+      .addEventListener('input', this.#commentInputHandler);
   }
 
   #commentInputHandler = (evt) => {
@@ -86,9 +88,11 @@ export default class PopupCommentNewView extends AbstractStatefulView {
     };
   }
 
-  #chooseEmojiHandler = (evt) => {
+  #emotionChangeHandler = (evt) => {
     evt.preventDefault();
+    console.log(evt.target.value);
     if (!this._state.isSaving) {
+      console.log(evt.target.value);
       this.updateElement({
         emotion: evt.target.value,
       });

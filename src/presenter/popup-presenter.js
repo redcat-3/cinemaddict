@@ -36,6 +36,15 @@ export default class PopupPresenter {
   #isLoading = true;
   #isOpen = false;
 
+  #state = {
+    emotion: null,
+    comment: '',
+    isDeleting: false,
+    isDisabled: false,
+    isSaving: false,
+    deletingId: null
+  };
+
   constructor({filmsModel, commentsModel, onViewAction, filterModel}) {
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
@@ -73,7 +82,10 @@ export default class PopupPresenter {
     });
 
     if (!this.#popupCommentNewComponent) {
-      this.#popupCommentNewComponent = new PopupCommentNewView({onFormSubmit: this.#handleFormSubmit, film: this.#film});
+      this.#popupCommentNewComponent = new PopupCommentNewView({
+        film: this.#film,
+        isSaving: this.#state.isSaving
+      });
     }
 
     render(this.#popupComponent, document.body);

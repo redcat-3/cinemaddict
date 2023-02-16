@@ -83,7 +83,7 @@ export default class FilmsPresenter {
     if (prevsortComponent === null) {
       render(this.#sortComponent, this.#filmListComponent.getFilmList(), RenderPosition.BEFOREBEGIN);
     } else {
-      render(this.#sortComponent, this.#filmListComponent.getFilmList(), RenderPosition.BEFOREBEGIN);
+      render(prevsortComponent, this.#filmListComponent.getFilmList(), RenderPosition.BEFOREBEGIN);
     }
     this.#sortComponent.setButtonActive(this.#currentSortType);
   }
