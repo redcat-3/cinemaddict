@@ -164,42 +164,42 @@ export default class FilmsPresenter {
     this.#popupPresenter.init(film);
   };
 
-  #handleViewAction = async (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, {comment, film, scroll}) => {
     this.#uiBlocker.block();
     switch (actionType) {
       case UserAction.UPDATE_FILM:
         this.#popupPresenter?.setSaving();
         try {
           if(this.#popupPresenter.isOpen === true) {
-            await this.#filmsModel.updateFilm(UpdateType.MINOR, update);
+            await this.#filmsModel.updateFilm(UpdateType.MINOR, film, scroll);
           }
-          await this.#filmsModel.updateFilm(updateType, update);
+          await this.#filmsModel.updateFilm(updateType, film, scroll);
         } catch(err) {
           if(this.#popupPresenter.isOpen === true) {
             this.#popupPresenter.setAborting(UserAction.UPDATE_FILM);
           }
-          if(this.#filmsPresenter.get(update.film.id)){
-            this.#filmsPresenter.get(update.film.id).setAborting();
+          if(this.#filmsPresenter.get(film.id)){
+            this.#filmsPresenter.get(film.id).setAborting();
           }
-          if(this.#extraPresenter.get(update.film.id)){
-            this.#extraPresenter.get(update.film.id).setAborting();
+          if(this.#extraPresenter.get(film.id)){
+            this.#extraPresenter.get(film.id).setAborting();
           }
         }
         break;
       case UserAction.ADD_COMMENT:
         this.#popupPresenter.setSaving();
         try {
-          await this.#commentsModel.addComment(updateType, update);
+          await this.#commentsModel.addComment(updateType, { comment, film, scroll });
         } catch(err) {
           this.#popupPresenter.setAborting(UserAction.ADD_COMMENT);
         }
         break;
       case UserAction.DELETE_COMMENT:
-        this.#popupPresenter.setDeleting(update.id);
         try {
-          await this.#commentsModel.deleteComment(updateType, update);
+          await this.#commentsModel.deleteComment(updateType, { comment, film, scroll });
         } catch(err) {
-          this.#popupPresenter.setAborting(UserAction.DELETE_COMMENT, update.id);
+          console.log(err);
+          this.#popupPresenter.setAborting(UserAction.DELETE_COMMENT, comment.id);
         }
         break;
       default:
@@ -209,14 +209,14 @@ export default class FilmsPresenter {
     this.#uiBlocker.unblock();
   };
 
-  #handleModelEvent = (updateType, data) => {
+  #handleModelEvent = (updateType, {...film}) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        if(this.#filmsPresenter.get(data.film.id)) {
-          this.#filmsPresenter.get(data.film.id).init(data.film);
+        if(this.#filmsPresenter.get(film.id)) {
+          this.#filmsPresenter.get(film.id).init(film);
         }
-        if(this.#extraPresenter.get(data.film.id)) {
-          this.#extraPresenter.get(data.film.id).init(data.film);
+        if(this.#extraPresenter.get(film.id)) {
+          this.#extraPresenter.get(film.id).init(film);
         }
         break;
       case UpdateType.MINOR:

@@ -118,7 +118,7 @@ export default class ExtraPresenter {
       }
       return;
     }
-    this.update(update);
+    this.update();
   };
 
   destroy() {

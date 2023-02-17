@@ -117,11 +117,11 @@ export default class PopupPresenter {
     }
   };
 
-  setAborting(actionType, comment) {
+  setAborting(actionType, commentId) {
     if (actionType === UserAction.ADD_COMMENT) {
       this.#popupCommentNewComponent.shake(this.#popupCommentNewComponent.updateElement({isDisabled: false}));
     } else if (actionType === UserAction.DELETE_COMMENT) {
-      const shakingCommentView = this.#commentViews.find((commentView) => commentView.id === comment.id);
+      const shakingCommentView = this.#commentViews.find((commentView) => commentView.id === commentId);
 
       const resetFormState = () => {
         shakingCommentView.updateElement({isDeleting: false});
@@ -133,9 +133,9 @@ export default class PopupPresenter {
     }
   }
 
-  setDisabled() {
+  setSaving() {
     this.#popupCommentNewComponent.updateElement({
-      isDisabled: true,
+      isSaving: true,
     });
   }
 
@@ -186,18 +186,21 @@ export default class PopupPresenter {
     render(this.#popupCommentLoadingComponent, this.#popupCommentContainerComponent.element.firstElementChild);
   }
 
-  #handleCommentsModelEvent = (updateType) => {
+  #handleCommentsModelEvent = (updateType, update) => {
     if (updateType === UpdateType.INIT) {
       this.#isLoading = false;
       remove(this.#popupCommentLoadingComponent);
     }
+    this.#commentViews.forEach((commentView) => remove(commentView));
+    this.#commentViews.length = 0;
 
-    this.#comments = this.#commentsModel.comments;
+    this.#comments = update;
     for (const comment of this.#comments) {
       const commentView = new PopupCommentView({comment, onDeleteClick: this.#handleDeleteClick});
       render(commentView, this.#popupCommentListComponent.element);
       this.#commentViews.push(commentView);
     }
+    this.#popupCommentNewComponent.reset();
   };
 
   #handleFilmsModelEvent = () => {
@@ -223,8 +226,9 @@ export default class PopupPresenter {
     this.#handleViewAction(
       UserAction.DELETE_COMMENT,
       UpdateType.PATCH,
-      comment,
-      this.#film
+      { comment,
+        film: this.#film
+      }
     );
   };
 

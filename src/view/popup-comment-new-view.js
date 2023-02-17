@@ -40,13 +40,13 @@ function createPopupCommentNewTemplate(state) {
 export default class PopupCommentNewView extends AbstractStatefulView {
   #film = null;
 
-  constructor(isSaving, film) {
+  constructor({isSaving, film}) {
     super();
     this.#film = film;
     this._setState ({
       emotion: null,
       comment: '',
-      isSaving: isSaving.isSaving
+      isSaving
     });
 
     this._restoreHandlers();
@@ -56,12 +56,20 @@ export default class PopupCommentNewView extends AbstractStatefulView {
     return createPopupCommentNewTemplate(this._state);
   }
 
-  updateElement(update) {
-    super.updateElement(update);
+  get scrollPosition() {
+    return this.element.scrollTop;
+  }
+
+  scrollPopup(scrollPosition) {
+    this.element.scrollTo(0, scrollPosition);
   }
 
   reset = () => {
-    this.updateElement(this._state);
+    this.updateElement({
+      emotion: null,
+      comment: '',
+      isSaving: false
+    });
   };
 
   _restoreHandlers() {
@@ -69,6 +77,12 @@ export default class PopupCommentNewView extends AbstractStatefulView {
       .addEventListener('change', this.#emotionChangeHandler);
     this.element.querySelector('.film-details__comment-input')
       .addEventListener('input', this.#commentInputHandler);
+  }
+
+  updateElement(update) {
+    const scrollPosition = this.scrollPosition;
+    super.updateElement(update);
+    this.scrollPopup(scrollPosition);
   }
 
   #commentInputHandler = (evt) => {
@@ -90,9 +104,7 @@ export default class PopupCommentNewView extends AbstractStatefulView {
 
   #emotionChangeHandler = (evt) => {
     evt.preventDefault();
-    console.log(evt.target.value);
     if (!this._state.isSaving) {
-      console.log(evt.target.value);
       this.updateElement({
         emotion: evt.target.value,
       });

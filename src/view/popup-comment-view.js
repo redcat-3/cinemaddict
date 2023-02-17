@@ -41,9 +41,23 @@ export default class PopupCommentView extends AbstractStatefulView {
     return this.#comment.id;
   }
 
+  get scrollPosition() {
+    return this.element.scrollTop;
+  }
+
   _restoreHandlers() {
     this.element.querySelector('.film-details__comment-delete').addEventListener('click', this.#deleteClickHandler);
 
+  }
+
+  scrollPopup(scrollPosition) {
+    this.element.scrollTo(0, scrollPosition);
+  }
+
+  updateElement(update) {
+    const scrollPosition = this.scrollPosition;
+    super.updateElement(update);
+    this.scrollPopup(scrollPosition);
   }
 
   #deleteClickHandler = () => {
