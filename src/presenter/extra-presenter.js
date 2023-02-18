@@ -97,28 +97,28 @@ export default class ExtraPresenter {
   };
 
   #handleCommentsEvent = (updateType, update) => {
-    if(updateType === UpdateType.INIT) {
-      return;
-    }
-    const index = this.#films.findIndex((item) => item.id === update.film.id);
-    if (index === -1) {
-      return;
-    }
-    this.#films = [
-      ...this.#films.slice(0, index),
-      update.film,
-      ...this.#films.slice(index + 1),
-    ];
-
-    if(this.#extraPresenter.get(update.film.id)) {
-      this.#extraPresenter.get(update.film.id).init(update.film, scroll);
-      const extraFilms = [...this.#films.sort((a, b) => b.filmInfo.totalRating - a.filmInfo.totalRating).slice(0, 2)].concat(...this.#films.sort((a, b) => b.comments.length - a.comments.length).slice(0, 2));
-      if(!extraFilms.some((item) => item.id === update.film.id)) {
-        this.update(update);
+    if(updateType !== UpdateType.INIT) {
+      const index = this.#films.findIndex((item) => item.id === update.film.id);
+      if (index === -1) {
+        return;
       }
-      return;
+      this.#films = [
+        ...this.#films.slice(0, index),
+        update.film,
+        ...this.#films.slice(index + 1),
+      ];
+
+      if(this.#extraPresenter.get(update.film.id)) {
+        this.#extraPresenter.get(update.film.id).init(update.film, scroll);
+        const extraFilms = [...this.#films.sort((a, b) => b.filmInfo.totalRating - a.filmInfo.totalRating).slice(0, 2)].concat(...this.#films.sort((a, b) => b.comments.length - a.comments.length).slice(0, 2));
+        if(!extraFilms.some((item) => item.id === update.film.id)) {
+          this.update(update);
+        }
+        return;
+      }
+      this.update();
     }
-    this.update();
+
   };
 
   destroy() {

@@ -80,6 +80,14 @@ export default class PopupFilmDetailsView extends AbstractView {
     return createPopupFilmDetailsTemplate(this.#film);
   }
 
+  get scrollPosition() {
+    return this.element.scrollTop;
+  }
+
+  scrollPopup(scrollPosition) {
+    this.element.scrollTo(0, scrollPosition);
+  }
+
   #xClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleXClick();

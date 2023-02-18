@@ -62,6 +62,7 @@ export default class PopupPresenter {
   init(film) {
     if (this.#isOpen) {
       this.removePopup();
+      return;
     }
 
     this.#film = film;
@@ -159,26 +160,21 @@ export default class PopupPresenter {
   };
 
   removePopup = () => {
-    document.body.classList.remove('hide-overflow');
-    document.body.removeEventListener('keydown', this.#escKeyDownHandler);
-
-    remove(this.#popupComponent);
-    this.#popupComponent.reset();
-
+    this.#isLoading = true;
+    this.#isOpen = false;
+    this.#film = null;
     remove(this.#popupCommentContainerComponent);
     remove(this.#popupCommentHeaderComponent);
     remove(this.#popupCommentListComponent);
     this.#commentViews.forEach((commentView) => remove(commentView));
-
+    this.#commentViews.length = 0;
     remove(this.#popupCommentNewComponent);
-    this.#popupCommentNewComponent?.reset();
-
     remove(this.#popupFilmDetailsComponent);
     remove(this.#popupFilmControlsComponent);
+    remove(this.#popupComponent);
     document.body.classList.remove('hide-overflow');
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     document.removeEventListener('keydown', this.#commentAddHandler);
-    this.#isLoading = true;
   };
 
   #renderLoading() {
@@ -210,24 +206,16 @@ export default class PopupPresenter {
     }
   };
 
-  #handleFormSubmit = (comment) => {
-    this.setDisabled();
-
-    this.#handleViewAction(
-      UserAction.ADD_COMMENT,
-      UpdateType.PATCH,
-      comment,
-    );
-  };
-
   #handleDeleteClick = (comment, commentComponent) => {
     this.setDeleting(commentComponent);
 
     this.#handleViewAction(
       UserAction.DELETE_COMMENT,
       UpdateType.PATCH,
-      { comment,
-        film: this.#film
+      {
+        comment,
+        film: this.#film,
+        scroll: this.#popupFilmDetailsComponent.scrollPosition,
       }
     );
   };
@@ -243,14 +231,12 @@ export default class PopupPresenter {
     this.#handleViewAction(
       UserAction.UPDATE_FILM,
       UpdateType.MINOR,
-      {
-        ...this.#film,
+      { film: {...this.#film,
         userDetails: {
           ...this.#film.userDetails,
           watchlist: !this.#film.userDetails.watchlist
-        }
-      },
-      this,
+        }}
+      }
     );
   };
 
@@ -258,14 +244,12 @@ export default class PopupPresenter {
     this.#handleViewAction(
       UserAction.UPDATE_FILM,
       UpdateType.MINOR,
-      {
-        ...this.#film,
+      { film: {...this.#film,
         userDetails: {
           ...this.#film.userDetails,
           alreadyWatched: !this.#film.userDetails.alreadyWatched
-        }
-      },
-      this,
+        }}
+      }
     );
   };
 
@@ -273,14 +257,12 @@ export default class PopupPresenter {
     this.#handleViewAction(
       UserAction.UPDATE_FILM,
       UpdateType.MINOR,
-      {
-        ...this.#film,
+      { film: {...this.#film,
         userDetails: {
           ...this.#film.userDetails,
           favorite: !this.#film.userDetails.favorite
-        }
-      },
-      this,
+        }}
+      }
     );
   };
 }

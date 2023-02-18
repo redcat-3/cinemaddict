@@ -45,14 +45,14 @@ export default class CommentsModel extends Observable {
     }
   }
 
-  async deleteComment(updateType, {comment, film}) {
-    const index = this.#comments.findIndex((item) => item.id === comment.id);
+  async deleteComment(updateType, update) {
+    const index = this.#comments.findIndex((item) => item.id === update.comment.id);
     if (index === -1) {
       throw new Error('Can\'t delete unexisting comment');
     }
 
     try {
-      await this.#commentsApiService.deleteComment(comment.id);
+      await this.#commentsApiService.deleteComment(update.comment.id);
       this.#comments = [
         ...this.#comments.slice(0, index),
         ...this.#comments.slice(index + 1),
@@ -60,8 +60,8 @@ export default class CommentsModel extends Observable {
 
       this._notify(updateType,
         {
-          ...film,
-          comments: film.comments.filter((item) => item !== comment.id),
+          ...update.film,
+          comments: update.film.comments.filter((item) => item !== update.comment.id),
         }
       );
     } catch (err) {

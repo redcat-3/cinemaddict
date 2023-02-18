@@ -47,7 +47,6 @@ export default class PopupCommentView extends AbstractStatefulView {
 
   _restoreHandlers() {
     this.element.querySelector('.film-details__comment-delete').addEventListener('click', this.#deleteClickHandler);
-
   }
 
   scrollPopup(scrollPosition) {
