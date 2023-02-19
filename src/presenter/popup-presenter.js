@@ -60,11 +60,6 @@ export default class PopupPresenter {
   }
 
   init(film) {
-    if (this.#isOpen) {
-      this.removePopup();
-      return;
-    }
-
     this.#film = film;
     this.#commentsModel.init(this.#film.id);
 
@@ -150,13 +145,13 @@ export default class PopupPresenter {
     this.#popupCommentNewComponent.reset();
   };
 
-  earsePopup = () => {
+  erasePopup = () => {
     remove(this.#popupFilmDetailsComponent);
     remove(this.#popupFilmControlsComponent);
     remove(this.#popupCommentHeaderComponent);
     this.#commentViews.forEach((commentView) => remove(commentView));
 
-    this.#popupComponent.element.remove();
+    //this.#popupComponent.element.remove();
   };
 
   removePopup = () => {
@@ -201,14 +196,13 @@ export default class PopupPresenter {
 
   #handleFilmsModelEvent = () => {
     if (this.#isOpen) {
-      this.earsePopup();
-      this.init( this.#filmsModel.films.find( (element) => element.id === this.#film.id ) );
+      this.erasePopup();
+      this.init(this.#filmsModel.films.find((element) => element.id === this.#film.id));
     }
   };
 
   #handleDeleteClick = (comment, commentComponent) => {
     this.setDeleting(commentComponent);
-
     this.#handleViewAction(
       UserAction.DELETE_COMMENT,
       UpdateType.PATCH,
