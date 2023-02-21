@@ -36,15 +36,6 @@ export default class PopupPresenter {
   #isLoading = true;
   #isOpen = false;
 
-  #state = {
-    emotion: null,
-    comment: '',
-    isDeleting: false,
-    isDisabled: false,
-    isSaving: false,
-    deletingId: null
-  };
-
   constructor({filmsModel, commentsModel, onViewAction, filterModel}) {
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
@@ -72,6 +63,7 @@ export default class PopupPresenter {
 
     this.#popupFilmControlsComponent = new PopupFilmControlsView({
       film: this.#film,
+      isDisabled: false,
       onWatchlistClick: this.#watchlistClickHandler,
       onAlreadyWatchedClick: this.#alreadyWatchedClickHandler,
       onFavoriteClick: this.#favoriteClickHandler,
@@ -80,7 +72,7 @@ export default class PopupPresenter {
     if (!this.#popupCommentNewComponent) {
       this.#popupCommentNewComponent = new PopupCommentNewView({
         film: this.#film,
-        isSaving: this.#state.isSaving
+        isSaving: false
       });
     }
 
@@ -115,18 +107,22 @@ export default class PopupPresenter {
 
   setAborting(actionType, commentId) {
     if (actionType === UserAction.ADD_COMMENT) {
-      this.#popupCommentNewComponent.shake(this.#popupCommentNewComponent.updateElement({isDisabled: false}));
+      this.#popupCommentNewComponent.shake(this.#popupCommentNewComponent.reset());
     } else if (actionType === UserAction.DELETE_COMMENT) {
       const shakingCommentView = this.#commentViews.find((commentView) => commentView.id === commentId);
-
       const resetFormState = () => {
         shakingCommentView.updateElement({isDeleting: false});
       };
-
       shakingCommentView.shake(resetFormState);
     } else if (actionType === UserAction.UPDATE_FILM) {
       this.#popupFilmControlsComponent.shake();
     }
+  }
+
+  setDisabled() {
+    this.#popupFilmControlsComponent.updateElement({
+      isDisabled: true,
+    });
   }
 
   setSaving() {
@@ -141,17 +137,12 @@ export default class PopupPresenter {
     });
   }
 
-  resetForm = () => {
-    this.#popupCommentNewComponent.reset();
-  };
-
   erasePopup = () => {
     remove(this.#popupFilmDetailsComponent);
     remove(this.#popupFilmControlsComponent);
     remove(this.#popupCommentHeaderComponent);
     this.#commentViews.forEach((commentView) => remove(commentView));
-
-    //this.#popupComponent.element.remove();
+    this.#popupComponent.element.remove();
   };
 
   removePopup = () => {
@@ -178,20 +169,37 @@ export default class PopupPresenter {
   }
 
   #handleCommentsModelEvent = (updateType, update) => {
-    if (updateType === UpdateType.INIT) {
-      this.#isLoading = false;
-      remove(this.#popupCommentLoadingComponent);
-    }
+    console.log(updateType, update);
     this.#commentViews.forEach((commentView) => remove(commentView));
     this.#commentViews.length = 0;
+    switch (updateType) {
+      case UserAction.ADD_COMMENT:
+        this.#comments = update;
+        this.#popupCommentNewComponent.reset();
+        this.#renderComments(this.#comments);
+        break;
+      case UserAction.DELETE_COMMENT:
+        this.#comments = update;
+        this.#renderComments(this.#comments);
+        break;
+      case UpdateType.INIT:
+        this.#comments = update;
+        this.#isLoading = false;
+        remove(this.#popupCommentLoadingComponent);
+        this.#renderComments(this.#comments);
+        break;
+      default:
+        throw new Error(`Unknown state!, ${updateType}`);
+    }
+  };
 
-    this.#comments = update;
-    for (const comment of this.#comments) {
+  #renderComments = (comments) => {
+    console.log(comments);
+    for(const comment of comments) {
       const commentView = new PopupCommentView({comment, onDeleteClick: this.#handleDeleteClick});
       render(commentView, this.#popupCommentListComponent.element);
       this.#commentViews.push(commentView);
     }
-    this.#popupCommentNewComponent.reset();
   };
 
   #handleFilmsModelEvent = () => {

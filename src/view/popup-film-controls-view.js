@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 function createPopupFilmControlsTemplate(film) {
   return (
@@ -10,28 +10,32 @@ function createPopupFilmControlsTemplate(film) {
   );
 }
 
-export default class PopupFilmcontrolsView extends AbstractView {
+export default class PopupFilmcontrolsView extends AbstractStatefulView {
   #film = null;
   #handleWatchlistClick = null;
   #handleAlreadyWatchedClick = null;
   #handleFavoriteClick = null;
 
-  constructor({film,onWatchlistClick, onAlreadyWatchedClick, onFavoriteClick}) {
+  constructor({film, onWatchlistClick, onAlreadyWatchedClick, onFavoriteClick}) {
     super();
     this.#film = film;
-
     this.#handleWatchlistClick = onWatchlistClick;
-    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
-
     this.#handleAlreadyWatchedClick = onAlreadyWatchedClick;
-    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#alreadyWatchedClickHandler);
-
     this.#handleFavoriteClick = onFavoriteClick;
-    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
+    this._restoreHandlers();
   }
 
   get template() {
     return createPopupFilmControlsTemplate(this.#film);
+  }
+
+  _restoreHandlers() {
+    this.element.querySelector('.film-details__control-button--watchlist')
+      .addEventListener('click', this.#watchlistClickHandler);
+    this.element.querySelector('.film-details__control-button--watched')
+      .addEventListener('click', this.#alreadyWatchedClickHandler);
+    this.element.querySelector('.film-details__control-button--favorite')
+      .addEventListener('click', this.#favoriteClickHandler);
   }
 
   #watchlistClickHandler = (evt) => {

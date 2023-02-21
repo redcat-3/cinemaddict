@@ -87,9 +87,9 @@ export default class ExtraPresenter {
     switch (updateType) {
       case UpdateType.PATCH:
       case UpdateType.MINOR:
+      case UpdateType.MAJOR:
         this.update(update);
         break;
-      case UpdateType.MAJOR:
       case UpdateType.INIT:
         this.#films = update;
         break;
@@ -97,6 +97,7 @@ export default class ExtraPresenter {
   };
 
   #handleCommentsEvent = (updateType, update) => {
+    console.log(updateType, update);
     if(updateType !== UpdateType.INIT) {
       const index = this.#films.findIndex((item) => item.id === update.film.id);
       if (index === -1) {
@@ -110,15 +111,14 @@ export default class ExtraPresenter {
 
       if(this.#extraPresenter.get(update.film.id)) {
         this.#extraPresenter.get(update.film.id).init(update.film, scroll);
-        const extraFilms = [...this.#films.sort((a, b) => b.filmInfo.totalRating - a.filmInfo.totalRating).slice(0, 2)].concat(...this.#films.sort((a, b) => b.comments.length - a.comments.length).slice(0, 2));
-        if(!extraFilms.some((item) => item.id === update.film.id)) {
+        const extraFilms = [...this.#films.sort((a, b) => b.filmInfo.totalRating - a.filmInfo.totalRating).slice(0, 2)]
+          .concat(...this.#films.sort((a, b) => b.comments.length - a.comments.length).slice(0, 2));
+        if(extraFilms.some((item) => item.id === update.film.id)) {
           this.update(update);
         }
-        return;
       }
-      this.update();
+      //this.update();
     }
-
   };
 
   destroy() {

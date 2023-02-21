@@ -65,6 +65,11 @@ export default class CommentsModel extends Observable {
         }
       );
     } catch (err) {
+      console.log(updateType,
+        {
+          ...update.film,
+          comments: update.film.comments.filter((item) => item !== update.comment.id),
+        });
       throw new Error('Can\'t delete comment');
     }
   }

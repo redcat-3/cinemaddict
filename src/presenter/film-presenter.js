@@ -24,6 +24,7 @@ export default class FilmPresenter {
     const prevFilmComponent = this.#filmComponent;
     this.#filmComponent = new FilmCardView({
       film,
+      isDisabled: false,
       comments: this.#commentsModel,
       onOpenClick: () => this.#handleOpenPopup(film),
       onControlsClick: this.#handleControlsClick,
@@ -44,6 +45,12 @@ export default class FilmPresenter {
 
   setAborting() {
     this.#filmComponent.shake();
+  }
+
+  setDisabled() {
+    this.#filmComponent.updateElement({
+      isDisabled: true
+    });
   }
 
   #handleControlsClick = (

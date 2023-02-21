@@ -162,17 +162,24 @@ export default class FilmsPresenter {
     switch (actionType) {
       case UserAction.UPDATE_FILM:
         try {
-          this.#popupPresenter?.setSaving();
+          if(this.#filmPresenters.get(update.film.id)){
+            this.#filmPresenters.get(update.film.id).setDisabled();
+          }
+          if(this.#extraFilmPresenters.get(update.film.id)){
+            this.#extraFilmPresenters.get(update.film.id).setDisabled();
+          }
           await this.#filmsModel.updateFilm(updateType, update);
         } catch(err) {
+          console.log(err);
           if(this.#popupPresenter.isOpen === true) {
             this.#popupPresenter.setAborting(UserAction.UPDATE_FILM);
-          }
-          if(this.#filmPresenters.get(update.id)){
-            this.#filmPresenters.get(update.id).setAborting();
-          }
-          if(this.#extraFilmPresenters.get(update.id)){
-            this.#extraFilmPresenters.get(update.id).setAborting();
+          } else {
+            if(this.#filmPresenters.get(update.film.id)){
+              this.#filmPresenters.get(update.film.id).setAborting();
+            }
+            if(this.#extraFilmPresenters.get(update.film.id)){
+              this.#extraFilmPresenters.get(update.film.id).setAborting();
+            }
           }
         }
         break;
@@ -181,6 +188,7 @@ export default class FilmsPresenter {
         try {
           await this.#commentsModel.addComment(updateType, update);
         } catch(err) {
+          console.log(err);
           this.#popupPresenter.setAborting(UserAction.ADD_COMMENT);
         }
         break;
@@ -188,6 +196,7 @@ export default class FilmsPresenter {
         try {
           await this.#commentsModel.deleteComment(updateType, update);
         } catch(err) {
+          console.log(err);
           this.#popupPresenter.setAborting(UserAction.DELETE_COMMENT, update.comment.id);
         }
         break;

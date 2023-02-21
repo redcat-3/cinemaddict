@@ -1,9 +1,9 @@
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import he from 'he';
-import AbstractView from '../framework/view/abstract-view.js';
 import { FilterType, TEXT_LIMIT, UpdateType } from '../const.js';
 import { getDuration, getFilmYear } from '../utils.js';
 
-function createCardTemplate(film) {
+function createCardTemplate({film, isDisabled}) {
   const {
     title,
     totalRating,
@@ -45,6 +45,7 @@ function createCardTemplate(film) {
           class="film-card__controls-item film-card__controls-item--add-to-watchlist ${activeWatchlistClassName}"
           type="button"
           data-control="${FilterType.WATCHLIST}"
+          ${isDisabled ? 'disabled' : ''}
           >
         Add to watchlist
         </button>
@@ -52,6 +53,7 @@ function createCardTemplate(film) {
           class="film-card__controls-item film-card__controls-item--mark-as-watched ${activeAsWatchedClassName}"
           type="button"
           data-control="${FilterType.HISTORY}"
+          ${isDisabled ? 'disabled' : ''}
           >
         Mark as watched
         </button>
@@ -59,6 +61,7 @@ function createCardTemplate(film) {
           class="film-card__controls-item film-card__controls-item--favorite ${activeFavoriteClassName}"
           type="button"
           data-control="${FilterType.FAVORITE}"
+          ${isDisabled ? 'disabled' : ''}
           >
         Mark as favorite
         </button>
@@ -68,30 +71,38 @@ function createCardTemplate(film) {
   );
 }
 
-export default class FilmCardView extends AbstractView {
+export default class FilmCardView extends AbstractStatefulView {
   #film = null;
   #handleOpenClick = null;
   #handleControlsClick = null;
   #currentFilterType = null;
 
-  constructor({film, onOpenClick, onControlsClick, currentFilterType}) {
+  constructor({film, isDisabled, onOpenClick, onControlsClick, currentFilterType}) {
     super();
-    this.#film = film;
-
+    this._setState ({
+      film,
+      isDisabled
+    });
     this.#handleOpenClick = onOpenClick;
     this.#handleControlsClick = onControlsClick;
     this.#currentFilterType = currentFilterType;
+    this._restoreHandlers();
+  }
 
+  get template() {
+    return createCardTemplate(this._state);
+  }
+
+  _restoreHandlers() {
     this.element.querySelector('.film-card__link')
       .addEventListener('click', this.#handleOpenClick);
-
     this.element.querySelectorAll('.film-card__controls-item').forEach((element) => {
       element.addEventListener('click', this.#controlsClickHandler);
     });
   }
 
-  get template() {
-    return createCardTemplate(this.#film);
+  updateElement(update) {
+    super.updateElement(update);
   }
 
   #controlsClickHandler = (evt) => {
@@ -101,22 +112,22 @@ export default class FilmCardView extends AbstractView {
       return;
     }
 
-    let updatedDetails = this.#film.userDetails;
+    let updatedDetails = this._state.film.userDetails;
     let updateType;
 
     switch (evt.target.dataset.control) {
       case FilterType.WATCHLIST: {
-        updatedDetails = { ...updatedDetails, watchlist: !this.#film.userDetails.watchlist };
+        updatedDetails = { ...updatedDetails, watchlist: !this._state.film.userDetails.watchlist };
         updateType = this.#currentFilterType === FilterType.WATCHLIST ? UpdateType.MINOR : UpdateType.PATCH;
         break;
       }
       case FilterType.HISTORY: {
-        updatedDetails = { ...updatedDetails, alreadyWatched: !this.#film.userDetails.alreadyWatched };
+        updatedDetails = { ...updatedDetails, alreadyWatched: !this._state.film.userDetails.alreadyWatched };
         updateType = this.#currentFilterType === FilterType.HISTORY ? UpdateType.MINOR : UpdateType.PATCH;
         break;
       }
       case FilterType.FAVORITE: {
-        updatedDetails = { ...updatedDetails, favorite: !this.#film.userDetails.favorite };
+        updatedDetails = { ...updatedDetails, favorite: !this._state.film.userDetails.favorite };
         updateType = this.#currentFilterType === FilterType.FAVORITE ? UpdateType.MINOR : UpdateType.PATCH;
         break;
       }
