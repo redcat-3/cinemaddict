@@ -1,18 +1,18 @@
-import AbstractView from '../framework/view/abstract-view';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
-function createPopupCommentHeaderTemplate(film) {
-  return `<h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${film.comments.length}</span></h3>`;
+function createPopupCommentHeaderTemplate(count) {
+  return `<h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${count}</span></h3>`;
 }
 
-export default class PopupCommentHeaderView extends AbstractView {
-  #film = null;
+export default class PopupCommentHeaderView extends AbstractStatefulView {
+  #count = null;
 
-  constructor(film) {
+  constructor(count) {
     super();
-    this.#film = film;
+    this.#count = count;
   }
 
   get template() {
-    return createPopupCommentHeaderTemplate(this.#film);
+    return createPopupCommentHeaderTemplate(this.#count);
   }
 }

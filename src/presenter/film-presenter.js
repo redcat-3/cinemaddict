@@ -1,5 +1,5 @@
 import FilmCardView from '../view/film-card-view.js';
-import { UpdateType, UserAction } from '../const.js';
+import { UserAction } from '../const.js';
 import { render, replace, remove } from '../framework/render.js';
 
 export default class FilmPresenter {
@@ -53,10 +53,7 @@ export default class FilmPresenter {
     });
   }
 
-  #handleControlsClick = (
-    updatedDetails,
-    updateType = UpdateType.PATCH
-  ) => {
+  #handleControlsClick = (updatedDetails, updateType) => {
     this.#handleDataChange(UserAction.UPDATE_FILM, updateType, {
       film: {...this.#film, userDetails: updatedDetails},
     });

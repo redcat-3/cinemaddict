@@ -162,6 +162,9 @@ export default class FilmsPresenter {
     switch (actionType) {
       case UserAction.UPDATE_FILM:
         try {
+          if(this.#popupPresenter.isOpen === true) {
+            this.#popupPresenter.setDisabled();
+          }
           if(this.#filmPresenters.get(update.film.id)){
             this.#filmPresenters.get(update.film.id).setDisabled();
           }
@@ -170,7 +173,6 @@ export default class FilmsPresenter {
           }
           await this.#filmsModel.updateFilm(updateType, update);
         } catch(err) {
-          console.log(err);
           if(this.#popupPresenter.isOpen === true) {
             this.#popupPresenter.setAborting(UserAction.UPDATE_FILM);
           } else {
@@ -188,7 +190,6 @@ export default class FilmsPresenter {
         try {
           await this.#commentsModel.addComment(updateType, update);
         } catch(err) {
-          console.log(err);
           this.#popupPresenter.setAborting(UserAction.ADD_COMMENT);
         }
         break;
@@ -196,7 +197,6 @@ export default class FilmsPresenter {
         try {
           await this.#commentsModel.deleteComment(updateType, update);
         } catch(err) {
-          console.log(err);
           this.#popupPresenter.setAborting(UserAction.DELETE_COMMENT, update.comment.id);
         }
         break;

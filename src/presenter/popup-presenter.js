@@ -54,7 +54,7 @@ export default class PopupPresenter {
     this.#film = film;
     this.#commentsModel.init(this.#film.id);
 
-    this.#popupCommentHeaderComponent = new PopupCommentHeaderView(this.#film);
+    this.#popupCommentHeaderComponent = new PopupCommentHeaderView(this.#film.comments.length);
 
     this.#popupFilmDetailsComponent = new PopupFilmDetailsView({
       film: this.#film,
@@ -64,15 +64,14 @@ export default class PopupPresenter {
     this.#popupFilmControlsComponent = new PopupFilmControlsView({
       film: this.#film,
       isDisabled: false,
-      onWatchlistClick: this.#watchlistClickHandler,
-      onAlreadyWatchedClick: this.#alreadyWatchedClickHandler,
-      onFavoriteClick: this.#favoriteClickHandler,
+      onControlsClick: this.#controlsClickHandler,
+      currentFilterType: this.#filterModel.filter,
     });
 
     if (!this.#popupCommentNewComponent) {
       this.#popupCommentNewComponent = new PopupCommentNewView({
         film: this.#film,
-        isSaving: false
+        isSaving: false,
       });
     }
 
@@ -97,11 +96,16 @@ export default class PopupPresenter {
   #commentAddHandler = (evt) => {
     if (isCtrlEnterEvent(evt)) {
       evt.preventDefault();
-      this.#handleViewAction(UserAction.ADD_COMMENT, UpdateType.PATCH, {
-        comment: this.#popupCommentNewComponent.getFormData(),
-        film: this.#film,
-        scroll: this.#popupFilmDetailsComponent.scrollPosition,
-      });
+      if(this.#popupCommentNewComponent.getFormData()) {
+        this.#handleViewAction(UserAction.ADD_COMMENT, UpdateType.PATCH, {
+          comment: this.#popupCommentNewComponent.getFormData(),
+          film: this.#film,
+          scroll: this.#popupFilmDetailsComponent.scrollPosition,
+        });
+        this.#popupCommentNewComponent.reset();
+      } else {
+        this.setAborting(UserAction.ADD_COMMENT);
+      }
     }
   };
 
@@ -137,14 +141,6 @@ export default class PopupPresenter {
     });
   }
 
-  erasePopup = () => {
-    remove(this.#popupFilmDetailsComponent);
-    remove(this.#popupFilmControlsComponent);
-    remove(this.#popupCommentHeaderComponent);
-    this.#commentViews.forEach((commentView) => remove(commentView));
-    this.#popupComponent.element.remove();
-  };
-
   removePopup = () => {
     this.#isLoading = true;
     this.#isOpen = false;
@@ -169,18 +165,14 @@ export default class PopupPresenter {
   }
 
   #handleCommentsModelEvent = (updateType, update) => {
-    console.log(updateType, update);
-    this.#commentViews.forEach((commentView) => remove(commentView));
-    this.#commentViews.length = 0;
     switch (updateType) {
-      case UserAction.ADD_COMMENT:
-        this.#comments = update;
+      case UpdateType.PATCH:
+        this.#comments = update.comments;
+        this.#commentViews.forEach((commentView) => remove(commentView));
+        this.#commentViews.length = 0;
+        this.#renderComments(this.#comments);
         this.#popupCommentNewComponent.reset();
-        this.#renderComments(this.#comments);
-        break;
-      case UserAction.DELETE_COMMENT:
-        this.#comments = update;
-        this.#renderComments(this.#comments);
+        this.#popupCommentHeaderComponent.element.querySelector('.film-details__comments-count').textContent = update.comments.length;
         break;
       case UpdateType.INIT:
         this.#comments = update;
@@ -194,7 +186,6 @@ export default class PopupPresenter {
   };
 
   #renderComments = (comments) => {
-    console.log(comments);
     for(const comment of comments) {
       const commentView = new PopupCommentView({comment, onDeleteClick: this.#handleDeleteClick});
       render(commentView, this.#popupCommentListComponent.element);
@@ -204,8 +195,8 @@ export default class PopupPresenter {
 
   #handleFilmsModelEvent = () => {
     if (this.#isOpen) {
-      this.erasePopup();
-      this.init(this.#filmsModel.films.find((element) => element.id === this.#film.id));
+      const film = this.#filmsModel.films.find((element) => element.id === this.#film.id);
+      this.#popupFilmControlsComponent.updateElement({film, isDisabled: false});
     }
   };
 
@@ -229,42 +220,9 @@ export default class PopupPresenter {
     }
   };
 
-  #watchlistClickHandler = () => {
-    this.#handleViewAction(
-      UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
-      { film: {...this.#film,
-        userDetails: {
-          ...this.#film.userDetails,
-          watchlist: !this.#film.userDetails.watchlist
-        }}
-      }
-    );
-  };
-
-  #alreadyWatchedClickHandler = () => {
-    this.#handleViewAction(
-      UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
-      { film: {...this.#film,
-        userDetails: {
-          ...this.#film.userDetails,
-          alreadyWatched: !this.#film.userDetails.alreadyWatched
-        }}
-      }
-    );
-  };
-
-  #favoriteClickHandler = () => {
-    this.#handleViewAction(
-      UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
-      { film: {...this.#film,
-        userDetails: {
-          ...this.#film.userDetails,
-          favorite: !this.#film.userDetails.favorite
-        }}
-      }
-    );
+  #controlsClickHandler = (updatedDetails, updateType) => {
+    this.#handleViewAction(UserAction.UPDATE_FILM, updateType, {
+      film: {...this.#film, userDetails: updatedDetails},
+    });
   };
 }

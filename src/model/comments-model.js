@@ -24,7 +24,7 @@ export default class CommentsModel extends Observable {
     this._notify(UpdateType.INIT, this.#comments);
   }
 
-  async addComment(updateType, { comment, film, scroll }) {
+  async addComment(updateType, {comment, film, scroll}) {
     try {
       const { comments, movie } = await this.#commentsApiService.addComment(comment, film);
 
@@ -32,12 +32,9 @@ export default class CommentsModel extends Observable {
       const adaptedFilm = adaptToClient(movie);
       const update = {
         film: adaptedFilm,
-        scroll: scroll
+        scroll,
+        comments
       };
-
-      const newComments = this.#comments.map(({id}) => id);
-      update.film.comments = newComments;
-
       this._notify(updateType, update);
 
     } catch (err) {
@@ -53,23 +50,17 @@ export default class CommentsModel extends Observable {
 
     try {
       await this.#commentsApiService.deleteComment(update.comment.id);
-      this.#comments = [
-        ...this.#comments.slice(0, index),
-        ...this.#comments.slice(index + 1),
-      ];
+      this.#comments = this.#comments.filter((comment) => comment.id !== update.comment.id);
+      update.film.comments = this.#comments.map(({id}) => id);
+      const comments = this.#comments;
+      const updated = {
+        film: update.film,
+        scroll: update.scroll,
+        comments
+      };
 
-      this._notify(updateType,
-        {
-          ...update.film,
-          comments: update.film.comments.filter((item) => item !== update.comment.id),
-        }
-      );
+      this._notify(updateType, updated);
     } catch (err) {
-      console.log(updateType,
-        {
-          ...update.film,
-          comments: update.film.comments.filter((item) => item !== update.comment.id),
-        });
       throw new Error('Can\'t delete comment');
     }
   }
