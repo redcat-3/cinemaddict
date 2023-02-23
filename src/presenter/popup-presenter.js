@@ -11,7 +11,6 @@ import PopupCommentLoadingView from '../view/popup-comment-loading-view.js';
 import { isCtrlEnterEvent } from '../utils';
 import { remove, render, RenderPosition } from '../framework/render';
 import { UpdateType, UserAction } from '../const';
-//import FilmPopupView from '../view/film-popup-view';
 
 export default class PopupPresenter {
   #popupComponent = new PopupView();
@@ -202,15 +201,21 @@ export default class PopupPresenter {
 
   #handleDeleteClick = (comment, commentComponent) => {
     this.setDeleting(commentComponent);
-    this.#handleViewAction(
-      UserAction.DELETE_COMMENT,
-      UpdateType.PATCH,
-      {
-        comment,
-        film: this.#film,
-        scroll: this.#popupFilmDetailsComponent.scrollPosition,
-      }
-    );
+    if(this.#commentsModel.comments.some((item) => item.id === comment.id)) {
+      this.#handleViewAction(
+        UserAction.DELETE_COMMENT,
+        UpdateType.PATCH,
+        {
+          comment,
+          film: this.#film,
+          scroll: this.#popupFilmDetailsComponent.scrollPosition,
+        }
+      );
+    } else {
+      commentComponent.shake(commentComponent.updateElement({
+        isDeleting: false,
+      }));
+    }
   };
 
   #escKeyDownHandler = (evt) => {

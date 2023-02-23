@@ -1,27 +1,20 @@
 import dayjs from 'dayjs';
-import fromnow from 'fromnow';
+import RelativeTime from 'dayjs/plugin/relativeTime';
 import { FilterType, UserRatings } from './const.js';
-
-const FILM_DATE_FORMAT = 'YYYY';
 const RELEASE_DATE_FORMAT = 'D MMMM YYYY';
+dayjs.extend(RelativeTime);
 
-function getReleaseDate(date) {
-  return date ? dayjs(date).format(RELEASE_DATE_FORMAT) : '';
-}
+const getReleaseDate = (date) => date ? dayjs(date).format(RELEASE_DATE_FORMAT) : '';
 
-function getFilmYear(date) {
-  return date ? dayjs(date).format(FILM_DATE_FORMAT) : '';
-}
+const getFilmYear = (date) => date ? date.getFullYear() : '';
 
-function getCommentDate(date) {
-  return date ? fromnow(dayjs(date), { max:2, suffix:true, and:true }) : '';
-}
+const getCommentDate = (date) => date ? dayjs(date).fromNow() : '';
 
 const getDuration = (duration) => `${Math.round(duration / 60)}h ${duration % 60}m`;
 
 const getItemById = (items, itemId) => items.find((item) => item.id === itemId);
 
-function getWeightForNullDate(dateA, dateB) {
+const getWeightForNullDate = (dateA, dateB) => {
   if (dateA === null && dateB === null) {
     return 0;
   }
@@ -35,12 +28,12 @@ function getWeightForNullDate(dateA, dateB) {
   }
 
   return null;
-}
+};
 
-function sortByReleaseDate(filmA, filmB) {
+const sortByReleaseDate = (filmA, filmB) => {
   const weight = getWeightForNullDate(filmA.filmInfo.release.date, filmB.filmInfo.release.date);
   return weight ?? dayjs(filmA.filmInfo.release.date).diff(dayjs(filmB.filmInfo.release.date));
-}
+};
 
 const isCtrlEnterEvent = (evt) => evt.key === 'Enter' && (evt.ctrlKey || evt.metaKey);
 

@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { getCommentDate } from '../utils.js';
+import {getCommentDate} from '../utils.js';
 import he from 'he';
 
 function createPopupCommentTemplate(comment, state) {

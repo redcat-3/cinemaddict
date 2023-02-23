@@ -1,6 +1,6 @@
 import Observable from '../framework/observable.js';
 import {UpdateType} from '../const.js';
-import { adaptToClient, getItemById } from '../utils.js';
+import {adaptToClient, getItemById} from '../utils.js';
 
 export default class FilmsModel extends Observable {
   #filmsApiService = null;
